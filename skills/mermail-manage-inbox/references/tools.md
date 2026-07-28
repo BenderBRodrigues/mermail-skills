@@ -81,3 +81,5 @@ unsupported additive safety fields without changing the object shape.
 - `delete_folder`, `delete_custom_label`
 
 Require explicit user approval and a token from `prepare_destructive_action`. Bind the token to the exact tool name and arguments and use it only once within five minutes.
+
+**Draft delete:** Regular drafts are always hard-deleted and never land in Trash (same as UI Discard). There is no separate MCP `discard_draft` tool — call `delete_email` on the draft id. Scheduled drafts cancel in place unless permanent delete is forced.
