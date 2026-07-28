@@ -15,6 +15,15 @@ Always pass Sold API fields under the tool's `body` argument (path params like `
 
 `mailboxId` accepts `public_id` (UUID), hosted alias id, or current email — prefer `public_id` from `list_mailboxes`.
 
+## Recipients (`to` / `cc` / `bcc`)
+
+| Surface | Accepted shapes |
+| --- | --- |
+| `send_email` / `reply_to_email` / `forward_email` | One email string **or** a JSON array of emails |
+| `save_draft` / `schedule_email_send` | String fields (single address or comma-separated list) |
+
+MCP does **not** expose `replyAll` and does **not** derive Reply / Reply All recipients from thread headers. Pass explicit `to` / `cc` / `bcc` on every write. If To is missing on a new compose, ask the user before calling these tools.
+
 ### Send / reply / forward
 
 Content fields are **`html` and/or `text`** — not `body` or `content`. `from` is required.
@@ -25,6 +34,8 @@ Content fields are **`html` and/or `text`** — not `body` or `content`. `from` 
   "idempotencyKey": "send-2026-07-21-a1",
   "body": {
     "to": "customer@example.com",
+    "cc": ["manager@example.com", "ops@example.com"],
+    "bcc": ["audit@example.com"],
     "from": "you@mermail.app",
     "subject": "Hello",
     "text": "Plain text body"
@@ -43,6 +54,8 @@ Content field is the string **`body`** (HTML or text). Do not use `html`/`text` 
   "mailboxId": "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
   "body": {
     "to": "customer@example.com",
+    "cc": "manager@example.com, ops@example.com",
+    "bcc": "audit@example.com",
     "subject": "Hello",
     "body": "<p>Draft HTML</p>"
   }
