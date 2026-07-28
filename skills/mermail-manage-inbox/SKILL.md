@@ -22,7 +22,8 @@ Use Mermail MCP read tools to identify exact resources before changing the inbox
 3. Show the proposed folder, label, read-state, move, or deletion changes before a write when the user's request is not already explicit.
 4. For bulk operations, report the match count and target IDs before execution. Do not broaden the selection after approval.
 5. For destructive tools, obtain explicit approval, call `prepare_destructive_action` with the exact tool arguments, then call the tool once with its token.
-6. Report partial failures without retrying destructive operations automatically.
+6. Deleting a **regular draft** with `delete_email` / `bulk_delete_emails` hard-deletes it (DB + blob storage) and never moves it to Trash — same as in-app Discard. Do not tell the user the draft was trashed. Scheduled drafts cancel in place unless `permanent` is forced; for non-draft mail, trash is the default unless `permanent=true`.
+7. Report partial failures without retrying destructive operations automatically.
 
 Use an idempotency key for writes when supported. Stop on `401`, `402`, `403`, or `429`; explain the actionable cause without exposing credentials or private message content unnecessarily.
 
