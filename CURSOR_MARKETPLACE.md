@@ -58,7 +58,7 @@ node skills/mermail-mcp/scripts/check-connection.mjs
 | Plugin name | `mermail` |
 | Display name | Mermail |
 | Short pitch | Give Cursor agents a real Mermail inbox over Streamable HTTP MCP — read, draft, send, triage. |
-| Longer description | Mermail packages Agent Skills plus a remote MCP server (`https://console.mermail.app/mcp`, Official Registry id `app.mermail/mcp`). Users create a workspace API key (`sk-proj-…`), set `MERMAIL_API_KEY`, and install this plugin. Includes 9 skills covering agent inbox provisioning and verification mail, inbox management, compose/send, workspace admin, task triage, and mailbox-agent chat. Destructive tools require MCP confirmation tokens. |
+| Longer description | Mermail packages Agent Skills plus a remote MCP server (`https://console.mermail.app/mcp`, Official Registry id `app.mermail/mcp`). Users create a workspace API key (`sk-proj-…`), set `MERMAIL_API_KEY`, and install this plugin. Includes 10 skills covering agent inbox provisioning and verification mail, inbox management, compose/send, workspace admin, task triage, mailbox-agent chat, and Composio third-party connect/execute. Destructive tools require MCP confirmation tokens. |
 | Categories / tags | productivity, email, mcp, ai-agent, automation |
 | Homepage | https://docs.mermail.app/ai/skills |
 | Support email | contact@mermail.app |
