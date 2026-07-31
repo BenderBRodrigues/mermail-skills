@@ -240,7 +240,7 @@ for (const required of ["Routing precedence", "active external workflow", "Do no
 
 const allTools = Object.values(coverage.domains).flat();
 const duplicates = allTools.filter((tool, index) => allTools.indexOf(tool) !== index);
-if (allTools.length !== 62) errors.push(`expected 62 business tools, found ${allTools.length}`);
+if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 for (const tool of [...coverage.destructiveTools, ...coverage.externalEffectTools]) {
   if (!allTools.includes(tool)) errors.push(`risk-classified tool is not covered: ${tool}`);
@@ -311,8 +311,8 @@ async function validateRemote() {
   if (!initialized?.result?.serverInfo) errors.push("authenticated MCP initialize did not return serverInfo");
   const listed = await authenticatedMcpRequest(apiKey, { jsonrpc: "2.0", id: 2, method: "tools/list", params: {} });
   const remoteNames = (listed?.result?.tools ?? []).map((tool) => tool.name);
-  if (remoteNames.length !== 63) {
-    errors.push(`authenticated tools/list returned ${remoteNames.length} tools, expected 63`);
+  if (remoteNames.length !== 72) {
+    errors.push(`authenticated tools/list returned ${remoteNames.length} tools, expected 72`);
   }
   if (!remoteNames.includes(coverage.confirmationTool)) {
     errors.push(`authenticated tools/list missing ${coverage.confirmationTool}`);

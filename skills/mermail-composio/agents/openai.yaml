@@ -1,0 +1,11 @@
+interface:
+  display_name: "Connect Mermail Composio"
+  short_description: "Connect and run third-party Composio tools via Mermail"
+  default_prompt: "Use $mermail-composio to connect the needed third-party app through Mermail and complete this task."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mermail"
+      description: "Mermail workspace and mailbox MCP server"
+      transport: "streamable_http"
+      url: "https://console.mermail.app/mcp"

@@ -23,7 +23,7 @@ Configure the hosted Streamable HTTP server without storing credentials in proje
 4. Configure `https://console.mermail.app/mcp` and map the environment variable to the `x-api-key` header using the platform-specific syntax (skip if using OAuth).
 5. Restart or reload the client so its desktop process receives the environment variable.
 6. Run `node scripts/check-connection.mjs` from this skill directory, or inspect the server with the client's MCP status command.
-7. Confirm that initialization succeeds. The default full catalog must contain the current 63-tool baseline and may add tools in future releases; the opt-in `agent-inbox` profile must contain its exact 11-tool least-privilege set.
+7. Confirm that initialization succeeds. The default full catalog must contain the current 72-tool baseline and may add tools in future releases; the opt-in `agent-inbox` profile must contain its exact 11-tool least-privilege set.
 
 For mailbox-scoped tools, pass `mailboxId` as `public_id` (UUID) from `list_mailboxes` when possible; hosted alias id and current email also work.
 
