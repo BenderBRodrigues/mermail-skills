@@ -27,6 +27,7 @@ display_name() {
     mermail-administer-workspace) echo "Mermail Administer Workspace" ;;
     mermail-automate-triage) echo "Mermail Automate Triage" ;;
     mermail-mail-agent) echo "Mermail Mail Agent" ;;
+    mermail-composio) echo "Mermail Composio" ;;
     *)
       echo "$slug" | awk -F- '{
         for (i = 1; i <= NF; i++) {
