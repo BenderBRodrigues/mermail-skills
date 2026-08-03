@@ -28,6 +28,7 @@ display_name() {
     mermail-automate-triage) echo "Mermail Automate Triage" ;;
     mermail-mail-agent) echo "Mermail Mail Agent" ;;
     mermail-composio) echo "Mermail Composio" ;;
+    mermail-agent-wallet) echo "Mermail Agent Wallet" ;;
     *)
       echo "$slug" | awk -F- '{
         for (i = 1; i <= NF; i++) {

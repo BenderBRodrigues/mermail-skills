@@ -1,6 +1,6 @@
 ---
 name: mermail
-description: Route broad, ambiguous, or cross-domain Mermail requests to the correct focused workflow. Use when a user asks generally to manage Mermail, combines inbox, sending, workspace, triage, or mailbox-agent tasks, or does not name a specific Mermail capability.
+description: Route broad, ambiguous, or cross-domain Mermail requests to the correct focused workflow. Use when a user asks generally to manage Mermail, combines inbox, sending, workspace, triage, mailbox-agent, Agent Wallet, or Composio tasks, or does not name a specific Mermail capability.
 metadata:
   openclaw:
     requires:

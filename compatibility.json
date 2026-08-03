@@ -1,6 +1,6 @@
 {
-  "verifiedAt": "2026-07-31",
-  "pluginVersion": "1.4.0",
+  "verifiedAt": "2026-08-03",
+  "pluginVersion": "1.5.0",
   "hostedMcp": {
     "url": "https://console.mermail.app/mcp",
     "transport": "streamable-http",
@@ -12,8 +12,9 @@
     "cursor": "headers with ${env:MERMAIL_API_KEY}"
   },
   "catalog": {
-    "skills": 10,
+    "skills": 11,
     "businessTools": 71,
-    "confirmationTools": 1
+    "confirmationTools": 1,
+    "oauthOnlyTools": 7
   }
 }

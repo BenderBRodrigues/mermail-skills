@@ -23,8 +23,22 @@
       "list_composio_toolkits", "connect_composio_toolkit", "disconnect_composio_toolkit", "list_composio_connections", "sync_composio_connections", "search_composio_tools", "get_composio_tool_schema", "execute_composio_tool", "get_composio_calendar_account"
     ]
   },
+  "oauthOnlyDomains": {
+    "mermail-agent-wallet": [
+      "get_agent_wallet",
+      "list_agent_wallet_credentials",
+      "get_agent_wallet_portfolio",
+      "get_agent_wallet_request",
+      "create_agent_wallet_transfer_proposal",
+      "submit_agent_wallet_transfer",
+      "get_paybox_invocation"
+    ]
+  },
   "destructiveTools": [
     "delete_workspace", "remove_workspace_member", "delete_email_domain", "delete_email", "bulk_delete_emails", "empty_trash", "delete_folder", "delete_custom_label", "delete_agent_conversation", "delete_task_triager", "disconnect_composio_toolkit"
+  ],
+  "oauthOnlyDestructiveTools": [
+    "submit_agent_wallet_transfer"
   ],
   "externalEffectTools": [
     "invite_workspace_member", "resend_workspace_invite", "send_email", "reply_to_email", "forward_email", "schedule_email_send", "chat_with_mailbox_agent", "execute_composio_tool", "connect_composio_toolkit"
