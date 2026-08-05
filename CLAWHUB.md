@@ -63,6 +63,8 @@ openclaw mcp doctor mermail --probe
 
 After creating a ClawHub token and storing it as `CLAWHUB_TOKEN` in GitHub Actions secrets, the workflow `.github/workflows/clawhub-skill-publish.yml` publishes on `main` / tags using OpenClaw’s reusable `skill-publish.yml`.
 
+The caller must grant `contents: read` and `id-token: write` (job + workflow). The reusable workflow uses GitHub OIDC; without `id-token: write` the run fails immediately with `startup_failure` and no job logs.
+
 ## License note
 
 ClawHub licenses published skills as **MIT-0** (registry policy). This repository’s `LICENSE` remains MIT. Do not add conflicting per-skill license text.

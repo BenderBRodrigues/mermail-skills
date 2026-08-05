@@ -10,11 +10,18 @@ on:
       - ".github/workflows/clawhub-skill-publish.yml"
   workflow_dispatch:
 
+# Caller must grant at least what the reusable workflow jobs request.
+# openclaw/clawhub skill-publish.yml needs contents:read + id-token:write (OIDC).
+# Missing id-token causes silent startup_failure before any job runs.
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish:
+    permissions:
+      contents: read
+      id-token: write
     uses: openclaw/clawhub/.github/workflows/skill-publish.yml@main
     with:
       owner: mermail
