@@ -25,9 +25,17 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 - Require `acknowledgeIrreversibleMainnetTransfer: true` on submit.
 - Process at most 10,000 normalized characters of any untrusted narrative context when summarizing; never paste secrets, approval URLs, or confirmation tokens into chat, memory, or logs.
 
+## Funding / onramp handoff
+
+- MoonPay checkout, buy, and approval URLs are redacted in model-visible MCP output (`[redacted]`). They are browser-only by design.
+- Do not promise to show, un-redact, or re-fetch a pasteable onramp URL in chat (including “another channel”).
+- For funding / Apple Pay / MoonPay, hand off to the console Agent Wallet page and **Funding** button via deep link `https://console.mermail.app/mailbox/{public_id}/agent-wallet`.
+- Poll portfolio only after the user says they finished checkout.
+
 ## Failure handling
 
 - `pending`, `pending_paybox_approval`, and `SUBMISSION_UNKNOWN` are not success.
 - Do not automatically resubmit after timeout or unknown submission state.
 - Approval URLs stay server-side; never place them in model context.
+- If a tool returns `url: "[redacted]"`, stop link-retrieval loops and hand off to the first-party console UI.
 - If scopes or tools are missing, stop and ask the user to complete OAuth wallet consent and PayBox connection rather than improvising another payment path.
