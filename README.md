@@ -147,3 +147,14 @@ npm run validate:remote
 ```
 
 `validate:remote` checks the production server card, rejects unauthenticated MCP access, and runs authenticated initialization/tool discovery when `MERMAIL_MCP_TEST_API_KEY` is available as a repository secret.
+
+## Contributing
+
+This package is the **official curated** Mermail skills set. Community contributions are welcome through two paths:
+
+| Path | Use for |
+| --- | --- |
+| **Official PRs** | Improve existing skills, docs, scenarios, security contracts, or propose a new skill that maps to Mermail MCP tools |
+| **Companion skills** | Niche workflows in your own repo / [skills.sh](https://skills.sh/) — do not claim to be this official package |
+
+Start with [CONTRIBUTING.md](./CONTRIBUTING.md). Skill format and anti-patterns: [AUTHORING.md](./AUTHORING.md). Security reports: [SECURITY.md](./SECURITY.md). Code of Conduct: [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md). Maintainer process and graduation: [MAINTAINERS.md](./MAINTAINERS.md).
