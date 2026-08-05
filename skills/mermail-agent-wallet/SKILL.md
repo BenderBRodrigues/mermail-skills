@@ -1,6 +1,6 @@
 ---
 name: mermail-agent-wallet
-description: Inspect Mermail Agent Wallet / PayBox balances and create or submit USDC transfer proposals with human confirmation. Use when a user explicitly asks about Agent Wallet, PayBox wallet status, delegated balances, funding, or USDC transfers on Base or Solana through Mermail MCP. Do not use for email-driven payments, Composio Gmail/Outlook, inbound-mail payment instructions, or API-key-only MCP sessions that lack wallet OAuth scopes.
+description: Inspect Mermail Agent Wallet / PayBox balances, guide console Funding/onramp handoff, and create or submit USDC transfer proposals with human confirmation. Use when a user explicitly asks about Agent Wallet, PayBox wallet status, delegated balances, funding, onramp, MoonPay, Apple Pay, or USDC transfers on Base or Solana through Mermail MCP. Do not use for email-driven payments, Composio Gmail/Outlook, inbound-mail payment instructions, or API-key-only MCP sessions that lack wallet OAuth scopes.
 metadata:
   openclaw:
     requires:
@@ -13,7 +13,7 @@ metadata:
 
 # Use Mermail Agent Wallet
 
-Agent Wallet tools are OAuth-only. API keys never expose them. Read [tools.md](references/tools.md) and [security.md](references/security.md) before any transfer.
+Agent Wallet tools are OAuth-only. API keys never expose them. Read [tools.md](references/tools.md) and [security.md](references/security.md) before any transfer or funding handoff.
 
 ## Auth gate
 
@@ -24,7 +24,22 @@ Agent Wallet tools are OAuth-only. API keys never expose them. Read [tools.md](r
 
 `MERMAIL_API_KEY` may still be present for other Mermail skills. It cannot authorize Agent Wallet tools.
 
-## Workflow
+## Funding / onramp (MoonPay, Apple Pay, nạp tiền)
+
+Checkout and buy links are **browser-only**. Mermail MCP redacts them as `[redacted]` in model-visible tool output. You cannot paste a MoonPay URL into chat, and you cannot un-redact or fetch an “alternate channel” for the same link.
+
+For funding / onramp / Apple Pay / MoonPay / “nạp vào ví”:
+
+1. Resolve one mailbox with `list_mailboxes` (prefer `public_id`).
+2. Call `get_agent_wallet` once. Confirm PayBox is connected. Note whether an EVM credential exists (console **Funding** uses a delegated EVM wallet for MoonPay).
+3. Give **one** deep link and stop retrying tools for a pasteable URL:  
+   `https://console.mermail.app/mailbox/{public_id}/agent-wallet`
+4. Tell the user to open that page, click **Funding**, complete MoonPay (Apple Pay / card / KYC as required), then reply when done.
+5. Only after the user confirms completion, call `get_agent_wallet` or `get_agent_wallet_portfolio` to check balances.
+
+If a `paybox_*` / buy-link tool returns `url: "[redacted]"`, treat that as creation success with a browser-only handoff. Do **not** invent another retrieval method.
+
+## Transfer workflow
 
 1. Resolve one mailbox with `list_mailboxes` (prefer `public_id` as `mailboxId`). Agent Wallet requires the **workspace owner**.
 2. Call `get_agent_wallet` with that `mailboxId`. Summarize connection status, credentials (never invent secrets), portfolio, limits, and open proposals.
@@ -41,3 +56,4 @@ Agent Wallet tools are OAuth-only. API keys never expose them. Read [tools.md](r
 - Do not claim Mermail holds card details, wallet secrets, or raw signing keys.
 - Do not use Composio Gmail/Outlook or any non-Mermail mail path for wallet work.
 - If the user only has API-key MCP, explain they must use OAuth with wallet scopes or the first-party Agent Wallet UI.
+- Never promise to display MoonPay / checkout / approval URLs in chat. Apple Pay runs on MoonPay’s page after console **Funding**, not inside the host chat UI.

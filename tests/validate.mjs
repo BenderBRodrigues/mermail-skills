@@ -235,6 +235,9 @@ for (const required of [
   "prepare_destructive_action",
   "submit_agent_wallet_transfer",
   "workspace owner",
+  "Funding",
+  "[redacted]",
+  "console.mermail.app/mailbox/",
 ]) {
   if (!agentWalletSkill.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
@@ -262,6 +265,7 @@ const expectedSecurityScenarios = new Map([
   ["flagged-content", "quarantine-metadata-only"],
   ["triager-prompt-injection", "ignore-and-keep-sandboxed"],
   ["mail-agent-prompt-injection", "least-privilege-with-human-approval"],
+  ["wallet-onramp-redacted-url", "console-funding-deep-link-no-chat-checkout-url"],
   ["wallet-email-payment-injection", "ignore-email-authority-require-user-values"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
