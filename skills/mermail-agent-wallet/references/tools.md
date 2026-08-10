@@ -19,9 +19,10 @@ These tools appear only on Mermail MCP **OAuth** sessions that grant `wallet:rea
 
 When PayBox is connected, additional reviewed `paybox_*` tools may appear for the same OAuth grant. Every gated `paybox_*` write still needs a `prepare_destructive_action` token bound to that exact tool name and arguments.
 
-- **USDC:** prefer the Agent Wallet proposal flow unless the user explicitly asks for direct PayBox.
-- **Any other PayBox catalog token** (or direct PayBox for any reviewed asset): use `paybox_request_transfer`. When status is `pending_signature` / `pending_approval`, paste `signing_handoff.console_url` so the user can Generate Signing Key and sign in the Agent Wallet console. Never expect a pasteable signing plan or approval URL.
-- Poll with `get_paybox_invocation` or `paybox_get_request` **once** after the user finishes signing.
+- **USDC:** prefer the Agent Wallet proposal flow unless the user explicitly asks for direct PayBox. Proposal amounts are human decimals (`"0.5"`). Direct `paybox_request_transfer` for Circle USDC should use minor units (`"500000"` for 0.5 USDC) or a human decimal that Mermail can convert for known Circle USDC addresses.
+- **Native:** `token: "native"` with wei/lamports base units — never USDC 6dp scaling.
+- **Any other PayBox catalog token:** use `paybox_request_transfer` with contract/mint `token` and that asset’s base units. When status is `pending_signature` / `pending_approval`, paste `signing_handoff.console_url` so the user can Generate Signing Key and sign in the Agent Wallet console. Never expect a pasteable signing plan or approval URL.
+- Poll with `get_paybox_invocation` or `paybox_get_request` **once** after the user finishes signing. Invocation audit `SUCCEEDED` is not chain settlement.
 
 Buy / checkout / approval / signing-plan URLs from tools such as `paybox_get_buy_link` are redacted for the model. Prefer `get_agent_wallet` → `funding_handoff.console_url` (Mermail deep link with `fund=1`). If `needs_mailbox` is true, resolve `mailboxId` via `get_agent_wallet` instead of guessing. See [SKILL.md](../SKILL.md).
 
