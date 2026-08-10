@@ -28,8 +28,9 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 ## Funding / onramp handoff
 
 - MoonPay checkout, buy, and approval URLs are redacted in model-visible MCP output (`[redacted]`). They are browser-only by design.
-- Do not promise to show, un-redact, or re-fetch a pasteable onramp URL in chat (including “another channel”).
-- For funding / Apple Pay / MoonPay, hand off to the console Agent Wallet page and **Funding** button via deep link `https://console.mermail.app/mailbox/{public_id}/agent-wallet`.
+- Prefer `get_agent_wallet` → `funding_handoff.console_url`. Do not call `paybox_get_buy_link` merely to obtain a checkout URL.
+- If `funding_handoff.needs_mailbox` is true or `console_url` is null, call `get_agent_wallet` with an explicit `mailboxId` — never guess a mailbox.
+- Fallback deep link: `https://console.mermail.app/mailbox/{public_id}/agent-wallet?fund=1&amount={n}` (auto-opens Funding).
 - Poll portfolio only after the user says they finished checkout.
 
 ## Failure handling

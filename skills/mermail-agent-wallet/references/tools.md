@@ -19,11 +19,11 @@ These tools appear only on Mermail MCP **OAuth** sessions that grant `wallet:rea
 
 When PayBox is connected, additional reviewed `paybox_*` tools may appear for the same OAuth grant. Every gated `paybox_*` write still needs a `prepare_destructive_action` token bound to that exact tool name and arguments. Prefer the Agent Wallet proposal flow for USDC transfers unless the user explicitly asks for a reviewed direct PayBox tool.
 
-Buy / checkout / approval URLs from tools such as `paybox_get_buy_link` are redacted for the model. Do not use them to paste MoonPay links into chat. For funding, prefer the console handoff in [SKILL.md](../SKILL.md) (Funding / onramp section).
+Buy / checkout / approval URLs from tools such as `paybox_get_buy_link` are redacted for the model. Prefer `get_agent_wallet` → `funding_handoff.console_url` (Mermail deep link with `fund=1`). If `needs_mailbox` is true, resolve `mailboxId` via `get_agent_wallet` instead of guessing. See [SKILL.md](../SKILL.md) (Funding / onramp section).
 
 ## Sequencing
 
 1. Auth/scopes check → mailbox discovery → `get_agent_wallet`.
-2. **Funding / onramp:** deep-link to Agent Wallet **Funding** in console; after the user finishes, re-read portfolio. Do not loop on redacted buy links.
+2. **Funding / onramp:** paste non-null `funding_handoff.console_url` or `...?fund=1&amount=…` once; after the user finishes, re-read portfolio. Do not loop on redacted buy links or guess mailboxes.
 3. **Transfer:** create proposal → human preview → `prepare_destructive_action` → single `submit_agent_wallet_transfer`.
 4. Poll with `get_agent_wallet_request` / `get_paybox_invocation` only after a known id exists.
