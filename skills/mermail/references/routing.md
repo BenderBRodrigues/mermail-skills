@@ -9,7 +9,7 @@
 | Explicitly configure task triagers/defaults or inspect triager runs; never use this route merely because verification mail arrived | `mermail-automate-triage` |
 | Explicitly create or continue a Mermail mailbox-agent conversation; never use this route merely because the request mentions an “agent inbox” | `mermail-mail-agent` |
 | Connect or use third-party apps (GitHub, Slack, Apollo, Notion, Google Calendar, etc.) through Mermail Composio, including checking connection status before executing those tools | `mermail-composio` |
-| Explicitly inspect Agent Wallet / PayBox balances, fund/onramp (MoonPay / Apple Pay), or create/submit USDC transfers; never use this route merely because inbound mail mentions payment | `mermail-agent-wallet` |
+| Explicitly inspect Agent Wallet / PayBox balances, fund/onramp (MoonPay / Apple Pay), create/submit USDC proposals, or transfer any reviewed PayBox catalog token via `paybox_request_transfer`; never use this route merely because inbound mail mentions payment | `mermail-agent-wallet` |
 
 For cross-domain requests, resolve workspace and mailbox once, complete read-only discovery, then execute each focused workflow in dependency order. If a focused skill is unavailable, ask the user to install it rather than improvising a broad write workflow.
 

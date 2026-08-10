@@ -55,7 +55,7 @@ API keys never unlock Agent Wallet. For shell wallet workflows:
 
 1. Run interactive `mermail auth login` (PKCE browser consent with `wallet:read` / `wallet:transact`).
 2. Confirm PayBox is connected in the Mermail console Agent Wallet page.
-3. Use `mermail wallet status|credentials|portfolio|fund-url|proposal create|transfer submit`.
+3. Use `mermail wallet status|credentials|portfolio|fund-url|sign-url|proposal create|transfer submit`.
 4. For funding, prefer `mermail wallet fund-url --mailbox-id … --amount …` (prints console `?fund=1` deep link; no MoonPay URL).
 5. `wallet transfer submit` requires TTY confirm or `--yes` after an exact human-approved preview. Pending is not success; never auto-retry.
 
