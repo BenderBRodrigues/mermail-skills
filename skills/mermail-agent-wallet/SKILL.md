@@ -31,7 +31,7 @@ Checkout and buy links are **browser-only**. Mermail MCP redacts them as `[redac
 For funding / onramp / Apple Pay / MoonPay / “nạp vào ví”:
 
 1. Resolve one mailbox with `list_mailboxes` (prefer `public_id`).
-2. Call `get_agent_wallet` once (prefer this over `paybox_get_buy_link`). Confirm PayBox is connected.
+2. Call `get_agent_wallet` once (prefer this over `paybox_get_buy_link`). Confirm PayBox is connected; a `connection.status` of `PAYBOX_UNAVAILABLE` means that read failed, not that the connection ended, so read again instead of sending the user to reconnect.
 3. Paste **one** Mermail console link from `funding_handoff.console_url` when it is a non-null string. Otherwise build:  
    `https://console.mermail.app/mailbox/{public_id}/agent-wallet?fund=1&amount={n}`  
    Use the user’s requested USD amount for `{n}` when known (default `1`).
@@ -46,7 +46,7 @@ Do **not** call `paybox_get_buy_link` just to get a MoonPay URL. If that tool re
 ## Transfer workflow
 
 1. Resolve one mailbox with `list_mailboxes` (prefer `public_id` as `mailboxId`). Agent Wallet requires the **workspace owner**.
-2. Call `get_agent_wallet` with that `mailboxId`. Summarize connection status, credentials (never invent secrets), portfolio, limits, and open proposals.
+2. Call `get_agent_wallet` with that `mailboxId`. Summarize connection status, credentials (never invent secrets), portfolio, limits, and open proposals. When `connection.status` is `PAYBOX_UNAVAILABLE`, say the balances are temporarily unavailable rather than zero, note that the delegated connection is still active, and read again later.
 3. For credential-only or portfolio-only reads, use `list_agent_wallet_credentials` or `get_agent_wallet_portfolio`. Poll known requests with `get_agent_wallet_request`, `get_paybox_invocation`, or `paybox_get_request` — never create or retry a transfer while polling.
 
 ### USDC (proposal path — preferred)
@@ -61,7 +61,7 @@ Do **not** call `paybox_get_buy_link` just to get a MoonPay URL. If that tool re
 When the asset is **not** Circle USDC on Base/Solana via the proposal tools, or the user explicitly wants a direct PayBox transfer for any reviewed catalog token (including native ETH/SOL):
 
 4. Confirm asset, chain, amount, destination, and credential from the user and from `list_agent_wallet_credentials` / portfolio. Exact preview before writing.
-5. Call `prepare_destructive_action` for `paybox_request_transfer` with the exact final arguments, then call `paybox_request_transfer` once with that token. Always pass `token` (the asset address from `paybox_get_portfolio`, or `"native"` for ETH/SOL) and put the human amount in `amount_decimal` (for example `"1"` for 1 USDC). Mermail looks up the asset's decimals and converts to the smallest unit, so never convert decimals yourself and never send `amount` — for any token Mermail can resolve it rejects base units with `paybox_amount_requires_decimal` and asks for `amount_decimal`. A mis-scaled or sub-cent amount is rejected instead of sending dust.
+5. Call `prepare_destructive_action` for `paybox_request_transfer` with the exact final arguments, then call `paybox_request_transfer` once with that token. Always pass `token` (the asset address as it appears in `paybox_get_portfolio` / `get_agent_wallet_portfolio`, which returns it in the clear, or `"native"` for ETH/SOL) and put the human amount in `amount_decimal` (for example `"1"` for 1 USDC). Mermail looks up the asset's decimals and converts to the smallest unit, so never convert decimals yourself and never send `amount` — for any token Mermail can resolve it rejects base units with `paybox_amount_requires_decimal` and asks for `amount_decimal`. The one exception: if Mermail answers that it cannot resolve this asset's decimals, that call needs `amount` in the asset's smallest unit instead. A mis-scaled or sub-cent amount is rejected instead of sending dust; see [security.md](references/security.md) for each rejection code.
 6. If status is `pending_signature` or `pending_approval`, paste **one** `signing_handoff.console_url` (never invent MoonPay/approval/signing-plan URLs). Tell the user to open it (`sign=1` deep link), Generate Signing Key if prompted, and sign in the Agent Wallet console.
 7. After the user says they finished, poll `get_paybox_invocation` or `paybox_get_request` **once**. Do not auto-poll. Pending is not success; never retry an uncertain write.
 

@@ -50,6 +50,16 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 
 - `pending`, `pending_signature`, `pending_approval`, `pending_paybox_approval`, and `SUBMISSION_UNKNOWN` are not success.
 - Do not automatically resubmit after timeout or unknown submission state.
+- Argument rejections are safe to fix and call again in the same turn; nothing reached PayBox:
+  - `paybox_amount_requires_decimal`: resend with the human amount in `amount_decimal` and no `amount`.
+  - `paybox_amount_scale_mismatch`: `amount` and `amount_decimal` disagree; resend with `amount_decimal` alone.
+  - `paybox_amount_below_dust_floor`: Mermail has a trusted quote and the transfer implies under about $0.01; ask the user for an amount worth at least $0.01, then retry with that `amount_decimal`. Do not convert the amount to base units.
+  - `paybox_amount_value_mismatch`: the implied USD value conflicts with `value_cents`; restate the amount or correct `value_cents`.
+  - Only when Mermail says it cannot resolve the asset's decimals, send `amount` in the asset's smallest unit for that call.
+- `agent_approval_asset_missing` (409): the approval card predates the transfer-asset fix. Start a new transfer with a fresh `prepare_destructive_action`; do not answer the old card again.
+- `agent_approval_persist_timeout` (503): the approval was not recorded. Do not submit again; check request status or start a new transfer later.
+- `paybox_tool_error` (502) carries a sanitized upstream reason such as a nonce that is too low or a stale signing plan. Start a **new** `paybox_request_transfer`; never reuse the parked request or invocation id and never keep polling it.
+- `PAYBOX_UNAVAILABLE` in `connection.status` means that read failed, not that the connection ended. Read again later instead of asking the user to reconnect. `NOT_CONNECTED` and `REAUTH_REQUIRED` are the states that do need the user.
 - Approval and signing-plan URLs stay server-side / console-only; never place them in model context.
 - If a tool returns `url: "[redacted]"`, stop link-retrieval loops and hand off to the first-party console UI.
 - If scopes or tools are missing, stop and ask the user to complete OAuth wallet consent and PayBox connection rather than improvising another payment path.
