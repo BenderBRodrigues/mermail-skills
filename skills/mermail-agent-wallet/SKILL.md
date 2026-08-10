@@ -31,13 +31,17 @@ Checkout and buy links are **browser-only**. Mermail MCP redacts them as `[redac
 For funding / onramp / Apple Pay / MoonPay / “nạp vào ví”:
 
 1. Resolve one mailbox with `list_mailboxes` (prefer `public_id`).
-2. Call `get_agent_wallet` once. Confirm PayBox is connected. Note whether an EVM credential exists (console **Funding** uses a delegated EVM wallet for MoonPay).
-3. Give **one** deep link and stop retrying tools for a pasteable URL:  
-   `https://console.mermail.app/mailbox/{public_id}/agent-wallet`
-4. Tell the user to open that page, click **Funding**, complete MoonPay (Apple Pay / card / KYC as required), then reply when done.
+2. Call `get_agent_wallet` once (prefer this over `paybox_get_buy_link`). Confirm PayBox is connected.
+3. Paste **one** Mermail console link from `funding_handoff.console_url` when it is a non-null string. Otherwise build:  
+   `https://console.mermail.app/mailbox/{public_id}/agent-wallet?fund=1&amount={n}`  
+   Use the user’s requested USD amount for `{n}` when known (default `1`).
+4. Tell the user to open that link, complete MoonPay (Apple Pay / card / KYC as required), then reply when done. With `fund=1`, the console auto-opens Funding — do not ask for a manual Funding click.
 5. Only after the user confirms completion, call `get_agent_wallet` or `get_agent_wallet_portfolio` to check balances.
 
-If a `paybox_*` / buy-link tool returns `url: "[redacted]"`, treat that as creation success with a browser-only handoff. Do **not** invent another retrieval method.
+Do **not** call `paybox_get_buy_link` just to get a MoonPay URL. If that tool returns `url: "[redacted]"`:
+- use `funding_handoff.console_url` when it is a non-null string
+- if `funding_handoff.needs_mailbox` is true, call `get_agent_wallet` with `mailboxId` instead
+- never invent another retrieval method or retry for an un-redacted checkout URL
 
 ## Transfer workflow
 

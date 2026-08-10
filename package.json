@@ -1,6 +1,6 @@
 {
   "name": "mermail-skills",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "private": true,
   "scripts": {
     "test": "node tests/validate.mjs",
