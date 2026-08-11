@@ -234,6 +234,7 @@ for (const required of [
   "API keys never",
   "prepare_destructive_action",
   "submit_agent_wallet_transfer",
+  "reject_agent_wallet_transfer_proposal",
   "paybox_request_transfer",
   "signing_handoff",
   "workspace owner",
@@ -254,6 +255,7 @@ for (const required of [
   "get_agent_wallet",
   "create_agent_wallet_transfer_proposal",
   "submit_agent_wallet_transfer",
+  "reject_agent_wallet_transfer_proposal",
   "get_paybox_invocation",
   "paybox_request_transfer",
   "signing_handoff",
@@ -302,8 +304,8 @@ const oauthOnlyTools = Object.values(oauthOnlyDomains).flat();
 const knownTools = [...allTools, ...oauthOnlyTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (oauthOnlyTools.length !== 8) {
-  errors.push(`expected 8 oauth-only Agent Wallet tools, found ${oauthOnlyTools.length}`);
+if (oauthOnlyTools.length !== 9) {
+  errors.push(`expected 9 oauth-only Agent Wallet tools, found ${oauthOnlyTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [

@@ -53,15 +53,16 @@ Do **not** call `paybox_get_buy_link` just to get a MoonPay URL. If that tool re
 
 - Circle USDC on Base/Solana: use the proposal path below (`create_agent_wallet_transfer_proposal`).
 - Native ETH, native SOL, or any other reviewed catalog token: **do not refuse** and **do not convert to USDC**. Skip the proposal tools. Use `paybox_request_transfer` with `token: "native"` (or the portfolio address) and `amount_decimal`.
-- If `paybox_request_transfer` is missing from `tools/list`, stop and ask the user to connect PayBox / grant `wallet:transact`. Do not substitute a USDC proposal.
+- If `paybox_request_transfer` is missing from `tools/list` while other `paybox_*` tools are present, the catalog transfer tool is temporarily unavailable (quarantine/schema drift). Say that. Do **not** say ETH/SOL must be done outside Mermail, and do not substitute a USDC proposal. If no `paybox_*` tools appear at all, ask the user to connect PayBox / grant `wallet:transact`.
 - If the user states a **USD notional** (“0.1 USD of ETH”, “$0.1 SOL”), `amount_decimal` is the **token** amount, not the USD figure. Read a trusted unit price from `get_agent_wallet_portfolio` / `paybox_get_portfolio`, compute `amount_decimal = usd / unit_price`, preview (“~$0.10 ≈ 0.000053 ETH”), then write. Never send `"0.1"` as if it were 0.1 ETH. If no trusted price is available, ask for the ETH/SOL amount instead of guessing.
 
 ### USDC (proposal path — preferred)
 
-4. Collect chain (`BASE` or `SOLANA`), USDC amount, and destination from the user. Confirm the exact preview before writing.
+4. Collect chain (`BASE` or `SOLANA`), USDC amount, and destination from the user. Confirm the exact preview before writing. One transfer = one proposal: if `get_agent_wallet` already shows a matching `PENDING_REVIEW` row, reuse it (create also returns that same proposal).
 5. Call `create_agent_wallet_transfer_proposal` (does not submit or sign). Show proposal id, version, amount, chain, destination, and status.
 6. On explicit user approval to submit: call `prepare_destructive_action` for `submit_agent_wallet_transfer` with the exact final arguments, then call `submit_agent_wallet_transfer` once with that token, matching destination confirmation, and `acknowledgeIrreversibleMainnetTransfer: true`.
-7. Treat `pending`, `pending_paybox_approval`, and `SUBMISSION_UNKNOWN` as not success. Never retry an uncertain submit. Ask the user to finish any PayBox passkey approval in the console when required.
+7. Treat `pending`, `pending_paybox_approval`, `SUBMISSION_UNKNOWN`, `wallet_proposal_already_handled`, and `wallet_proposal_not_pending` as not success. Never retry submit. On those codes, call `get_agent_wallet` and stop; create a new proposal only if status is `FAILED`. Pending means the user signs in the console, not that you should create another proposal.
+8. To cancel: after an explicit user request, call `prepare_destructive_action` then `reject_agent_wallet_transfer_proposal` once per `PENDING_REVIEW` proposal (`proposalId` + `version`). Do not reject `SUBMITTING`, `SUCCEEDED`, `FAILED`, `SUBMISSION_UNKNOWN`, or a transfer already parked at PayBox. “Cancel all” means reject each pending row one at a time.
 
 ### Any other PayBox catalog token (or direct PayBox USDC)
 
