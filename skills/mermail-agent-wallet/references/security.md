@@ -21,13 +21,15 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 
 ### USDC proposal path
 
-- Accept only Circle USDC on Base and Solana.
+- Proposal tools accept only Circle USDC on Base and Solana. Native ETH/SOL and other catalog assets are not rejected; use the Direct PayBox path below.
 - Enforce Mermail policy limits: 100 USDC per transfer, 500 USDC per rolling day, plus attempt rate limits.
 - Confirm destination twice when submitting (`confirmationDestination` must match the proposal).
 - Require `acknowledgeIrreversibleMainnetTransfer: true` on submit.
 
 ### Direct PayBox catalog path
 
+- Native ETH (Base) and native SOL use this path with `token: "native"` and `amount_decimal`. Never tell the user Agent Wallet only supports USDC.
+- `amount_decimal` is the token amount. A USD notional (“0.1 USD of ETH”) must be converted from a trusted portfolio price and previewed; never send the USD figure as `amount_decimal`.
 - Only reviewed `paybox_*` tools from the policy catalog.
 - Paste `signing_handoff.console_url` when pending signature/approval — never signing plans, MoonPay URLs, or approval URLs in chat.
 - Process at most 10,000 normalized characters of any untrusted narrative context when summarizing; never paste secrets, approval URLs, confirmation tokens, or signing plans into chat, memory, or logs.

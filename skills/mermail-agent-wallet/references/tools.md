@@ -14,8 +14,9 @@ These tools appear only on Mermail MCP **OAuth** sessions that grant `wallet:rea
 
 ## Write (`wallet:transact`)
 
-- `create_agent_wallet_transfer_proposal`: create a local USDC proposal for review (`mailboxId`, `chain`, `amount`, `destination`). Does not submit or sign.
+- `create_agent_wallet_transfer_proposal`: create a local USDC proposal for review (`mailboxId`, `chain`, `amount`, `destination`). USDC only; ETH/SOL → `paybox_request_transfer`. Does not submit or sign.
 - `submit_agent_wallet_transfer`: submit a reviewed proposal. Destructive; requires `prepare_destructive_action` with exact arguments, `confirmationDestination`, and `acknowledgeIrreversibleMainnetTransfer: true`. PayBox may still require passkey approval. Pending is not success.
+- `paybox_request_transfer`: native ETH/SOL and any other reviewed catalog token (or direct PayBox USDC). Destructive; requires `prepare_destructive_action`. Not a USDC-proposal tool.
 
 ## Related PayBox direct tools
 

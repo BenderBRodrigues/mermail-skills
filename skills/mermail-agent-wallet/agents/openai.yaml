@@ -1,6 +1,6 @@
 interface:
   display_name: "Mermail Agent Wallet"
-  short_description: "Inspect PayBox balances and submit approved USDC or catalog-token transfers"
+  short_description: "Inspect PayBox balances and submit approved USDC, native ETH/SOL, or catalog-token transfers"
   default_prompt: "Use $mermail-agent-wallet to inspect or transfer through Mermail Agent Wallet."
 dependencies:
   tools:
