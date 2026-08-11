@@ -234,11 +234,14 @@ for (const required of [
   "API keys never",
   "prepare_destructive_action",
   "submit_agent_wallet_transfer",
+  "paybox_request_transfer",
+  "signing_handoff",
   "workspace owner",
   "Funding",
   "[redacted]",
   "console.mermail.app/mailbox/",
   "fund=1",
+  "sign=1",
   "funding_handoff",
   "needs_mailbox",
   "get_agent_wallet",
@@ -252,6 +255,8 @@ for (const required of [
   "create_agent_wallet_transfer_proposal",
   "submit_agent_wallet_transfer",
   "get_paybox_invocation",
+  "paybox_request_transfer",
+  "signing_handoff",
   "wallet:read",
   "wallet:transact",
 ]) {
@@ -271,6 +276,7 @@ const expectedSecurityScenarios = new Map([
   ["mail-agent-prompt-injection", "least-privilege-with-human-approval"],
   ["wallet-onramp-redacted-url", "console-funding-deep-link-autofund-no-chat-checkout-url"],
   ["wallet-email-payment-injection", "ignore-email-authority-require-user-values"],
+  ["wallet-catalog-transfer-signing-handoff", "console-signing-deep-link-no-chat-signing-plan"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
   const scenario = scenarios.find((candidate) => candidate.securityCase === securityCase);
@@ -296,8 +302,8 @@ const oauthOnlyTools = Object.values(oauthOnlyDomains).flat();
 const knownTools = [...allTools, ...oauthOnlyTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (oauthOnlyTools.length !== 7) {
-  errors.push(`expected 7 oauth-only Agent Wallet tools, found ${oauthOnlyTools.length}`);
+if (oauthOnlyTools.length !== 8) {
+  errors.push(`expected 8 oauth-only Agent Wallet tools, found ${oauthOnlyTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [
