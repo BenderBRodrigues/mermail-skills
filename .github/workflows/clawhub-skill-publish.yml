@@ -8,24 +8,72 @@ on:
     paths:
       - "skills/**"
       - ".github/workflows/clawhub-skill-publish.yml"
+      - "scripts/clawhub-ci-publish.py"
   workflow_dispatch:
 
-# Caller must grant at least what the reusable workflow jobs request.
-# openclaw/clawhub skill-publish.yml needs contents:read + id-token:write (OIDC).
-# Missing id-token causes silent startup_failure before any job runs.
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   publish:
-    permissions:
-      contents: read
-      id-token: write
-    uses: openclaw/clawhub/.github/workflows/skill-publish.yml@main
-    with:
-      owner: mermail
-      root: skills
-      dry_run: ${{ github.event_name == 'pull_request' }}
-    secrets:
-      clawhub_token: ${{ secrets.CLAWHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install ClawHub CLI
+        run: npm i -g clawhub@0.23.3
+
+      - name: Validate publish mode inputs
+        env:
+          DRY_RUN: ${{ github.event_name == 'pull_request' }}
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          if [[ "$DRY_RUN" == "true" || -n "$CLAWHUB_TOKEN" ]]; then
+            exit 0
+          fi
+          echo "::error::Real skill publishes need secrets.CLAWHUB_TOKEN."
+          exit 1
+
+      - name: Write ClawHub config
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+          CLAWHUB_REGISTRY: https://clawhub.ai
+        run: |
+          if [[ -z "$CLAWHUB_TOKEN" ]]; then
+            echo "No ClawHub token provided, skipping config file creation."
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["RUNNER_TEMP"]) / "clawhub-config.json"
+          path.write_text(
+              json.dumps(
+                  {"registry": os.environ["CLAWHUB_REGISTRY"], "token": os.environ["CLAWHUB_TOKEN"]},
+                  indent=2,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print(path)
+          PY
+          echo "CLAWHUB_CONFIG_PATH=$RUNNER_TEMP/clawhub-config.json" >> "$GITHUB_ENV"
+
+      - name: Run skill publishes
+        env:
+          CLAWHUB_OWNER: mermail
+          CLAWHUB_ROOT: skills
+          CLAWHUB_DRY_RUN: ${{ github.event_name == 'pull_request' }}
+          CLAWHUB_TAGS: latest
+          CLAWHUB_SITE: https://clawhub.ai
+          CLAWHUB_REGISTRY: https://clawhub.ai
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_REF: ${{ github.ref }}
+        run: python3 scripts/clawhub-ci-publish.py

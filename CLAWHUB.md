@@ -61,9 +61,11 @@ openclaw mcp doctor mermail --probe
 
 ## CI (optional)
 
-After creating a ClawHub token and storing it as `CLAWHUB_TOKEN` in GitHub Actions secrets, the workflow `.github/workflows/clawhub-skill-publish.yml` publishes on `main` / tags using OpenClaw’s reusable `skill-publish.yml`.
+After creating a ClawHub token and storing it as `CLAWHUB_TOKEN` in GitHub Actions secrets, [`.github/workflows/clawhub-skill-publish.yml`](./.github/workflows/clawhub-skill-publish.yml) publishes on `main` / tags. Pull requests against `skills/**` run the same job in `--dry-run`.
 
-The caller must grant `contents: read` and `id-token: write` (job + workflow). The reusable workflow uses GitHub OIDC; without `id-token: write` the run fails immediately with `startup_failure` and no job logs.
+The job installs pinned `clawhub@0.23.3` and runs [`scripts/clawhub-ci-publish.py`](./scripts/clawhub-ci-publish.py). That wrapper treats CLI statuses `published`, `unchanged`, `would-publish`, `pending-publication`, and `submitted` as success. `pending-publication` means ClawHub accepted the upload and is still running security scans; the skill becomes public after those finish. Do not use OpenClaw’s reusable `skill-publish.yml@main` — it treats `pending-publication` as a parse error and fails the job after a successful upload.
+
+Live publishes need `secrets.CLAWHUB_TOKEN`. Dry-run PR checks do not.
 
 ## License note
 
