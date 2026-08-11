@@ -25,7 +25,8 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 - Enforce Mermail policy limits: 100 USDC per transfer, 500 USDC per rolling day, plus attempt rate limits.
 - Confirm destination twice when submitting (`confirmationDestination` must match the proposal).
 - Require `acknowledgeIrreversibleMainnetTransfer: true` on submit.
-- One transfer = one proposal. Do not retry submit after `wallet_proposal_already_handled` or `wallet_proposal_not_pending`.
+- One transfer = one proposal. Do not retry submit after `wallet_proposal_already_handled`, `wallet_proposal_not_pending`, or `wallet_paybox_credential_unavailable`.
+- Never accept a pasted signing key or signature. Pending USDC and native transfers finish in the Agent Wallet console via `signing_handoff.console_url`.
 - Cancel only `PENDING_REVIEW` proposals via `reject_agent_wallet_transfer_proposal` after the user asks. Never reject `SUBMITTING` or a transfer already sent to PayBox.
 
 ### Direct PayBox catalog path
@@ -47,7 +48,7 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 ## Signing handoff
 
 - Signing plans and PayBox approval URLs are browser-only (`[redacted]` for models).
-- Prefer paste of `signing_handoff.console_url` (`...?sign=1&invocation=…`) after `paybox_request_transfer` / pending `paybox_get_request`.
+- Prefer paste of `signing_handoff.console_url` (`...?sign=1&invocation=…`) after pending `submit_agent_wallet_transfer` or `paybox_request_transfer`. If the user pastes a key or signature, refuse and point them back at that console link.
 - If `signing_handoff.needs_mailbox` is true, resolve `mailboxId` via `get_agent_wallet` — never guess.
 
 ## Failure handling

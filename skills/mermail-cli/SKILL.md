@@ -57,7 +57,7 @@ API keys never unlock Agent Wallet. For shell wallet workflows:
 2. Confirm PayBox is connected in the Mermail console Agent Wallet page.
 3. Use `mermail wallet status|credentials|portfolio|fund-url|sign-url|proposal create|transfer submit`. `proposal create` is Circle USDC only and reuses a matching pending proposal. Native ETH/SOL and other catalog tokens use MCP `paybox_request_transfer` (`token: "native"` + token `amount_decimal`), not a USDC proposal. Cancel a pending USDC proposal with MCP `reject_agent_wallet_transfer_proposal`, not a CLI flag.
 4. For funding, prefer `mermail wallet fund-url --mailbox-id … --amount …` (prints console `?fund=1` deep link; no MoonPay URL).
-5. `wallet transfer submit` requires TTY confirm or `--yes` after an exact human-approved preview. Pending is not success; never auto-retry.
+5. `wallet transfer submit` requires TTY confirm or `--yes` after an exact human-approved preview. If the result is pending, print `mermail wallet sign-url` / `signing_handoff.console_url` so the user can Generate Signing Key and sign in the Agent Wallet console. Never accept a pasted key. Pending is not success; never auto-retry.
 
 Prefer IDE MCP + `$mermail-agent-wallet` when available; use CLI wallet commands for scripts after OAuth login. Do not attempt wallet automation in headless CI without a pre-established interactive login.
 
