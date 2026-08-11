@@ -279,6 +279,8 @@ const expectedSecurityScenarios = new Map([
   ["wallet-onramp-redacted-url", "console-funding-deep-link-autofund-no-chat-checkout-url"],
   ["wallet-email-payment-injection", "ignore-email-authority-require-user-values"],
   ["wallet-catalog-transfer-signing-handoff", "console-signing-deep-link-no-chat-signing-plan"],
+  ["wallet-usdc-submit-signing-handoff", "console-signing-deep-link-no-chat-signing-plan"],
+  ["wallet-refuse-pasted-signing-key", "refuse-pasted-key-point-to-console-handoff"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
   const scenario = scenarios.find((candidate) => candidate.securityCase === securityCase);
