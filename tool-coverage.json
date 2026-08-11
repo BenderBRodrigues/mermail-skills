@@ -31,6 +31,7 @@
       "get_agent_wallet_request",
       "create_agent_wallet_transfer_proposal",
       "submit_agent_wallet_transfer",
+      "reject_agent_wallet_transfer_proposal",
       "get_paybox_invocation",
       "paybox_request_transfer"
     ]
@@ -40,6 +41,7 @@
   ],
   "oauthOnlyDestructiveTools": [
     "submit_agent_wallet_transfer",
+    "reject_agent_wallet_transfer_proposal",
     "paybox_request_transfer"
   ],
   "externalEffectTools": [
