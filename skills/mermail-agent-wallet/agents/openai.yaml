@@ -1,7 +1,7 @@
 interface:
   display_name: "Mermail Agent Wallet"
   short_description: "Inspect PayBox balances; transfer or swap catalog tokens via PayBox MCP"
-  default_prompt: "Use $mermail-agent-wallet for balances, paybox_request_transfer sends, or paybox_request_swap (preview, prepare_destructive_action, prefer PayBox MCP App UI)."
+  default_prompt: "Use $mermail-agent-wallet for balances, paybox_request_transfer sends, or paybox_request_swap (exact preview, no prepare_destructive_action, prefer PayBox MCP App UI)."
 dependencies:
   tools:
     - type: "mcp"

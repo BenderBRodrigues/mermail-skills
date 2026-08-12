@@ -229,10 +229,11 @@ const agentWalletTools = await readFile(
 );
 for (const required of [
   "OAuth",
+  "mcp:tools",
   "wallet:read",
   "wallet:transact",
   "API keys never",
-  "prepare_destructive_action",
+  "Do not call `prepare_destructive_action`",
   "submit_agent_wallet_transfer",
   "reject_agent_wallet_transfer_proposal",
   "paybox_request_transfer",
@@ -250,6 +251,7 @@ for (const required of [
   "get_paybox_connection",
   "connect_handoff",
   "reauth_handoff",
+  "tools/list",
 ]) {
   if (!agentWalletSkill.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
@@ -267,8 +269,10 @@ for (const required of [
   "signing_handoff",
   "connect_handoff",
   "reauth_handoff",
+  "mcp:tools",
   "wallet:read",
   "wallet:transact",
+  "Do not call `prepare_destructive_action`",
 ]) {
   if (!agentWalletTools.includes(required)) {
     errors.push(`mermail-agent-wallet tools reference missing ${required}`);

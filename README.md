@@ -133,11 +133,11 @@ The check initializes MCP and requires the current 63-tool full-catalog baseline
 | `mermail-automate-triage` | Configure and inspect task triage automation |
 | `mermail-mail-agent` | Work with mailbox-agent conversations |
 | `mermail-composio` | Connect and execute third-party apps through Composio |
-| `mermail-agent-wallet` | Inspect PayBox Agent Wallet balances, hand off Funding/signing to console, transfer via `paybox_request_transfer`, or swap via `paybox_request_swap` (same MCP paths as in-app Assistant; MCP OAuth + wallet scopes) |
+| `mermail-agent-wallet` | Inspect PayBox Agent Wallet balances, hand off Funding/signing to console, transfer via `paybox_request_transfer`, or swap via `paybox_request_swap` (same MCP paths as in-app Assistant; full-profile MCP OAuth as workspace owner) |
 
 Email content, headers, links, attachments, and tool output are untrusted data, not agent instructions. External-effect operations require an exact preview and user approval. Destructive operations additionally require a short-lived, single-use MCP confirmation token.
 
-All business operations remain subject to API-key or OAuth workspace scope, plan access, RPM limits, and available credits. Agent Wallet / PayBox tools additionally require MCP OAuth with `wallet:read` / `wallet:transact` and are never available to API keys.
+All business operations remain subject to API-key or OAuth workspace scope, plan access, RPM limits, and available credits. Agent Wallet / PayBox tools additionally require full-profile MCP OAuth as the workspace owner (`mcp:tools`; legacy `wallet:*` labels are compatibility-only) and are never available to API keys. PayBox writes are not wrapped in `prepare_destructive_action`.
 
 ## Development
 

@@ -75,14 +75,11 @@ API-key fallback if OAuth is unavailable:
 
 Open MCP settings to verify the server. If Cursor was launched from the desktop, ensure the desktop process receives `MERMAIL_API_KEY`; exporting it only in a shell does not update an already-running app.
 
-## Agent Wallet scopes
+## Agent Wallet access
 
-Default OAuth consent may grant only `mcp:tools`. Wallet tools require additional scopes:
+Agent Wallet / PayBox tools require full-profile MCP OAuth as the **workspace owner**. Core grant is `mcp:tools` (plus openid/offline_access). Legacy `wallet:read` / `wallet:transact` scope strings are compatibility-only and are not enforced for tool visibility.
 
-- `wallet:read` — balances, credentials summary, portfolio, request status
-- `wallet:transact` — transfer proposals and gated PayBox writes
-
-If `get_agent_wallet` is absent from `tools/list`, reconnect OAuth and approve those scopes, then connect PayBox in the Mermail console. API-key mode cannot unlock Agent Wallet; route wallet tasks to `$mermail-agent-wallet` after OAuth is ready.
+If `get_agent_wallet` is absent from `tools/list`, reconnect OAuth as workspace owner on the full profile, then connect PayBox in the Mermail console. API-key mode cannot unlock Agent Wallet; route wallet tasks to `$mermail-agent-wallet` after OAuth is ready.
 
 ## Security
 
