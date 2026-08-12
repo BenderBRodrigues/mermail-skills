@@ -236,6 +236,7 @@ for (const required of [
   "submit_agent_wallet_transfer",
   "reject_agent_wallet_transfer_proposal",
   "paybox_request_transfer",
+  "paybox_request_swap",
   "signing_handoff",
   "workspace owner",
   "Funding",
@@ -262,6 +263,7 @@ for (const required of [
   "reject_agent_wallet_transfer_proposal",
   "get_paybox_invocation",
   "paybox_request_transfer",
+  "paybox_request_swap",
   "signing_handoff",
   "connect_handoff",
   "reauth_handoff",
@@ -289,6 +291,7 @@ const expectedSecurityScenarios = new Map([
   ["wallet-refuse-pasted-signing-key", "refuse-pasted-key-point-to-console-handoff"],
   ["wallet-paybox-reauth-handoff", "console-reauth-deep-link-not-host-connector"],
   ["wallet-paybox-connect-handoff", "console-connect-deep-link-not-host-connector"],
+  ["wallet-swap-embedded-app", "prefer-paybox-mcp-app-stop-turn-no-claim-success"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
   const scenario = scenarios.find((candidate) => candidate.securityCase === securityCase);
@@ -314,8 +317,8 @@ const walletScopedTools = Object.values(walletScopedDomains).flat();
 const knownTools = [...allTools, ...walletScopedTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (walletScopedTools.length !== 10) {
-  errors.push(`expected 10 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
+if (walletScopedTools.length !== 11) {
+  errors.push(`expected 11 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [

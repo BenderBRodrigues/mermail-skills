@@ -15,18 +15,24 @@ These tools appear only on Mermail MCP **OAuth** sessions that grant `wallet:rea
 
 ## Write (`wallet:transact`)
 
-- `create_agent_wallet_transfer_proposal`: create a local USDC proposal for review (`mailboxId`, `chain`, `amount`, `destination`). USDC only; ETH/SOL → `paybox_request_transfer`. Reuses a matching `PENDING_REVIEW` proposal. Does not submit or sign.
-- `submit_agent_wallet_transfer`: submit a reviewed proposal. Destructive; requires `prepare_destructive_action` with exact arguments, `confirmationDestination`, and `acknowledgeIrreversibleMainnetTransfer: true`. If pending, paste `signing_handoff.console_url` so the user can Generate Signing Key and sign in console. Pending is not success. Do not retry after `wallet_proposal_already_handled` / `wallet_proposal_not_pending` / `wallet_paybox_credential_unavailable`.
+### Primary (in-app parity)
+
+- `paybox_request_transfer`: **default for every new transfer** — Circle USDC, native ETH/SOL, and any other reviewed catalog token. Destructive; requires `prepare_destructive_action`. Pass `token` (portfolio address or `"native"`) and human amount in `amount_decimal`. May be absent from `tools/list` even when other `paybox_*` tools are live; if so, say unavailable — do **not** fall back to creating a USDC proposal.
+- `paybox_request_swap`: **default for token A → token B swaps** (same as in-app Assistant). Destructive; requires `prepare_destructive_action`. Read the live schema (commonly `credential_id`, `src_chain`, `src_token`, `dst_token`, `amount`). Do not substitute a transfer or USDC proposal. May be absent from `tools/list` when not in the reviewed catalog.
+
+### Legacy proposals (only when user explicitly manages an existing proposal)
+
+- `create_agent_wallet_transfer_proposal`: create a local USDC proposal for review (`mailboxId`, `chain`, `amount`, `destination`). USDC only. Reuses a matching `PENDING_REVIEW` proposal. Does not submit or sign. **Do not use for a normal “send money” request.**
+- `submit_agent_wallet_transfer`: submit a reviewed proposal. Destructive; requires `prepare_destructive_action` with exact arguments, `confirmationDestination`, and `acknowledgeIrreversibleMainnetTransfer: true`. If pending, prefer PayBox MCP App UI when present; else paste `signing_handoff.console_url`. Pending is not success. Do not retry after `wallet_proposal_already_handled` / `wallet_proposal_not_pending` / `wallet_paybox_credential_unavailable`.
 - `reject_agent_wallet_transfer_proposal`: cancel one `PENDING_REVIEW` proposal (`proposalId`, `version`). Destructive; requires `prepare_destructive_action`. Does not cancel submitted or PayBox-parked transfers.
-- `paybox_request_transfer`: native ETH/SOL and any other reviewed catalog token (or direct PayBox USDC). Destructive; requires `prepare_destructive_action`. Not a USDC-proposal tool. May be absent from `tools/list` even when other `paybox_*` tools are live.
 
 ## Related PayBox direct tools
 
 When PayBox is connected, additional reviewed `paybox_*` tools may appear for the same OAuth grant. Every gated `paybox_*` write still needs a `prepare_destructive_action` token bound to that exact tool name and arguments.
 
-- **USDC:** prefer the Agent Wallet proposal flow unless the user explicitly asks for direct PayBox.
-- **Any other PayBox catalog token** (or direct PayBox for any reviewed asset): use `paybox_request_transfer` with `token` set to the asset (address from `paybox_get_portfolio`, or `"native"`) and the human amount in `amount_decimal` (omit `amount`; for any token whose decimals Mermail can resolve it rejects base units with `paybox_amount_requires_decimal`, and only an asset it cannot resolve takes `amount` in smallest units); Mermail converts it to base units and rejects mis-scaled or sub-cent amounts. Every rejection code and its recovery is listed in [security.md](security.md). When status is `pending_signature` / `pending_approval`, paste `signing_handoff.console_url` so the user can Generate Signing Key and sign in the Agent Wallet console. Never expect a pasteable signing plan or approval URL.
-- Poll with `get_paybox_invocation` or `paybox_get_request` **once** after the user finishes signing.
+- **Any reviewed catalog token including USDC (send):** use `paybox_request_transfer` with `token` set to the asset (address from `paybox_get_portfolio`, or `"native"`) and the human amount in `amount_decimal` (omit `amount`; for any token whose decimals Mermail can resolve it rejects base units with `paybox_amount_requires_decimal`, and only an asset it cannot resolve takes `amount` in smallest units); Mermail converts it to base units and rejects mis-scaled or sub-cent amounts. Every rejection code and its recovery is listed in [security.md](security.md). Tools may declare `_meta.ui.resourceUri` / `ui/resourceUri` for a PayBox MCP App. When status is `pending_signature` / `pending_approval`, prefer that in-chat PayBox frame (Generate Signing Key there). Paste `signing_handoff.console_url` only if no frame appears. Never expect a pasteable signing plan or approval URL.
+- **Swap token A → token B:** use `paybox_request_swap` with live-schema arguments. Prefer the PayBox MCP App when `pending_signature` / `finish_signing_in_paybox_embedded_app`; stop the model turn — PayBox owns signing and settlement. Do not auto-poll; poll once only if the user asks or confirms finish. Never claim success merely because the swap was prepared.
+- Poll with `get_paybox_invocation` or `paybox_get_request` **once** after the user finishes signing (transfers), or on explicit user status/finish for swaps.
 
 Buy / checkout / approval / signing-plan URLs from tools such as `paybox_get_buy_link` are redacted for the model. Prefer `get_agent_wallet` → `funding_handoff.console_url` (Mermail deep link with `fund=1`). If `needs_mailbox` is true, resolve `mailboxId` via `get_agent_wallet` instead of guessing. See [SKILL.md](../SKILL.md).
 
@@ -35,6 +41,7 @@ Buy / checkout / approval / signing-plan URLs from tools such as `paybox_get_buy
 1. Auth/scopes check → mailbox discovery → `get_paybox_connection` / `get_agent_wallet`.
 2. **Connect / reauth:** if `connect_handoff` or `reauth_handoff` is present, paste `console_url` once and wait for the user to finish in Mermail Agent Wallet. Do not open host connector settings.
 3. **Funding / onramp:** paste non-null `funding_handoff.console_url` or `...?fund=1&amount=…` once; after the user finishes, re-read portfolio. Do not loop on redacted buy links or guess mailboxes.
-4. **USDC transfer:** create proposal → human preview → `prepare_destructive_action` → single `submit_agent_wallet_transfer`.
-5. **Other catalog tokens / direct PayBox:** confirm asset → `prepare_destructive_action` → `paybox_request_transfer` → paste `signing_handoff.console_url` when pending → one-shot status poll.
-6. Poll with `get_agent_wallet_request` / `get_paybox_invocation` / `paybox_get_request` only after a known id exists.
+4. **Transfer (USDC, ETH/SOL, or other catalog token):** exact preview → `prepare_destructive_action` → single `paybox_request_transfer` → prefer PayBox MCP App UI when `_meta.ui.resourceUri` / host frame is present; else paste `signing_handoff.console_url` when pending → one-shot status poll.
+5. **Swap:** exact preview → `prepare_destructive_action` → single `paybox_request_swap` → prefer PayBox MCP App / stop turn on `pending_signature`; console `signing_handoff` only if no frame; poll once only on user ask/finish.
+6. **Legacy proposal only if user explicitly asks:** create/submit/reject proposal tools — never as the default send or swap path.
+7. Poll with `get_agent_wallet_request` / `get_paybox_invocation` / `paybox_get_request` only after a known id exists.
