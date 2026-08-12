@@ -6,11 +6,11 @@ const root = path.resolve(import.meta.dirname, "..");
 const skillsRoot = path.join(root, "skills");
 const coverage = JSON.parse(await readFile(path.join(root, "tool-coverage.json"), "utf8"));
 const scenarios = JSON.parse(await readFile(path.join(root, "tests", "scenarios.json"), "utf8"));
-const oauthOnlyDomains = coverage.oauthOnlyDomains ?? {};
+const walletScopedDomains = coverage.walletScopedDomains ?? {};
 const expectedSkills = [
   ...coverage.infrastructureSkills,
   ...Object.keys(coverage.domains),
-  ...Object.keys(oauthOnlyDomains),
+  ...Object.keys(walletScopedDomains),
 ].sort();
 const errors = [];
 
@@ -310,17 +310,17 @@ for (const required of [
 }
 
 const allTools = Object.values(coverage.domains).flat();
-const oauthOnlyTools = Object.values(oauthOnlyDomains).flat();
-const knownTools = [...allTools, ...oauthOnlyTools];
+const walletScopedTools = Object.values(walletScopedDomains).flat();
+const knownTools = [...allTools, ...walletScopedTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (oauthOnlyTools.length !== 10) {
-  errors.push(`expected 10 oauth-only Agent Wallet tools, found ${oauthOnlyTools.length}`);
+if (walletScopedTools.length !== 10) {
+  errors.push(`expected 10 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [
   ...coverage.destructiveTools,
-  ...(coverage.oauthOnlyDestructiveTools ?? []),
+  ...(coverage.walletDestructiveTools ?? []),
   ...coverage.externalEffectTools,
 ];
 for (const tool of riskClassifiedTools) {
@@ -333,7 +333,7 @@ for (const scenario of scenarios) {
     if (!knownTools.includes(tool)) errors.push(`scenario uses unknown tool: ${tool}`);
     const isDestructive =
       coverage.destructiveTools.includes(tool) ||
-      (coverage.oauthOnlyDestructiveTools ?? []).includes(tool);
+      (coverage.walletDestructiveTools ?? []).includes(tool);
     if (isDestructive && scenario.approval !== "destructive") {
       errors.push(`scenario must classify ${tool} as destructive`);
     }

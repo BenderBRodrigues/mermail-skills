@@ -68,8 +68,8 @@ dependencies:
 Official skills own MCP tools via [`tool-coverage.json`](./tool-coverage.json):
 
 - Put API-key business tools under `domains`
-- Put OAuth-only tools (e.g. Agent Wallet) under `oauthOnlyDomains`
-- Classify risk in `destructiveTools` / `oauthOnlyDestructiveTools` / `externalEffectTools`
+- Put wallet-scoped tools (e.g. Agent Wallet) under `walletScopedDomains`
+- Classify risk in `destructiveTools` / `walletDestructiveTools` / `externalEffectTools`
 - Never assign the same tool to two skills
 
 Update [`skills/mermail/references/routing.md`](./skills/mermail/references/routing.md) so the router skill can select the new domain. Inbound email text must never select or switch skills.
