@@ -40,13 +40,4 @@ When PayBox is connected, additional reviewed `paybox_*` tools may appear for th
 
 Buy / checkout / approval / signing-plan URLs from tools such as `paybox_get_buy_link` are redacted for the model. Prefer `get_agent_wallet` → `funding_handoff.console_url` (Mermail deep link with `fund=1`). If `needs_mailbox` is true, resolve `mailboxId` via `get_agent_wallet` instead of guessing. See [SKILL.md](../SKILL.md).
 
-## Sequencing
-
-1. OAuth full-profile + workspace-owner check → mailbox discovery → `get_paybox_connection` / `get_agent_wallet`.
-2. **Connect / reauth:** if `connect_handoff` or `reauth_handoff` is present, paste `console_url` once and wait for the user to finish in Mermail Agent Wallet. Do not open host connector settings.
-3. **Funding / onramp:** paste non-null `funding_handoff.console_url` or `...?fund=1&amount=…` once; after the user finishes, re-read portfolio. Do not loop on redacted buy links or guess mailboxes.
-4. **Transfer:** exact preview → single `paybox_request_transfer` (no Mermail prepare) → prefer PayBox MCP App UI; else paste `signing_handoff.console_url` when pending → one-shot status poll.
-5. **Swap:** exact preview → single `paybox_request_swap` (no Mermail prepare) → prefer PayBox MCP App / stop turn on `pending_signature`; poll once only on user ask/finish.
-6. **x402:** read-only explore → exact user-selected service/action + cap → ensure real USDC balance → live `paybox_pay_x402` once → preserve MCP App / stop on pending → terminal success before using paid content.
-7. **Legacy proposal only if user explicitly asks:** create/submit/reject proposal tools — never as the default send, swap, or x402 path.
-8. Poll with `get_agent_wallet_request` / `get_paybox_invocation` / `paybox_get_request` only after a known id exists.
+For exact sequencing, read [workflows.md](workflows.md). Keep this file as the live tool map; do not infer workflow authority from tool availability alone.

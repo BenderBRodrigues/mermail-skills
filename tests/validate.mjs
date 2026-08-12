@@ -227,6 +227,35 @@ const agentWalletTools = await readFile(
   path.join(skillsRoot, "mermail-agent-wallet", "references", "tools.md"),
   "utf8",
 );
+const agentWalletSecurity = await readFile(
+  path.join(skillsRoot, "mermail-agent-wallet", "references", "security.md"),
+  "utf8",
+);
+const agentWalletWorkflows = await readFile(
+  path.join(skillsRoot, "mermail-agent-wallet", "references", "workflows.md"),
+  "utf8",
+);
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[workflows.md](references/workflows.md)",
+  "[tools.md](references/tools.md)",
+  "[security.md](references/security.md)",
+]) {
+  if (!agentWalletSkill.includes(required)) {
+    errors.push(`mermail-agent-wallet: missing top-level structure ${required}`);
+  }
+}
+const agentWalletCorpus = [
+  agentWalletSkill,
+  agentWalletTools,
+  agentWalletSecurity,
+  agentWalletWorkflows,
+].join("\n");
 for (const required of [
   "OAuth",
   "mcp:tools",
@@ -258,7 +287,7 @@ for (const required of [
   "reauth_handoff",
   "tools/list",
 ]) {
-  if (!agentWalletSkill.includes(required)) {
+  if (!agentWalletCorpus.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
   }
 }
