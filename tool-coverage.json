@@ -35,7 +35,8 @@
       "reject_agent_wallet_transfer_proposal",
       "get_paybox_invocation",
       "paybox_request_transfer",
-      "paybox_request_swap"
+      "paybox_request_swap",
+      "paybox_pay_x402"
     ]
   },
   "destructiveTools": [
@@ -45,7 +46,8 @@
     "submit_agent_wallet_transfer",
     "reject_agent_wallet_transfer_proposal",
     "paybox_request_transfer",
-    "paybox_request_swap"
+    "paybox_request_swap",
+    "paybox_pay_x402"
   ],
   "externalEffectTools": [
     "invite_workspace_member", "resend_workspace_invite", "send_email", "reply_to_email", "forward_email", "schedule_email_send", "chat_with_mailbox_agent", "execute_composio_tool", "connect_composio_toolkit"

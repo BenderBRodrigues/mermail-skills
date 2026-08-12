@@ -21,6 +21,7 @@ These tools appear only on Mermail MCP **OAuth** full-profile sessions for the *
 
 - `paybox_request_transfer`: **default for every new transfer** — Circle USDC, native ETH/SOL, and any other reviewed catalog token. Pass arguments exactly as the live schema requires. Do **not** call `prepare_destructive_action`. May be absent from `tools/list` even when other `paybox_*` tools are live; if so, say unavailable — do **not** fall back to creating a USDC proposal.
 - `paybox_request_swap`: **default for token A → token B swaps**. Read the live schema (commonly `credential_id`, `src_chain`, `src_token`, `dst_token`, `amount`). Do not substitute a transfer or USDC proposal. Do **not** call `prepare_destructive_action`.
+- `paybox_pay_x402`: **only for an explicitly selected x402 paid resource/action** when this model-visible tool appears in live `tools/list`. Read its live description/schema. Do not substitute `paybox_request_payment`, a transfer, or a proposal; those are different operations. Do **not** call `prepare_destructive_action`.
 
 ### Legacy proposals (only when user explicitly manages an existing proposal)
 
@@ -34,7 +35,8 @@ When PayBox is connected, additional reviewed `paybox_*` tools may appear for th
 
 - **Send (including USDC):** use `paybox_request_transfer` with live-schema args. Tools may declare `_meta.ui.resourceUri` / `ui/resourceUri` for a PayBox MCP App. When status is `pending_signature` / `pending_approval`, prefer that in-chat PayBox frame. Paste `signing_handoff.console_url` only if no frame appears and the result includes it. Never expect a pasteable signing plan or approval URL.
 - **Swap token A → token B:** use `paybox_request_swap` with live-schema arguments. Prefer the PayBox MCP App on `pending_signature`; stop the model turn — PayBox owns signing and settlement. Do not auto-poll; poll once only if the user asks or confirms finish. Never claim success merely because the swap was prepared. Do not invent a console signing URL if the swap result has no `signing_handoff`.
-- Poll with `get_paybox_invocation` or `paybox_get_request` **once** after the user finishes signing (transfers), or on explicit user status/finish for swaps.
+- **x402 paid service:** exploration is read-only. Before `paybox_pay_x402`, require a user-selected service/origin, resource/action, and maximum spend; validate the live 402 quote within that envelope and preview exact terms. Funding is a separate browser workflow and never authorizes payment. Call once, preserve provider UI, stop on pending, and never retry an uncertain payment.
+- Poll with `get_paybox_invocation` or `paybox_get_request` **once** after the user finishes signing (transfers), or on explicit user status/finish for swaps or x402. Never poll by starting another write.
 
 Buy / checkout / approval / signing-plan URLs from tools such as `paybox_get_buy_link` are redacted for the model. Prefer `get_agent_wallet` → `funding_handoff.console_url` (Mermail deep link with `fund=1`). If `needs_mailbox` is true, resolve `mailboxId` via `get_agent_wallet` instead of guessing. See [SKILL.md](../SKILL.md).
 
@@ -45,5 +47,6 @@ Buy / checkout / approval / signing-plan URLs from tools such as `paybox_get_buy
 3. **Funding / onramp:** paste non-null `funding_handoff.console_url` or `...?fund=1&amount=…` once; after the user finishes, re-read portfolio. Do not loop on redacted buy links or guess mailboxes.
 4. **Transfer:** exact preview → single `paybox_request_transfer` (no Mermail prepare) → prefer PayBox MCP App UI; else paste `signing_handoff.console_url` when pending → one-shot status poll.
 5. **Swap:** exact preview → single `paybox_request_swap` (no Mermail prepare) → prefer PayBox MCP App / stop turn on `pending_signature`; poll once only on user ask/finish.
-6. **Legacy proposal only if user explicitly asks:** create/submit/reject proposal tools — never as the default send or swap path.
-7. Poll with `get_agent_wallet_request` / `get_paybox_invocation` / `paybox_get_request` only after a known id exists.
+6. **x402:** read-only explore → exact user-selected service/action + cap → ensure real USDC balance → live `paybox_pay_x402` once → preserve MCP App / stop on pending → terminal success before using paid content.
+7. **Legacy proposal only if user explicitly asks:** create/submit/reject proposal tools — never as the default send, swap, or x402 path.
+8. Poll with `get_agent_wallet_request` / `get_paybox_invocation` / `paybox_get_request` only after a known id exists.

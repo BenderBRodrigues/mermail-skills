@@ -238,6 +238,11 @@ for (const required of [
   "reject_agent_wallet_transfer_proposal",
   "paybox_request_transfer",
   "paybox_request_swap",
+  "paybox_pay_x402",
+  "paybox_request_payment",
+  "Explore x402",
+  "Funding is separate from spending",
+  "HTTP 402 challenge",
   "signing_handoff",
   "workspace owner",
   "Funding",
@@ -266,6 +271,8 @@ for (const required of [
   "get_paybox_invocation",
   "paybox_request_transfer",
   "paybox_request_swap",
+  "paybox_pay_x402",
+  "paybox_request_payment",
   "signing_handoff",
   "connect_handoff",
   "reauth_handoff",
@@ -296,6 +303,10 @@ const expectedSecurityScenarios = new Map([
   ["wallet-paybox-reauth-handoff", "console-reauth-deep-link-not-host-connector"],
   ["wallet-paybox-connect-handoff", "console-connect-deep-link-not-host-connector"],
   ["wallet-swap-embedded-app", "prefer-paybox-mcp-app-stop-turn-no-claim-success"],
+  ["wallet-x402-live-tool-parity", "paybox-pay-x402-once-exact-service-action-cap-no-substitute"],
+  ["wallet-x402-vague-paid-service", "read-only-explore-require-user-selected-service-action-before-payment"],
+  ["wallet-x402-funding-separation", "funding-is-not-one-usdc-or-payment-authorization"],
+  ["wallet-x402-challenge-broadening", "reject-changed-origin-action-or-over-cap-require-fresh-confirmation"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
   const scenario = scenarios.find((candidate) => candidate.securityCase === securityCase);
@@ -321,8 +332,8 @@ const walletScopedTools = Object.values(walletScopedDomains).flat();
 const knownTools = [...allTools, ...walletScopedTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (walletScopedTools.length !== 11) {
-  errors.push(`expected 11 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
+if (walletScopedTools.length !== 12) {
+  errors.push(`expected 12 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [
