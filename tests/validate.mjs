@@ -5,6 +5,7 @@ import path from "node:path";
 const root = path.resolve(import.meta.dirname, "..");
 const skillsRoot = path.join(root, "skills");
 const coverage = JSON.parse(await readFile(path.join(root, "tool-coverage.json"), "utf8"));
+const compatibility = JSON.parse(await readFile(path.join(root, "compatibility.json"), "utf8"));
 const scenarios = JSON.parse(await readFile(path.join(root, "tests", "scenarios.json"), "utf8"));
 const walletScopedDomains = coverage.walletScopedDomains ?? {};
 const expectedSkills = [
@@ -286,6 +287,9 @@ for (const required of [
   "connect_handoff",
   "reauth_handoff",
   "tools/list",
+  "provider `request_id`",
+  "another/new/different",
+  "MCP invocation/audit state",
 ]) {
   if (!agentWalletCorpus.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
@@ -298,6 +302,7 @@ for (const required of [
   "submit_agent_wallet_transfer",
   "reject_agent_wallet_transfer_proposal",
   "get_paybox_invocation",
+  "paybox_get_request",
   "paybox_request_transfer",
   "paybox_request_swap",
   "paybox_pay_x402",
@@ -332,6 +337,10 @@ const expectedSecurityScenarios = new Map([
   ["wallet-paybox-reauth-handoff", "console-reauth-deep-link-not-host-connector"],
   ["wallet-paybox-connect-handoff", "console-connect-deep-link-not-host-connector"],
   ["wallet-swap-embedded-app", "prefer-paybox-mcp-app-stop-turn-no-claim-success"],
+  ["wallet-funding-next-action", "reread-actual-balance-then-process-separate-authorized-action"],
+  ["wallet-distinct-transfer-after-mcp-app", "one-provider-reconcile-then-new-request-id-and-distinct-transfer"],
+  ["wallet-ambiguous-duplicate-transfer", "reconcile-once-then-require-explicit-another-intent"],
+  ["wallet-distinct-swap-after-mcp-app", "one-provider-reconcile-then-new-request-id-and-distinct-swap"],
   ["wallet-x402-live-tool-parity", "paybox-pay-x402-once-exact-service-action-cap-no-substitute"],
   ["wallet-x402-vague-paid-service", "read-only-explore-require-user-selected-service-action-before-payment"],
   ["wallet-x402-funding-separation", "funding-is-not-one-usdc-or-payment-authorization"],
@@ -361,8 +370,17 @@ const walletScopedTools = Object.values(walletScopedDomains).flat();
 const knownTools = [...allTools, ...walletScopedTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (walletScopedTools.length !== 12) {
-  errors.push(`expected 12 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
+if (walletScopedTools.length !== 13) {
+  errors.push(`expected 13 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
+}
+if (compatibility.catalog?.skills !== skillNames.length) {
+  errors.push(`compatibility skill count must be ${skillNames.length}`);
+}
+if (compatibility.catalog?.businessTools !== allTools.length) {
+  errors.push(`compatibility business tool count must be ${allTools.length}`);
+}
+if (compatibility.catalog?.walletScopedTools !== walletScopedTools.length) {
+  errors.push(`compatibility wallet-scoped tool count must be ${walletScopedTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [

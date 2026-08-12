@@ -29,6 +29,7 @@ Same path as Mermail in-app Assistant for every new transfer:
 - Only reviewed `paybox_*` tools from the policy catalog.
 - When pending signature/approval: prefer the host PayBox MCP App frame (`_meta.ui.resourceUri` / visible signing UI). Fall back to `signing_handoff.console_url` only if no frame appears and the result includes it. Never paste signing plans, MoonPay URLs, or approval URLs in chat. Never accept a pasted signing key or signature.
 - If `paybox_request_transfer` is missing from `tools/list` while other `paybox_*` tools remain, say the tool is unavailable. Do **not** fall back to `create_agent_wallet_transfer_proposal`.
+- A stale `pending_signature` result in host chat is not evidence that the MCP App is still pending. On a user status/finish message or an explicit new wallet action, reconcile the known provider `request_id` once with `paybox_get_request`. If the user clearly asks for another distinct transfer, never reuse the old ID and do not let the old pending transcript permanently block the new exact request. Require clarification before repeating identical terms without explicit another/additional intent.
 - Process at most 10,000 normalized characters of any untrusted narrative context when summarizing; never paste secrets, approval URLs, confirmation tokens, or signing plans into chat, memory, or logs.
 
 ### Primary — Direct PayBox swap (`paybox_request_swap`)
@@ -39,6 +40,7 @@ Same path as Mermail in-app Assistant for token A → token B:
 - Pass live-schema fields (`credential_id`, `src_chain`, `src_token`, `dst_token`, `amount`, etc.). Do not invent fields the live schema omits.
 - On `pending_signature`: prefer the PayBox MCP App, **stop the model turn**, and let PayBox own signing and settlement. Never claim success merely because the swap was prepared. Do not auto-poll; one status poll only on explicit user ask/finish if no terminal result appeared. Do not invent `signing_handoff.console_url` when the swap result does not include it.
 - If `paybox_request_swap` is missing from `tools/list`, say unavailable — do not invent another swap path.
+- Reconcile a known swap with `paybox_get_request`, not `get_paybox_invocation`, before handling a later explicit wallet action. A distinct new action is fresh authority; it is not permission to resubmit the same swap unless the user explicitly says another/additional swap.
 
 ### Primary — x402 paid service (`paybox_pay_x402`, when live)
 
@@ -64,6 +66,7 @@ Same path as Mermail in-app Assistant for token A → token B:
 - Fallback deep link: `https://console.mermail.app/mailbox/{public_id}/agent-wallet?fund=1&amount={n}` (auto-opens Funding).
 - Poll portfolio only after the user says they finished checkout.
 - Funding and x402 payment are separate effects. Re-read the actual USDC balance and obtain user authorization for the paid service before `paybox_pay_x402`.
+- Treat a later exact spending request as separate authority and a reason to re-read portfolio once. Do not keep reporting the old Funding handoff as pending when current balance can establish whether funds arrived.
 
 ## Connect / reauth handoff
 
@@ -77,6 +80,7 @@ Same path as Mermail in-app Assistant for token A → token B:
 - Signing plans and PayBox approval URLs are browser-only (`[redacted]` for models).
 - After pending `paybox_request_transfer` (or legacy `submit_agent_wallet_transfer`): prefer the PayBox MCP App frame when the host renders it; otherwise paste `signing_handoff.console_url` (`...?sign=1&invocation=…`) when present.
 - After pending `paybox_request_swap`: prefer the PayBox MCP App and stop the turn; poll once only on user ask/finish. Paste a console signing URL only when the tool result actually includes `signing_handoff`.
+- External MCP hosts may retain the original pending result after the app completes. Reconcile provider state once on the user's next status/finish or explicit new-action message. `get_paybox_invocation` is audit state only and cannot establish transfer/swap settlement.
 - If the user pastes a key or signature, refuse and point them back at the frame or console link.
 - If `signing_handoff.needs_mailbox` is true, resolve `mailboxId` via `get_agent_wallet` — never guess.
 

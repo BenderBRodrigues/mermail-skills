@@ -9,7 +9,10 @@ When `tools/list` or a result includes `_meta.ui.resourceUri` / `ui/resourceUri`
 1. Preserve that UI handoff and point the user to the frame for Approve, Generate Signing Key, or signing.
 2. Do not also paste a console link unless the user says no frame appeared or a returned handoff still needs an explicit mailbox.
 3. Never request a pasted signing key or signature and never invent a MoonPay, approval, signing-plan, or continuation URL.
-4. Stop on pending approval/signing/payment. Poll once only after the user asks for status or confirms completion; never start another write while reconciling.
+4. Stop on pending approval/signing/payment. An external host may keep that original pending tool result in model context even after the MCP App reaches a terminal state.
+5. Reconcile the known provider request once when the user asks for status, confirms completion, or explicitly requests a new wallet action. For transfer/swap settlement, call `paybox_get_request` with the known provider `request_id`; do not use `get_paybox_invocation` as proof of settlement because it reports only MCP invocation/audit state.
+6. If the provider request is terminal, close the old action before continuing. If it remains pending and the user explicitly requested **another/new/different** action with exact terms, disclose that the old action is still pending and process the distinct action with a new preview and new write. Never reuse the old request/invocation ID.
+7. If the new instruction repeats the same terms without explicitly saying another/additional action, stop for clarification to prevent a duplicate. Do not start a replacement write merely to poll, resume, or reconcile the old one.
 
 ## Funding / onramp
 
@@ -22,6 +25,8 @@ Checkout and buy links are browser-only and appear as `[redacted]` in model-visi
 
 Do not retry `paybox_get_buy_link` to obtain an unredacted URL. If `funding_handoff.needs_mailbox` is true or its URL is null, re-read `get_agent_wallet` with the explicit `mailboxId`. Funding never authorizes a transfer, swap, or x402 payment.
 
+A later exact transfer, swap, or x402 request is separate spending authority and also signals that Funding may have finished. Re-read the actual portfolio once instead of continuing to describe the old Funding handoff as pending. Proceed only from the observed balance and the new request's exact terms; if funds are still insufficient, report that without assuming the checkout outcome.
+
 ## Transfer
 
 Use `paybox_request_transfer` for every new transfer, including Circle USDC, native ETH/SOL, and any reviewed catalog token. Never create a local proposal for a normal send.
@@ -31,7 +36,9 @@ Use `paybox_request_transfer` for every new transfer, including Circle USDC, nat
 3. Preview mailbox/credential, asset, chain, exact amount, and destination.
 4. Call `paybox_request_transfer` once.
 5. On pending signature/approval, prefer the PayBox MCP App. If no frame appears, paste one returned `signing_handoff.console_url` (`sign=1`) when present.
-6. After the user confirms signing, poll `paybox_get_request` or `get_paybox_invocation` once. Pending is not success.
+6. After the user confirms signing, poll `paybox_get_request` once with the provider `request_id`. Pending is not success. Do not use `get_paybox_invocation` to decide whether the transfer settled.
+
+When the next user message explicitly requests another transfer, apply the shared reconciliation rule above. A terminal old request does not block the new transfer. An old request that still reports pending also does not cancel fresh authority for an explicitly distinct transfer; disclose both states and create the new request once. For identical terms, require “another/additional” intent before writing again.
 
 If `signing_handoff.needs_mailbox` is true, resolve `mailboxId` with `get_agent_wallet`, then re-read the known request for its mailbox-bound handoff. If the transfer tool is absent while other `paybox_*` tools exist, say it is unavailable; never fall back to a proposal.
 
@@ -43,7 +50,9 @@ Use `paybox_request_swap` only for token A → token B. Never substitute a trans
 2. Resolve credential and token addresses from portfolio data and preview the exact pair, chains, amount, and credential.
 3. Call `paybox_request_swap` once with only live-schema fields.
 4. On `pending_signature`, prefer the PayBox MCP App and stop the model turn. Do not claim the swap succeeded merely because it was prepared and do not assume a console handoff exists.
-5. Poll once only when the user asks for status or confirms signing and no terminal result has appeared.
+5. Poll `paybox_get_request` once with the provider `request_id` only when the user asks for status, confirms signing, or explicitly starts a new wallet action and no terminal result has appeared. Do not use `get_paybox_invocation` as swap-settlement evidence.
+
+Apply the shared reconciliation rule before a later explicit swap or transfer. Never let a stale pending result in host chat permanently block a distinct new action, and never treat that new action as permission to resubmit the same swap unless the user explicitly asks for another one.
 
 If the tool is absent, say swap is unavailable; do not invent another payment path.
 

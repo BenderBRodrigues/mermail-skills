@@ -30,6 +30,7 @@
       "list_agent_wallet_credentials",
       "get_agent_wallet_portfolio",
       "get_agent_wallet_request",
+      "paybox_get_request",
       "create_agent_wallet_transfer_proposal",
       "submit_agent_wallet_transfer",
       "reject_agent_wallet_transfer_proposal",
