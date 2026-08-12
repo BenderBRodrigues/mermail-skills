@@ -6,11 +6,11 @@ const root = path.resolve(import.meta.dirname, "..");
 const skillsRoot = path.join(root, "skills");
 const coverage = JSON.parse(await readFile(path.join(root, "tool-coverage.json"), "utf8"));
 const scenarios = JSON.parse(await readFile(path.join(root, "tests", "scenarios.json"), "utf8"));
-const oauthOnlyDomains = coverage.oauthOnlyDomains ?? {};
+const walletScopedDomains = coverage.walletScopedDomains ?? {};
 const expectedSkills = [
   ...coverage.infrastructureSkills,
   ...Object.keys(coverage.domains),
-  ...Object.keys(oauthOnlyDomains),
+  ...Object.keys(walletScopedDomains),
 ].sort();
 const errors = [];
 
@@ -246,12 +246,16 @@ for (const required of [
   "funding_handoff",
   "needs_mailbox",
   "get_agent_wallet",
+  "get_paybox_connection",
+  "connect_handoff",
+  "reauth_handoff",
 ]) {
   if (!agentWalletSkill.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
   }
 }
 for (const required of [
+  "get_paybox_connection",
   "get_agent_wallet",
   "create_agent_wallet_transfer_proposal",
   "submit_agent_wallet_transfer",
@@ -259,6 +263,8 @@ for (const required of [
   "get_paybox_invocation",
   "paybox_request_transfer",
   "signing_handoff",
+  "connect_handoff",
+  "reauth_handoff",
   "wallet:read",
   "wallet:transact",
 ]) {
@@ -281,6 +287,8 @@ const expectedSecurityScenarios = new Map([
   ["wallet-catalog-transfer-signing-handoff", "console-signing-deep-link-no-chat-signing-plan"],
   ["wallet-usdc-submit-signing-handoff", "console-signing-deep-link-no-chat-signing-plan"],
   ["wallet-refuse-pasted-signing-key", "refuse-pasted-key-point-to-console-handoff"],
+  ["wallet-paybox-reauth-handoff", "console-reauth-deep-link-not-host-connector"],
+  ["wallet-paybox-connect-handoff", "console-connect-deep-link-not-host-connector"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
   const scenario = scenarios.find((candidate) => candidate.securityCase === securityCase);
@@ -302,17 +310,17 @@ for (const required of [
 }
 
 const allTools = Object.values(coverage.domains).flat();
-const oauthOnlyTools = Object.values(oauthOnlyDomains).flat();
-const knownTools = [...allTools, ...oauthOnlyTools];
+const walletScopedTools = Object.values(walletScopedDomains).flat();
+const knownTools = [...allTools, ...walletScopedTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (oauthOnlyTools.length !== 9) {
-  errors.push(`expected 9 oauth-only Agent Wallet tools, found ${oauthOnlyTools.length}`);
+if (walletScopedTools.length !== 10) {
+  errors.push(`expected 10 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [
   ...coverage.destructiveTools,
-  ...(coverage.oauthOnlyDestructiveTools ?? []),
+  ...(coverage.walletDestructiveTools ?? []),
   ...coverage.externalEffectTools,
 ];
 for (const tool of riskClassifiedTools) {
@@ -325,7 +333,7 @@ for (const scenario of scenarios) {
     if (!knownTools.includes(tool)) errors.push(`scenario uses unknown tool: ${tool}`);
     const isDestructive =
       coverage.destructiveTools.includes(tool) ||
-      (coverage.oauthOnlyDestructiveTools ?? []).includes(tool);
+      (coverage.walletDestructiveTools ?? []).includes(tool);
     if (isDestructive && scenario.approval !== "destructive") {
       errors.push(`scenario must classify ${tool} as destructive`);
     }

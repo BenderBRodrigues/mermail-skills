@@ -18,9 +18,15 @@ Agent Wallet tools are OAuth-only. API keys never expose them. Read [tools.md](r
 ## Auth gate
 
 1. Confirm the Mermail MCP session is **OAuth** (not `x-api-key` alone) and the grant includes `wallet:read`. Transfers also need `wallet:transact`.
-2. Call `tools/list` (or inspect the host MCP panel). If `get_agent_wallet` is missing, stop: reconnect Mermail MCP OAuth, approve `wallet:read` / `wallet:transact` on consent, and ensure PayBox is connected in the console **Agent Wallet** page.
-3. Prefer `$mermail-mcp` only for connection troubleshooting; keep wallet workflows here.
-4. For shell/scripts after interactive login, `$mermail-cli` supports `mermail auth login` and `mermail wallet *` (same OAuth-gated MCP tools). Prefer in-IDE MCP tools when already connected.
+2. Call `tools/list` (or inspect the host MCP panel). If `get_agent_wallet` is missing, stop: reconnect Mermail MCP OAuth and approve `wallet:read` / `wallet:transact` on consent. That fixes **Mermail MCP scopes**, not PayBox delegation.
+3. Check PayBox with `get_paybox_connection` (or `get_agent_wallet`) for the mailbox:
+   - `connect_handoff.console_url` / `NOT_CONNECTED` → paste **one** console link; tell the user to select **Connect** on Mermail Agent Wallet.
+   - `reauth_handoff.console_url` / `REAUTH_REQUIRED` → paste **one** console link; tell the user to reconnect PayBox **inside Mermail**.
+   - Never send users to Claude, ChatGPT, or Codex **connector settings** for PayBox authorization.
+   - `PAYBOX_UNAVAILABLE` → temporary read failure; read again later. Do not reconnect.
+   - `SCOPE_UPGRADE_REQUIRED` → user must re-consent Mermail MCP wallet scopes, then check PayBox again.
+4. Prefer `$mermail-mcp` only for MCP connection troubleshooting; keep wallet workflows here.
+5. For shell/scripts after interactive login, `$mermail-cli` supports `mermail auth login` and `mermail wallet *` (same OAuth-gated MCP tools). Prefer in-IDE MCP tools when already connected.
 
 `MERMAIL_API_KEY` may still be present for other Mermail skills. It cannot authorize Agent Wallet tools.
 
@@ -46,7 +52,7 @@ Do **not** call `paybox_get_buy_link` just to get a MoonPay URL. If that tool re
 ## Transfer workflow
 
 1. Resolve one mailbox with `list_mailboxes` (prefer `public_id` as `mailboxId`). Agent Wallet requires the **workspace owner**.
-2. Call `get_agent_wallet` with that `mailboxId`. Summarize connection status, credentials (never invent secrets), portfolio, limits, and open proposals. When `connection.status` is `PAYBOX_UNAVAILABLE`, say the balances are temporarily unavailable rather than zero, note that the delegated connection is still active, and read again later.
+2. Call `get_agent_wallet` with that `mailboxId`. Summarize connection status, credentials (never invent secrets), portfolio, limits, and open proposals. If the response includes `connect_handoff` or `reauth_handoff`, paste that `console_url` and stop until the user finishes Connect/reconnect in Mermail — do not open host connector settings. When `connection.status` is `PAYBOX_UNAVAILABLE`, say the balances are temporarily unavailable rather than zero, note that the delegated connection is still active, and read again later.
 3. For credential-only or portfolio-only reads, use `list_agent_wallet_credentials` or `get_agent_wallet_portfolio`. Poll known requests with `get_agent_wallet_request`, `get_paybox_invocation`, or `paybox_get_request` — never create or retry a transfer while polling.
 
 ### Choose the path (do not refuse non-USDC)
@@ -84,4 +90,5 @@ If `signing_handoff.needs_mailbox` is true, call `get_agent_wallet` with `mailbo
 - Do not claim Mermail holds card details, wallet secrets, or raw signing keys.
 - Do not use Composio Gmail/Outlook or any non-Mermail mail path for wallet work.
 - If the user only has API-key MCP, explain they must use OAuth with wallet scopes or the first-party Agent Wallet UI.
+- PayBox Connect / reauth always happens in Mermail Agent Wallet via `connect_handoff` / `reauth_handoff` (or CLI `wallet connect-url` / `wallet reauth-url`). Never confuse that with reconnecting the host Mermail MCP connector.
 - Never promise to display MoonPay / checkout / approval / signing-plan URLs in chat. Apple Pay runs on MoonPay’s page after console **Funding**, not inside the host chat UI.
