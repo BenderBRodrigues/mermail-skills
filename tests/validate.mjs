@@ -246,12 +246,16 @@ for (const required of [
   "funding_handoff",
   "needs_mailbox",
   "get_agent_wallet",
+  "get_paybox_connection",
+  "connect_handoff",
+  "reauth_handoff",
 ]) {
   if (!agentWalletSkill.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
   }
 }
 for (const required of [
+  "get_paybox_connection",
   "get_agent_wallet",
   "create_agent_wallet_transfer_proposal",
   "submit_agent_wallet_transfer",
@@ -259,6 +263,8 @@ for (const required of [
   "get_paybox_invocation",
   "paybox_request_transfer",
   "signing_handoff",
+  "connect_handoff",
+  "reauth_handoff",
   "wallet:read",
   "wallet:transact",
 ]) {
@@ -281,6 +287,8 @@ const expectedSecurityScenarios = new Map([
   ["wallet-catalog-transfer-signing-handoff", "console-signing-deep-link-no-chat-signing-plan"],
   ["wallet-usdc-submit-signing-handoff", "console-signing-deep-link-no-chat-signing-plan"],
   ["wallet-refuse-pasted-signing-key", "refuse-pasted-key-point-to-console-handoff"],
+  ["wallet-paybox-reauth-handoff", "console-reauth-deep-link-not-host-connector"],
+  ["wallet-paybox-connect-handoff", "console-connect-deep-link-not-host-connector"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
   const scenario = scenarios.find((candidate) => candidate.securityCase === securityCase);
@@ -306,8 +314,8 @@ const oauthOnlyTools = Object.values(oauthOnlyDomains).flat();
 const knownTools = [...allTools, ...oauthOnlyTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (oauthOnlyTools.length !== 9) {
-  errors.push(`expected 9 oauth-only Agent Wallet tools, found ${oauthOnlyTools.length}`);
+if (oauthOnlyTools.length !== 10) {
+  errors.push(`expected 10 oauth-only Agent Wallet tools, found ${oauthOnlyTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [

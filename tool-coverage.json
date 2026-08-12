@@ -25,6 +25,7 @@
   },
   "oauthOnlyDomains": {
     "mermail-agent-wallet": [
+      "get_paybox_connection",
       "get_agent_wallet",
       "list_agent_wallet_credentials",
       "get_agent_wallet_portfolio",

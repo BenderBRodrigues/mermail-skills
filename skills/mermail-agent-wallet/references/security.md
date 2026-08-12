@@ -15,7 +15,7 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 - API keys cannot access Agent Wallet or direct PayBox tools.
 - OAuth must include `wallet:read` for reads and `wallet:transact` for proposals/submits and gated PayBox writes.
 - Only the workspace owner may use Agent Wallet for a mailbox.
-- Connect PayBox in the first-party Mermail Agent Wallet UI; Mermail never receives card details, wallet secrets, or raw signing access.
+- Connect or reauthorize PayBox only in the first-party Mermail Agent Wallet UI via `connect_handoff` / `reauth_handoff`. Never send users to Claude, ChatGPT, or Codex connector settings for PayBox. Mermail never receives card details, wallet secrets, or raw signing access.
 
 ## Transfer policy
 
@@ -45,6 +45,14 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 - Fallback deep link: `https://console.mermail.app/mailbox/{public_id}/agent-wallet?fund=1&amount={n}` (auto-opens Funding).
 - Poll portfolio only after the user says they finished checkout.
 
+## Connect / reauth handoff
+
+- `get_paybox_connection` / `get_agent_wallet` may return `connect_handoff.console_url` (`NOT_CONNECTED`) or `reauth_handoff.console_url` (`REAUTH_REQUIRED`).
+- Paste **one** console link and tell the user to Connect or reconnect PayBox inside Mermail Agent Wallet.
+- Never direct them to host MCP connector settings. Reconnecting Claude/ChatGPT/Codex only refreshes Mermail OAuth, not PayBox delegation.
+- `SCOPE_UPGRADE_REQUIRED` means Mermail MCP wallet scopes are missing; re-consent OAuth, then check PayBox again.
+- CLI parity: `mermail wallet connect-url` / `mermail wallet reauth-url` print the same Agent Wallet page URL.
+
 ## Signing handoff
 
 - Signing plans and PayBox approval URLs are browser-only (`[redacted]` for models).
@@ -64,7 +72,10 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 - `agent_approval_asset_missing` (409): the approval card predates the transfer-asset fix. Start a new transfer with a fresh `prepare_destructive_action`; do not answer the old card again.
 - `agent_approval_persist_timeout` (503): the approval was not recorded. Do not submit again; check request status or start a new transfer later.
 - `paybox_tool_error` (502) carries a sanitized upstream reason such as a nonce that is too low or a stale signing plan. Start a **new** `paybox_request_transfer`; never reuse the parked request or invocation id and never keep polling it.
-- `PAYBOX_UNAVAILABLE` in `connection.status` means that read failed, not that the connection ended. Read again later instead of asking the user to reconnect. `NOT_CONNECTED` and `REAUTH_REQUIRED` are the states that do need the user.
+- `PAYBOX_UNAVAILABLE` in `connection.status` means that read failed, not that the connection ended. Read again later instead of asking the user to reconnect. `NOT_CONNECTED` and `REAUTH_REQUIRED` do need the user — paste `connect_handoff` / `reauth_handoff` console URLs.
+- `paybox_not_connected` (409): ask the user to open `connect_handoff.console_url` (or Agent Wallet → Connect). Do not reconnect the host MCP connector.
+- `paybox_reauth_required` (401): paste `reauth_handoff.console_url` and wait for PayBox reconnect inside Mermail.
+- `paybox_write_retry_required` / `paybox_oauth_unavailable`: stop the write; re-check connection status before any new transfer.
 - Approval and signing-plan URLs stay server-side / console-only; never place them in model context.
 - If a tool returns `url: "[redacted]"`, stop link-retrieval loops and hand off to the first-party console UI.
 - If scopes or tools are missing, stop and ask the user to complete OAuth wallet consent and PayBox connection rather than improvising another payment path.

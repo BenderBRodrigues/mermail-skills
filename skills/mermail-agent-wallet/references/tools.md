@@ -4,7 +4,8 @@ These tools appear only on Mermail MCP **OAuth** sessions that grant `wallet:rea
 
 ## Read (`wallet:read`)
 
-- `get_agent_wallet`: connection, credentials summary, portfolio, limits, and proposal statuses for one mailbox. `connection.status` of `PAYBOX_UNAVAILABLE` with an empty portfolio means PayBox did not answer that read, not a disconnect.
+- `get_paybox_connection`: lightweight PayBox status for one mailbox (OAuth; may appear even before wallet scopes). Returns `connect_handoff.console_url` when not connected, `reauth_handoff.console_url` when reauth is required, or `SCOPE_UPGRADE_REQUIRED` + `required_scopes` when Mermail MCP wallet scopes are missing. Present the console link; never send users to Claude/ChatGPT/Codex connector settings.
+- `get_agent_wallet`: connection, credentials summary, portfolio, limits, and proposal statuses for one mailbox. May include `connect_handoff` / `reauth_handoff` / `funding_handoff`. `connection.status` of `PAYBOX_UNAVAILABLE` with an empty portfolio means PayBox did not answer that read, not a disconnect.
 - `list_agent_wallet_credentials`: delegated wallet credentials only; secrets, cards, and raw signing credentials are never returned.
 - `get_agent_wallet_portfolio`: portfolio view for the connected PayBox workspace.
 - `paybox_get_portfolio`: direct PayBox holdings when that tool is registered. Asset `token` addresses are returned in the clear, so read the transfer asset from here instead of guessing an address.
@@ -31,8 +32,9 @@ Buy / checkout / approval / signing-plan URLs from tools such as `paybox_get_buy
 
 ## Sequencing
 
-1. Auth/scopes check → mailbox discovery → `get_agent_wallet`.
-2. **Funding / onramp:** paste non-null `funding_handoff.console_url` or `...?fund=1&amount=…` once; after the user finishes, re-read portfolio. Do not loop on redacted buy links or guess mailboxes.
-3. **USDC transfer:** create proposal → human preview → `prepare_destructive_action` → single `submit_agent_wallet_transfer`.
-4. **Other catalog tokens / direct PayBox:** confirm asset → `prepare_destructive_action` → `paybox_request_transfer` → paste `signing_handoff.console_url` when pending → one-shot status poll.
-5. Poll with `get_agent_wallet_request` / `get_paybox_invocation` / `paybox_get_request` only after a known id exists.
+1. Auth/scopes check → mailbox discovery → `get_paybox_connection` / `get_agent_wallet`.
+2. **Connect / reauth:** if `connect_handoff` or `reauth_handoff` is present, paste `console_url` once and wait for the user to finish in Mermail Agent Wallet. Do not open host connector settings.
+3. **Funding / onramp:** paste non-null `funding_handoff.console_url` or `...?fund=1&amount=…` once; after the user finishes, re-read portfolio. Do not loop on redacted buy links or guess mailboxes.
+4. **USDC transfer:** create proposal → human preview → `prepare_destructive_action` → single `submit_agent_wallet_transfer`.
+5. **Other catalog tokens / direct PayBox:** confirm asset → `prepare_destructive_action` → `paybox_request_transfer` → paste `signing_handoff.console_url` when pending → one-shot status poll.
+6. Poll with `get_agent_wallet_request` / `get_paybox_invocation` / `paybox_get_request` only after a known id exists.
