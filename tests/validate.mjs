@@ -899,30 +899,107 @@ const mcpPlatforms = await readFile(
   path.join(skillsRoot, "mermail-mcp", "references", "platforms.md"),
   "utf8",
 );
+const mcpTroubleshooting = await readFile(
+  path.join(skillsRoot, "mermail-mcp", "references", "troubleshooting.md"),
+  "utf8",
+);
+const mcpSecurity = await readFile(
+  path.join(skillsRoot, "mermail-mcp", "references", "security.md"),
+  "utf8",
+);
 const mcpConnectionCheck = await readFile(
   path.join(skillsRoot, "mermail-mcp", "scripts", "check-connection.mjs"),
   "utf8",
 );
-for (const [label, content] of [
-  ["mermail-mcp skill", mcpSkill],
-  ["mermail-mcp platforms reference", mcpPlatforms],
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[platforms.md](references/platforms.md)",
+  "[troubleshooting.md](references/troubleshooting.md)",
+  "[security.md](references/security.md)",
+  "[check-connection.mjs](scripts/check-connection.mjs)",
 ]) {
-  for (const required of [
-    "Finding tools",
-    "Mermail:list_emails",
-    "list_mailboxes",
-    "native JSON object",
-    "host-qualified",
-  ]) {
-    if (!content.includes(required)) {
-      errors.push(`${label}: missing Claude tool-discovery recovery contract ${required}`);
-    }
+  if (!mcpSkill.includes(required)) {
+    errors.push(`mermail-mcp: missing top-level structure ${required}`);
+  }
+}
+const mcpCorpus = [mcpSkill, mcpPlatforms, mcpTroubleshooting, mcpSecurity].join("\n");
+for (const required of [
+  "connection-control skill",
+  "https://console.mermail.app/mcp",
+  "MCP OAuth",
+  "`MERMAIL_API_KEY`",
+  "`x-api-key`",
+  "full profile",
+  "`agent-inbox`",
+  "72 tools",
+  "63-tool",
+  "exactly 12 tools",
+  "`initialize`",
+  "`tools/list`",
+  "`list_workspaces`",
+  "`list_mailboxes`",
+  "full-profile owner OAuth",
+  "native JSON objects",
+  "uncertain write",
+]) {
+  if (!mcpCorpus.includes(required)) {
+    errors.push(`mermail-mcp: missing connection contract ${required}`);
+  }
+}
+for (const required of [
+  "env_http_headers",
+  '"x-api-key": "${MERMAIL_API_KEY}"',
+  '"x-api-key": "${env:MERMAIL_API_KEY}"',
+  "host-qualified identifiers",
+  "Never manually add, strip, or invent the qualifier",
+  "API-key mode cannot unlock",
+  "`public_id`",
+]) {
+  if (!mcpPlatforms.includes(required)) {
+    errors.push(`mermail-mcp platforms reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Finding tools",
+  "Mermail:<name>",
+  "Do not retry under a guessed namespace",
+  "full API-key profile",
+  "Compatibility verification",
+  "exactly 12 tools",
+  "native JSON objects",
+  "validation_failed",
+  "After a reconnect, never replay a write",
+]) {
+  if (!mcpTroubleshooting.includes(required)) {
+    errors.push(`mermail-mcp troubleshooting reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Credential boundary",
+  "Identity and scope",
+  "Safe verification",
+  "Reconnect and retry boundary",
+  "never ask them to paste the secret into chat",
+  "Do not rotate keys to bypass `429`",
+]) {
+  if (!mcpSecurity.includes(required)) {
+    errors.push(`mermail-mcp security reference missing ${required}`);
   }
 }
 for (const required of [
   "at least the 63-tool full-catalog baseline",
   "exact 12-tool agent-inbox profile",
   "MCP is missing required tools",
+  "currentFullCatalogBaseline = 72",
+  "compatibleFullCatalogFloor = 63",
+  "Unsupported Mermail MCP profile",
+  "duplicate tool names",
+  "gradual or older deployment",
 ]) {
   if (!mcpConnectionCheck.includes(required)) {
     errors.push(`mermail-mcp connection check missing additive catalog contract ${required}`);
@@ -930,6 +1007,26 @@ for (const required of [
 }
 if (mcpConnectionCheck.includes("tools.length !== 63")) {
   errors.push("mermail-mcp connection check must allow additive full-catalog tools");
+}
+for (const expected of [
+  "api-key-env-header-config-no-secret-in-chat",
+  "oauth-client-status-then-read-only-smoke-test",
+  "exact-twelve-tool-agent-inbox-profile",
+  "reconnect-registry-no-guessed-tool-name",
+  "diagnose-workspace-scope-without-account-switch",
+  "require-full-owner-oauth-no-key-bypass",
+  "inspect-live-schema-and-use-native-json-object",
+  "revoke-without-repeating-secret",
+]) {
+  if (!scenarios.some((scenario) => scenario.skill === "mermail-mcp" && scenario.expected === expected)) {
+    errors.push(`mermail-mcp: missing validation scenario ${expected}`);
+  }
+}
+const mcpScenarioTools = scenarios
+  .filter((scenario) => scenario.skill === "mermail-mcp")
+  .flatMap((scenario) => scenario.tools);
+if (mcpScenarioTools.some((tool) => coverage.destructiveTools.includes(tool))) {
+  errors.push("mermail-mcp: connection verification scenarios must not use destructive tools");
 }
 
 const cliSkill = await readFile(path.join(skillsRoot, "mermail-cli", "SKILL.md"), "utf8");
@@ -1220,6 +1317,7 @@ for (const required of [
 }
 
 const expectedSecurityScenarios = new Map([
+  ["mermail-mcp-exposed-key", "revoke-without-repeating-secret"],
   ["disabled-mailbox", "reject-disabled-or-unavailable"],
   ["ambiguous-mailbox", "ask-user-with-non-secret-metadata"],
   ["ambiguous-message", "stop-as-ambiguous"],
