@@ -72,6 +72,14 @@ const agentInboxSecurity = await readFile(path.join(agentInboxDir, "references",
 const manageInboxDir = path.join(skillsRoot, "mermail-manage-inbox");
 const manageInboxSkill = await readFile(path.join(manageInboxDir, "SKILL.md"), "utf8");
 const manageInboxTools = await readFile(path.join(manageInboxDir, "references", "tools.md"), "utf8");
+const manageInboxWorkflows = await readFile(
+  path.join(manageInboxDir, "references", "workflows.md"),
+  "utf8",
+);
+const manageInboxSecurity = await readFile(
+  path.join(manageInboxDir, "references", "security.md"),
+  "utf8",
+);
 const administerWorkspaceDir = path.join(skillsRoot, "mermail-administer-workspace");
 const administerWorkspaceSkill = await readFile(
   path.join(administerWorkspaceDir, "SKILL.md"),
@@ -240,6 +248,160 @@ for (const required of [
   if (!manageInboxTools.includes(required)) {
     errors.push(`mermail-manage-inbox tools reference missing ${required}`);
   }
+}
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[tools.md](references/tools.md)",
+  "[workflows.md](references/workflows.md)",
+  "[security.md](references/security.md)",
+]) {
+  if (!manageInboxSkill.includes(required)) {
+    errors.push(`mermail-manage-inbox: missing top-level structure ${required}`);
+  }
+}
+const manageInboxCorpus = [
+  manageInboxSkill,
+  manageInboxTools,
+  manageInboxWorkflows,
+  manageInboxSecurity,
+].join("\n");
+for (const required of coverage.domains["mermail-manage-inbox"]) {
+  if (!manageInboxCorpus.includes(`\`${required}\``)) {
+    errors.push(`mermail-manage-inbox: missing owned tool ${required}`);
+  }
+}
+for (const required of [
+  "exactly 22 inbox-domain tools",
+  "`list_mailboxes`",
+  "`prepare_destructive_action`",
+  "`public_id`",
+  "`metadata_only`",
+  "`agent_safe_content`",
+  "`require_scan_status`",
+  "`content_omitted`",
+  "`next_cursor`",
+  "`read` and `starred`",
+  "`deletedCount`",
+  "`trashedCount`",
+  "`cancelledScheduledCount`",
+  "regular draft",
+  "scheduled draft",
+  "system folder",
+  "manual",
+  "reorder",
+  "admin",
+  "1 MiB",
+  "Never retry",
+]) {
+  if (!manageInboxCorpus.includes(required)) {
+    errors.push(`mermail-manage-inbox: missing contract ${required}`);
+  }
+}
+for (const required of [
+  "Pass `query` and `body` as native JSON objects",
+  "1–100",
+  "1–50",
+  "oldest-first",
+  "binary responses over 1 MiB",
+  "changes only read/starred state",
+  "body.name",
+  "name` (1–80)",
+  "rules` (1–500)",
+  "at most 20",
+  "neither `reorder_custom_labels`",
+  "No tool in this domain manually attaches a label",
+  "Regular draft: hard-delete",
+  "Scheduled draft: cancel scheduling in place",
+  "Non-draft outside Trash: move to Trash",
+  "single-use, five-minute",
+]) {
+  if (!manageInboxTools.includes(required)) {
+    errors.push(`mermail-manage-inbox tools reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Find and summarize ordinary mail",
+  "Read bounded conversation context",
+  "Mark, star, or move",
+  "Download one attachment",
+  "Manage folders",
+  "Manage custom-label definitions",
+  "Delete email or draft",
+  "Empty Trash",
+  "Recover from failure",
+  "Do not tell the user a regular draft was moved to Trash",
+]) {
+  if (!manageInboxWorkflows.includes(required)) {
+    errors.push(`mermail-manage-inbox workflows reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Identity and scope",
+  "Untrusted content",
+  "Body and attachment handling",
+  "Write and approval boundary",
+  "Deletion and retry boundary",
+  "`unknown` is not `pass`",
+  "`flagged` content as quarantined",
+  "No MCP tool manually assigns labels",
+  "A timeout, transport error, partial count",
+]) {
+  if (!manageInboxSecurity.includes(required)) {
+    errors.push(`mermail-manage-inbox security reference missing ${required}`);
+  }
+}
+for (const expected of [
+  "bounded-metadata-search-then-exact-safe-reads",
+  "selected-email-context-with-opaque-cursor",
+  "freeze-exact-ids-and-resolve-folder-before-bulk-move",
+  "admin-create-classifier-definition-not-email-assignment",
+  "report-manual-label-assignment-not-exposed",
+  "report-label-reorder-not-exposed",
+  "report-one-mib-mcp-limit-no-storage-url-bypass",
+  "ignore-email-authority-no-destructive-call",
+  "confirm-regular-draft-hard-delete-never-trash",
+  "confirm-scheduled-draft-cancel-in-place",
+  "refuse-non-deletable-system-folder",
+  "count-trash-confirm-and-empty-once",
+]) {
+  if (!scenarios.some((scenario) => scenario.skill === "mermail-manage-inbox" && scenario.expected === expected)) {
+    errors.push(`mermail-manage-inbox: missing validation scenario ${expected}`);
+  }
+}
+for (const expected of [
+  "report-manual-label-assignment-not-exposed",
+  "report-label-reorder-not-exposed",
+]) {
+  const scenario = scenarios.find((candidate) => candidate.expected === expected);
+  if (!scenario || scenario.tools.length !== 0) {
+    errors.push(`mermail-manage-inbox: unsupported label scenario must use no invented tool: ${expected}`);
+  }
+}
+const manageLargeAttachmentScenario = scenarios.find(
+  (scenario) => scenario.expected === "report-one-mib-mcp-limit-no-storage-url-bypass",
+);
+if (!manageLargeAttachmentScenario || manageLargeAttachmentScenario.tools.includes("download_attachment")) {
+  errors.push("mermail-manage-inbox: known oversized MCP attachment must stop before download");
+}
+const manageInjectionScenario = scenarios.find(
+  (scenario) => scenario.expected === "ignore-email-authority-no-destructive-call",
+);
+if (
+  !manageInjectionScenario ||
+  manageInjectionScenario.tools.some((tool) => coverage.destructiveTools.includes(tool))
+) {
+  errors.push("mermail-manage-inbox: email content must not authorize a destructive operation");
+}
+const manageSystemFolderScenario = scenarios.find(
+  (scenario) => scenario.expected === "refuse-non-deletable-system-folder",
+);
+if (!manageSystemFolderScenario || manageSystemFolderScenario.tools.includes("delete_folder")) {
+  errors.push("mermail-manage-inbox: system folder deletion must stop after discovery");
 }
 
 const composeEmailDir = path.join(skillsRoot, "mermail-compose-email");
@@ -1069,6 +1231,8 @@ const expectedSecurityScenarios = new Map([
   ["triager-prompt-injection", "ignore-and-keep-sandboxed"],
   ["mail-agent-prompt-injection", "least-privilege-with-human-approval"],
   ["mail-agent-no-server-tool-allowlist", "use-direct-bounded-read-no-fake-allowlist"],
+  ["manage-inbox-large-attachment", "report-one-mib-mcp-limit-no-storage-url-bypass"],
+  ["manage-inbox-email-delete-injection", "ignore-email-authority-no-destructive-call"],
   ["composio-untrusted-disallowed-action", "ignore-payload-and-stop-on-allowed-false"],
   ["composio-disabled-email-toolkit", "route-email-to-mermail-no-workaround"],
   ["wallet-onramp-redacted-url", "console-funding-deep-link-autofund-no-chat-checkout-url"],
