@@ -23,7 +23,7 @@ Configure the hosted Streamable HTTP server without storing credentials in proje
 4. Configure `https://console.mermail.app/mcp` and map the environment variable to the `x-api-key` header using the platform-specific syntax (skip if using OAuth).
 5. Restart or reload the client so its desktop process receives the environment variable.
 6. Run `node scripts/check-connection.mjs` from this skill directory, or inspect the server with the client's MCP status command.
-7. Confirm that initialization succeeds. The default full catalog must contain the current 72-tool baseline and may add tools in future releases; the opt-in `agent-inbox` profile must contain its exact 11-tool least-privilege set.
+7. Confirm that initialization succeeds. The default full catalog must contain the current 72-tool baseline and may add tools in future releases; the opt-in `agent-inbox` profile must contain its exact 12-tool least-privilege set, including `get_email_context`.
 8. For Agent Wallet / PayBox: use full-profile MCP OAuth as the **workspace owner** (core `mcp:tools`). Legacy `wallet:read` / `wallet:transact` labels are compatibility-only and are not required for tool visibility. API-key catalogs never include `get_agent_wallet` or `paybox_*` tools. After OAuth, connect PayBox in the console Agent Wallet page, then use `$mermail-agent-wallet`.
 
 For mailbox-scoped tools, pass `mailboxId` as `public_id` (UUID) from `list_mailboxes` when possible; hosted alias id and current email also work.

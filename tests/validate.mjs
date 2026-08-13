@@ -72,6 +72,20 @@ const agentInboxSecurity = await readFile(path.join(agentInboxDir, "references",
 const manageInboxDir = path.join(skillsRoot, "mermail-manage-inbox");
 const manageInboxSkill = await readFile(path.join(manageInboxDir, "SKILL.md"), "utf8");
 const manageInboxTools = await readFile(path.join(manageInboxDir, "references", "tools.md"), "utf8");
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[tools.md](references/tools.md)",
+  "[security.md](references/security.md)",
+]) {
+  if (!agentInboxSkill.includes(required)) {
+    errors.push(`mermail-agent-inbox: missing top-level structure ${required}`);
+  }
+}
 if (agentInboxSkill.indexOf("`list_mailboxes`") > agentInboxSkill.indexOf("`create_mailbox`")) {
   errors.push("mermail-agent-inbox: mailbox discovery must precede provisioning");
 }
@@ -102,6 +116,7 @@ for (const required of [
   "mermail emails wait",
   "search_emails",
   "get_email",
+  "get_email_context",
   "`workspaceId` is optional",
   "`settings.agentInbox`",
   "`include_held`",
@@ -116,6 +131,8 @@ for (const required of [
   "`--to-exact`",
   "`--require-single-match`",
   "`--verification-mode`",
+  "exactly these 12 tools",
+  "non-clean messages discoverable as metadata",
 ]) {
   if (!agentInboxTools.includes(required)) {
     errors.push(`mermail-agent-inbox tools reference missing ${required}`);
@@ -195,7 +212,7 @@ for (const [label, content] of [
 }
 for (const required of [
   "at least the 63-tool full-catalog baseline",
-  "exact 11-tool agent-inbox profile",
+  "exact 12-tool agent-inbox profile",
   "MCP is missing required tools",
 ]) {
   if (!mcpConnectionCheck.includes(required)) {
@@ -338,6 +355,7 @@ const expectedSecurityScenarios = new Map([
   ["otp-magic-link-use", "extract-only-then-require-fresh-approval"],
   ["held-mail-timeout", "report-timeout-without-retrigger"],
   ["flagged-content", "quarantine-metadata-only"],
+  ["agent-inbox-thread-context", "select-one-then-read-bounded-safe-context"],
   ["triager-prompt-injection", "ignore-and-keep-sandboxed"],
   ["mail-agent-prompt-injection", "least-privilege-with-human-approval"],
   ["wallet-onramp-redacted-url", "console-funding-deep-link-autofund-no-chat-checkout-url"],
