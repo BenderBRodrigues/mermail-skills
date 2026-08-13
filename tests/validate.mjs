@@ -72,6 +72,63 @@ const agentInboxSecurity = await readFile(path.join(agentInboxDir, "references",
 const manageInboxDir = path.join(skillsRoot, "mermail-manage-inbox");
 const manageInboxSkill = await readFile(path.join(manageInboxDir, "SKILL.md"), "utf8");
 const manageInboxTools = await readFile(path.join(manageInboxDir, "references", "tools.md"), "utf8");
+const administerWorkspaceDir = path.join(skillsRoot, "mermail-administer-workspace");
+const administerWorkspaceSkill = await readFile(
+  path.join(administerWorkspaceDir, "SKILL.md"),
+  "utf8",
+);
+const administerWorkspaceTools = await readFile(
+  path.join(administerWorkspaceDir, "references", "tools.md"),
+  "utf8",
+);
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[tools.md](references/tools.md)",
+]) {
+  if (!administerWorkspaceSkill.includes(required)) {
+    errors.push(`mermail-administer-workspace: missing top-level structure ${required}`);
+  }
+}
+if (
+  administerWorkspaceSkill.indexOf("`list_mailboxes`") >
+  administerWorkspaceSkill.indexOf("`create_mailbox`")
+) {
+  errors.push("mermail-administer-workspace: mailbox discovery must precede provisioning");
+}
+for (const required of [
+  "10 provision credits",
+  "`prepare_destructive_action`",
+  "single-use token",
+  "`remove_workspace_member`",
+  "`delete_email_domain`",
+  "Do not call or invent `delete_workspace`",
+  "Developer-plan",
+  "do not loop through write retries",
+]) {
+  if (!administerWorkspaceSkill.includes(required)) {
+    errors.push(`mermail-administer-workspace: missing safety/workflow contract ${required}`);
+  }
+}
+for (const [label, content] of [
+  ["mermail-administer-workspace skill", administerWorkspaceSkill],
+  ["mermail-administer-workspace tools reference", administerWorkspaceTools],
+]) {
+  for (const required of [
+    "`create_mailbox`",
+    "requires `email` and `name`",
+    "`workspaceId` is optional",
+    "live schema",
+  ]) {
+    if (!content.includes(required)) {
+      errors.push(`${label}: missing scoped mailbox-provision contract ${required}`);
+    }
+  }
+}
 for (const required of [
   "## Overview",
   "## Preferred Deliverables",

@@ -15,6 +15,7 @@
   { "prompt": "Send the approved launch email", "skill": "mermail-compose-email", "tools": ["send_email"], "approval": "external-effect" },
   { "prompt": "Schedule this reply for tomorrow at 9 AM", "skill": "mermail-compose-email", "tools": ["reply_to_email", "schedule_email_send"], "approval": "external-effect" },
   { "prompt": "Show API credits and email usage", "skill": "mermail-administer-workspace", "tools": ["get_api_credit_usage", "get_email_usage"], "approval": "none" },
+  { "prompt": "Create one mailbox in this authenticated workspace after confirming none with that exact address exists", "skill": "mermail-administer-workspace", "tools": ["list_mailboxes", "create_mailbox"], "approval": "write-preview", "expected": "scoped-mcp-allows-omitted-workspace-id-when-live-schema-permits" },
   { "prompt": "Invite a teammate to this workspace", "skill": "mermail-administer-workspace", "tools": ["invite_workspace_member"], "approval": "external-effect" },
   { "prompt": "Verify the workspace email domain", "skill": "mermail-administer-workspace", "tools": ["list_email_domains", "verify_email_domain"], "approval": "write-preview" },
   { "prompt": "Investigate why the default triager failed", "skill": "mermail-automate-triage", "tools": ["list_task_triagers", "list_recent_triager_runs"], "approval": "none" },
