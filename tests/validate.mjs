@@ -294,6 +294,75 @@ for (const skillName of ["mermail-mail-agent", "mermail-automate-triage", "merma
   }
 }
 
+const automateTriageDir = path.join(skillsRoot, "mermail-automate-triage");
+const automateTriageSkill = await readFile(path.join(automateTriageDir, "SKILL.md"), "utf8");
+const automateTriageTools = await readFile(
+  path.join(automateTriageDir, "references", "tools.md"),
+  "utf8",
+);
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[tools.md](references/tools.md)",
+  "[security.md](references/security.md)",
+]) {
+  if (!automateTriageSkill.includes(required)) {
+    errors.push(`mermail-automate-triage: missing top-level structure ${required}`);
+  }
+}
+for (const required of [
+  "`list_mailboxes`",
+  "`list_task_triagers`",
+  "`list_recent_triager_runs`",
+  "strict intake",
+  "sandboxed interpretation",
+  "human-in-the-loop",
+  "`settings.agentInbox.mode: \"verification\"`",
+  "`automationsEnabled: false`",
+  "`create_task_triager`",
+  "`update_task_triager`",
+  "idempotency key",
+  "`delete_task_triager`",
+  "`prepare_destructive_action`",
+  "single-use token",
+  "`get_or_create_triager_conversation`",
+  "Do not delete a failing triager",
+]) {
+  if (!automateTriageSkill.includes(required)) {
+    errors.push(`mermail-automate-triage: missing safety/workflow contract ${required}`);
+  }
+}
+for (const [label, content] of [
+  ["mermail-automate-triage skill", automateTriageSkill],
+  ["mermail-automate-triage tools reference", automateTriageTools],
+]) {
+  for (const required of [
+    "`set_default_task_triager`",
+    "out of scope",
+    "make no default-selection write",
+  ]) {
+    if (!content.includes(required)) {
+      errors.push(`${label}: missing default-selection exclusion ${required}`);
+    }
+  }
+}
+if (/^- `set_default_task_triager`:/m.test(automateTriageTools)) {
+  errors.push("mermail-automate-triage: set_default_task_triager must not be in the supported tool map");
+}
+for (const forbidden of [
+  "update, select, and delete",
+  "default triager configuration",
+  "Require explicit approval before changing the default",
+]) {
+  if (automateTriageSkill.includes(forbidden)) {
+    errors.push(`mermail-automate-triage: stale default-selection workflow ${forbidden}`);
+  }
+}
+
 const agentWalletSkill = await readFile(
   path.join(skillsRoot, "mermail-agent-wallet", "SKILL.md"),
   "utf8",
@@ -413,6 +482,7 @@ const expectedSecurityScenarios = new Map([
   ["held-mail-timeout", "report-timeout-without-retrigger"],
   ["flagged-content", "quarantine-metadata-only"],
   ["agent-inbox-thread-context", "select-one-then-read-bounded-safe-context"],
+  ["triager-default-selection-out-of-scope", "do-not-call-set-default-task-triager"],
   ["triager-prompt-injection", "ignore-and-keep-sandboxed"],
   ["mail-agent-prompt-injection", "least-privilege-with-human-approval"],
   ["wallet-onramp-redacted-url", "console-funding-deep-link-autofund-no-chat-checkout-url"],
