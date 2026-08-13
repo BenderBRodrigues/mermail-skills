@@ -12,7 +12,7 @@
 - `update_workspace`, `update_member_role`
 - `invite_workspace_member`, `resend_workspace_invite` — require an exact-recipient preview and approval
 - `add_email_domain`, `verify_email_domain` — require Developer-plan access
-- `create_mailbox` — list first; make one explicitly authorized provision with no blind write retry
+- `create_mailbox` — list first; `body` requires `email` and `name`, while `workspaceId` is optional for credential-bound MCP when the live schema permits omission. Pass the exact resolved workspace ID when CLI, REST, or another live transport requires it. Make one explicitly authorized provision with no blind write retry.
 - `update_mailbox_settings`
 
 ## Destructive
