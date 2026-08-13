@@ -3,6 +3,8 @@ import process from "node:process";
 
 const endpoint = process.env.MERMAIL_MCP_URL || "https://console.mermail.app/mcp";
 const apiKey = process.env.MERMAIL_API_KEY;
+const currentFullCatalogBaseline = 72;
+const compatibleFullCatalogFloor = 63;
 const agentInboxTools = [
   "get_api_credit_usage",
   "list_workspaces",
@@ -37,7 +39,7 @@ const initialize = await request({
   params: {
     protocolVersion: "2025-03-26",
     capabilities: {},
-    clientInfo: { name: "mermail-skill-check", version: "1.2.1" }
+    clientInfo: { name: "mermail-skill-check", version: "1.5.2" }
   }
 });
 
@@ -51,14 +53,23 @@ if (tools.some((tool) => !tool || typeof tool.name !== "string")) {
 }
 const names = new Set(tools.map((tool) => tool.name));
 const profile = new URL(endpoint).searchParams.get("profile");
+if (profile && profile !== "agent-inbox") {
+  fail(`Unsupported Mermail MCP profile: ${profile}.`);
+}
+if (names.size !== tools.length) fail("MCP tools/list returned duplicate tool names.");
 const required = profile === "agent-inbox" ? agentInboxTools : fullCatalogCanaries;
 const missing = required.filter((name) => !names.has(name));
 if (missing.length) fail(`MCP is missing required tools: ${missing.join(", ")}.`);
 if (profile === "agent-inbox" && (tools.length !== 12 || names.size !== 12)) {
   fail(`Expected the exact 12-tool agent-inbox profile but discovered ${tools.length} entries.`);
 }
-if (!profile && (tools.length < 63 || names.size < 63)) {
+if (!profile && (tools.length < compatibleFullCatalogFloor || names.size < compatibleFullCatalogFloor)) {
   fail(`Expected at least the 63-tool full-catalog baseline but discovered ${tools.length} entries.`);
+}
+if (!profile && tools.length < currentFullCatalogBaseline) {
+  console.warn(
+    `Connected, but discovered ${tools.length} tools below the current ${currentFullCatalogBaseline}-tool base; the server may be on a gradual or older deployment.`
+  );
 }
 
 console.log(

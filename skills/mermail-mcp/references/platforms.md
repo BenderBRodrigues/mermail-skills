@@ -1,16 +1,22 @@
-# Platform configuration
+# Mermail MCP platform configuration
 
-**Preferred:** OAuth against `https://console.mermail.app/mcp` in Cursor, Claude, and ChatGPT connectors — no API key in config.
+Read this reference when selecting an authentication mode, tool profile, or exact client configuration. The hosted Streamable HTTP endpoint is `https://console.mermail.app/mcp`.
 
-**API-key mode** (Codex, OpenClaw, headless): set the secret before launching the client:
+## Authentication and profile selection
 
-```bash
-export MERMAIL_API_KEY="sk-proj-your-key"
-```
+| Need | Endpoint | Authentication | Capability boundary |
+| --- | --- | --- | --- |
+| Normal external Mermail work | `/mcp` | Prefer OAuth; API key fallback | Full base catalog |
+| Least-privilege verification inbox | `/mcp?profile=agent-inbox` | OAuth or API key | Exact 12-tool mailbox-provisioning and safe-email-read set |
+| Agent Wallet / PayBox | `/mcp` | OAuth as workspace owner | Full profile plus owner wallet and live PayBox tools |
+
+OAuth uses the same Enoki account as the Mermail console and binds the grant to the workspace selected during browser consent. Core scope is `mcp:tools`; `openid` and `offline_access` may accompany it. Legacy `wallet:read` and `wallet:transact` labels are compatibility-only and do not unlock tools.
+
+API-key mode uses a workspace-scoped `sk-proj-…` value mapped from `MERMAIL_API_KEY` to the `x-api-key` header. API-key mode cannot unlock Agent Wallet or `paybox_*` tools.
 
 ## Codex
 
-**GitHub plugin path** uses API-key headers (`MERMAIL_API_KEY`):
+Use OAuth through the official Plugins Directory after Mermail is published there. The GitHub plugin path uses an API-key environment header:
 
 ```json
 {
@@ -22,13 +28,11 @@ export MERMAIL_API_KEY="sk-proj-your-key"
 }
 ```
 
-Use `/mcp` to inspect the connection. Restart Codex after changing the environment.
+Set `MERMAIL_API_KEY` in the environment that launches Codex, restart the client, then inspect `/mcp`. Do not place an API key in an official Directory App configuration.
 
-**Official Plugins Directory** (Linear-style Apps Connected) uses **OAuth** after OpenAI approves the Mermail plugin — see [CODEX_MARKETPLACE.md](../../../CODEX_MARKETPLACE.md). Do not put an API key in Directory App config.
+## Claude and Claude Code
 
-## Claude / Claude Code
-
-Prefer the Claude connectors UI (OAuth). For Claude Code with an API key:
+Prefer the Claude connectors UI with OAuth. For Claude Code API-key fallback:
 
 ```json
 {
@@ -40,28 +44,15 @@ Prefer the Claude connectors UI (OAuth). For Claude Code with an API key:
 }
 ```
 
-Use `/mcp` or `claude mcp get mermail` to inspect the connection. Run `/reload-plugins` after plugin updates.
+Use `/mcp` or `claude mcp get mermail` to inspect connection state. Run `/reload-plugins` after plugin updates.
 
-For Claude web, **Finding tools** followed by `Tool 'Mermail:<name>' not found`
-usually means the current chat has a stale or unloaded connector tool registry.
-Do not retry under a guessed namespaced name. Verify the production server card
-contains the bare protocol tool name, reconnect Mermail in Claude's connector
-settings and complete OAuth again if prompted, then start a new chat. Smoke-test
-the exact host-qualified mailbox-list identifier exposed by Claude (commonly
-`Mermail:list_mailboxes`) before retrying the original call. Claude commonly
-exposes `Mermail:list_emails`; another host may expose a different namespace or
-the bare name. Never manually add, strip, or invent the qualifier. Mermail's
-underlying `tools/list` names remain `list_mailboxes` and `list_emails`.
-
-When constructing calls, pass `query` as a native JSON object, not as an escaped
-JSON string. For newest-first email listing, the canonical fields are
-`sortColumn: "date"` and `sortDirection: "DESC"`.
+Claude commonly exposes host-qualified identifiers such as `Mermail:list_mailboxes` and `Mermail:list_emails`; another host may expose a different namespace or bare names. Never manually add, strip, or invent the qualifier. The protocol `tools/list` names remain bare `list_mailboxes` and `list_emails`.
 
 ## Cursor
 
-Prefer OAuth: add `https://console.mermail.app/mcp` (or the Cursor deeplink from [mermail.app/agents](https://mermail.app/agents)), then Authenticate — no `x-api-key` header needed.
+Prefer OAuth: add `https://console.mermail.app/mcp` or use the Cursor deeplink from [mermail.app/agents](https://mermail.app/agents), then select Authenticate.
 
-API-key fallback if OAuth is unavailable:
+If OAuth is unavailable, use:
 
 ```json
 {
@@ -73,17 +64,12 @@ API-key fallback if OAuth is unavailable:
 }
 ```
 
-Open MCP settings to verify the server. If Cursor was launched from the desktop, ensure the desktop process receives `MERMAIL_API_KEY`; exporting it only in a shell does not update an already-running app.
+Open MCP settings to inspect the server after restarting Cursor. An already-running desktop process does not receive an environment variable exported later in an unrelated shell.
 
-## Agent Wallet access
+## OpenClaw and headless clients
 
-Agent Wallet / PayBox tools require full-profile MCP OAuth as the **workspace owner**. Core grant is `mcp:tools` (plus openid/offline_access). Legacy `wallet:read` / `wallet:transact` scope strings are compatibility-only and are not enforced for tool visibility.
+Use the client's secret store, process supervisor, CI secret injection, or another non-recording credential input to provide `MERMAIL_API_KEY` to the launching process. Do not type a real key in an interactive `export` command that may remain in shell history. For generic MCP configuration, preserve the same Streamable HTTP URL and `x-api-key` mapping; do not place the actual key in examples, logs, command arguments, or tracked files.
 
-If `get_agent_wallet` is absent from `tools/list`, reconnect OAuth as workspace owner on the full profile, then connect PayBox in the Mermail console. API-key mode cannot unlock Agent Wallet; route wallet tasks to `$mermail-agent-wallet` after OAuth is ready.
+## Mailbox identifiers
 
-## Security
-
-- Store keys in environment or the platform secret store.
-- Use the narrowest workspace-scoped key.
-- Revoke exposed keys immediately.
-- Never commit expanded configuration containing a real `sk-proj-` value.
+For mailbox-scoped tools, prefer `public_id` from `list_mailboxes` as `mailboxId`. A hosted alias id or current email may also resolve, but never infer a mailbox from display name or mix identifiers across workspaces.
