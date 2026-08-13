@@ -157,4 +157,4 @@ This package is the **official curated** Mermail skills set. Community contribut
 | **Official PRs** | Improve existing skills, docs, scenarios, security contracts, or propose a new skill that maps to Mermail MCP tools |
 | **Companion skills** | Niche workflows in your own repo / [skills.sh](https://skills.sh/) — do not claim to be this official package |
 
-Start with [CONTRIBUTING.md](./CONTRIBUTING.md). Skill format and anti-patterns: [AUTHORING.md](./AUTHORING.md). Security reports: [SECURITY.md](./SECURITY.md). Code of Conduct: [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md). Maintainer process and graduation: [MAINTAINERS.md](./MAINTAINERS.md).
+Start with [CONTRIBUTING.md](./CONTRIBUTING.md). First official skill tutorial: [CONTRIBUTING_A_SKILL.md](./CONTRIBUTING_A_SKILL.md). Skill format and anti-patterns: [AUTHORING.md](./AUTHORING.md). Security reports: [SECURITY.md](./SECURITY.md). Code of Conduct: [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md). Maintainer process and graduation: [MAINTAINERS.md](./MAINTAINERS.md).

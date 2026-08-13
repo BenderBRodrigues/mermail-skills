@@ -8,6 +8,7 @@ body:
       value: |
         Only use this when the skill maps to Mermail MCP tools and should ship in the official package.
         For niche Mermail + other-app workflows, use the **Community companion idea** template instead.
+        Follow [Contribute your first Mermail skill](https://github.com/Nudgen-Marketing/mermail-skills/blob/main/CONTRIBUTING_A_SKILL.md) for the complete ownership, scaffold, scenario, validation, client test, and pull request workflow.
   - type: input
     id: proposed_name
     attributes:
@@ -41,6 +42,8 @@ body:
       label: Contributor readiness
       options:
         - label: I can update tool-coverage.json, routing.md, scenarios, README, and agents/openai.yaml in one PR
+          required: true
+        - label: I have read the end-to-end skill contribution tutorial
           required: true
         - label: I have read AUTHORING.md and SECURITY.md
           required: true
