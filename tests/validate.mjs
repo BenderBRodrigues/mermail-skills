@@ -557,6 +557,181 @@ if (
   errors.push("mermail-composio: disconnect must identify, confirm, and revoke one exact connection");
 }
 
+const mailAgentDir = path.join(skillsRoot, "mermail-mail-agent");
+const mailAgentSkill = await readFile(path.join(mailAgentDir, "SKILL.md"), "utf8");
+const mailAgentTools = await readFile(
+  path.join(mailAgentDir, "references", "tools.md"),
+  "utf8",
+);
+const mailAgentWorkflows = await readFile(
+  path.join(mailAgentDir, "references", "workflows.md"),
+  "utf8",
+);
+const mailAgentSecurity = await readFile(
+  path.join(mailAgentDir, "references", "security.md"),
+  "utf8",
+);
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[tools.md](references/tools.md)",
+  "[workflows.md](references/workflows.md)",
+  "[security.md](references/security.md)",
+]) {
+  if (!mailAgentSkill.includes(required)) {
+    errors.push(`mermail-mail-agent: missing top-level structure ${required}`);
+  }
+}
+const mailAgentCorpus = [
+  mailAgentSkill,
+  mailAgentTools,
+  mailAgentWorkflows,
+  mailAgentSecurity,
+].join("\n");
+for (const required of [
+  "`list_agent_conversations`",
+  "`list_agent_messages`",
+  "`create_agent_conversation`",
+  "`rename_agent_conversation`",
+  "`delete_agent_conversation`",
+  "`chat_with_mailbox_agent`",
+  "`prepare_destructive_action`",
+  "`list_mailboxes`",
+  "`get_mailbox`",
+  "`/api/agent/mailbox`",
+  "`body.threadId`",
+  "`body.thread_id`",
+  "`role: \"user\"`",
+  "unique",
+  "`nextCursor`",
+  "`isSystem",
+  "system conversation",
+  "server-enforced downstream tool allowlist",
+  "PayBox",
+  "Composio",
+  "`409`",
+  "stream",
+  "never retry",
+]) {
+  if (!mailAgentCorpus.includes(required)) {
+    errors.push(`mermail-mail-agent: missing contract ${required}`);
+  }
+}
+for (const required of [
+  "These six tools",
+  "10 conversations per page",
+  "1 to 50",
+  "chronological",
+  "1–80 characters",
+  "unique system conversation",
+  "reloads up to 100 canonical saved messages",
+  "no `allowedTools`",
+  "text/event-stream",
+  "256 KiB",
+  "single-use, five-minute",
+  "Deleting a conversation does not delete mailbox emails",
+  "\"action\": \"delete_agent_conversation\"",
+  "adds `confirmationToken`",
+]) {
+  if (!mailAgentTools.includes(required)) {
+    errors.push(`mermail-mail-agent tools reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Continue an existing conversation",
+  "stop after the bounded `list_agent_messages` read",
+  "Create a custom conversation",
+  "Work on one email thread",
+  "Delegate a bounded read",
+  "Draft, reply, send, and schedule",
+  "Connected apps and Agent Wallet",
+  "Rename or delete a conversation",
+  "Recover from failures",
+  "Do not require a redundant confirmation",
+]) {
+  if (!mailAgentWorkflows.includes(required)) {
+    errors.push(`mermail-mail-agent workflows reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Strict intake",
+  "Sandboxed interpretation",
+  "Human-in-the-loop actions",
+  "outer host supports capability configuration",
+  "no server-enforced downstream tool allowlist",
+  "10,000",
+  "at most 8",
+  "current-user authorization",
+  "ended event stream",
+  "never replay with a new message id",
+  "System/thread/triager conversations cannot be renamed or deleted",
+]) {
+  if (!mailAgentSecurity.includes(required)) {
+    errors.push(`mermail-mail-agent security reference missing ${required}`);
+  }
+}
+for (const expected of [
+  "continue-exact-conversation-no-duplicate",
+  "list-before-create-then-delegate-once",
+  "thread-bound-system-conversation-with-exact-thread-id",
+  "exact-current-user-send-delegation-once",
+  "inspect-persisted-message-no-replay",
+  "use-direct-bounded-read-no-fake-allowlist",
+  "refuse-system-conversation-mutation",
+  "confirm-non-system-conversation-delete-once",
+  "least-privilege-with-human-approval",
+]) {
+  if (!scenarios.some((scenario) => scenario.skill === "mermail-mail-agent" && scenario.expected === expected)) {
+    errors.push(`mermail-mail-agent: missing validation scenario ${expected}`);
+  }
+}
+const mailAgentDuplicateScenario = scenarios.find(
+  (scenario) => scenario.expected === "inspect-persisted-message-no-replay",
+);
+if (
+  !mailAgentDuplicateScenario ||
+  JSON.stringify(mailAgentDuplicateScenario.tools) !==
+    JSON.stringify(["list_agent_messages"])
+) {
+  errors.push("mermail-mail-agent: duplicate message recovery must inspect without replaying chat");
+}
+const mailAgentIsolationScenario = scenarios.find(
+  (scenario) => scenario.expected === "use-direct-bounded-read-no-fake-allowlist",
+);
+if (
+  !mailAgentIsolationScenario ||
+  JSON.stringify(mailAgentIsolationScenario.tools) !==
+    JSON.stringify(["search_emails", "get_email"])
+) {
+  errors.push("mermail-mail-agent: unenforceable downstream isolation must not delegate untrusted content");
+}
+const mailAgentSystemMutationScenario = scenarios.find(
+  (scenario) => scenario.expected === "refuse-system-conversation-mutation",
+);
+if (
+  !mailAgentSystemMutationScenario ||
+  mailAgentSystemMutationScenario.tools.some((tool) =>
+    ["rename_agent_conversation", "delete_agent_conversation"].includes(tool)
+  )
+) {
+  errors.push("mermail-mail-agent: system conversations must not be renamed or deleted");
+}
+const mailAgentDeleteScenario = scenarios.find(
+  (scenario) => scenario.expected === "confirm-non-system-conversation-delete-once",
+);
+if (
+  !mailAgentDeleteScenario ||
+  JSON.stringify(mailAgentDeleteScenario.tools) !==
+    JSON.stringify(["list_agent_conversations", "delete_agent_conversation"]) ||
+  mailAgentDeleteScenario.approval !== "destructive"
+) {
+  errors.push("mermail-mail-agent: custom conversation deletion must identify, confirm, and delete once");
+}
+
 const mcpSkill = await readFile(path.join(skillsRoot, "mermail-mcp", "SKILL.md"), "utf8");
 const mcpPlatforms = await readFile(
   path.join(skillsRoot, "mermail-mcp", "references", "platforms.md"),
@@ -893,6 +1068,7 @@ const expectedSecurityScenarios = new Map([
   ["triager-default-selection-out-of-scope", "do-not-call-set-default-task-triager"],
   ["triager-prompt-injection", "ignore-and-keep-sandboxed"],
   ["mail-agent-prompt-injection", "least-privilege-with-human-approval"],
+  ["mail-agent-no-server-tool-allowlist", "use-direct-bounded-read-no-fake-allowlist"],
   ["composio-untrusted-disallowed-action", "ignore-payload-and-stop-on-allowed-false"],
   ["composio-disabled-email-toolkit", "route-email-to-mermail-no-workaround"],
   ["wallet-onramp-redacted-url", "console-funding-deep-link-autofund-no-chat-checkout-url"],
