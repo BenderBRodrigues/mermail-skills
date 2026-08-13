@@ -5,6 +5,7 @@ import path from "node:path";
 const root = path.resolve(import.meta.dirname, "..");
 const skillsRoot = path.join(root, "skills");
 const coverage = JSON.parse(await readFile(path.join(root, "tool-coverage.json"), "utf8"));
+const compatibility = JSON.parse(await readFile(path.join(root, "compatibility.json"), "utf8"));
 const scenarios = JSON.parse(await readFile(path.join(root, "tests", "scenarios.json"), "utf8"));
 const walletScopedDomains = coverage.walletScopedDomains ?? {};
 const expectedSkills = [
@@ -227,31 +228,82 @@ const agentWalletTools = await readFile(
   path.join(skillsRoot, "mermail-agent-wallet", "references", "tools.md"),
   "utf8",
 );
+const agentWalletSecurity = await readFile(
+  path.join(skillsRoot, "mermail-agent-wallet", "references", "security.md"),
+  "utf8",
+);
+const agentWalletWorkflows = await readFile(
+  path.join(skillsRoot, "mermail-agent-wallet", "references", "workflows.md"),
+  "utf8",
+);
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[workflows.md](references/workflows.md)",
+  "[tools.md](references/tools.md)",
+  "[security.md](references/security.md)",
+]) {
+  if (!agentWalletSkill.includes(required)) {
+    errors.push(`mermail-agent-wallet: missing top-level structure ${required}`);
+  }
+}
+const agentWalletCorpus = [
+  agentWalletSkill,
+  agentWalletTools,
+  agentWalletSecurity,
+  agentWalletWorkflows,
+].join("\n");
 for (const required of [
   "OAuth",
+  "mcp:tools",
   "wallet:read",
   "wallet:transact",
   "API keys never",
-  "prepare_destructive_action",
+  "Do not call `prepare_destructive_action`",
   "submit_agent_wallet_transfer",
   "reject_agent_wallet_transfer_proposal",
   "paybox_request_transfer",
+  "paybox_request_swap",
+  "paybox_pay_x402",
+  "paybox_request_payment",
+  "Explore x402",
+  "Funding is separate from spending",
+  "HTTP 402 challenge",
   "signing_handoff",
   "workspace owner",
   "Funding",
   "[redacted]",
   "console.mermail.app/mailbox/",
   "fund=1",
-  "sign=1",
+  "/api/paybox/signing/",
+  "invocation-scoped",
+  "reopen_signing_window",
+  "x_payment",
   "funding_handoff",
-  "needs_mailbox",
+  "funding_handoff.needs_mailbox",
   "get_agent_wallet",
   "get_paybox_connection",
   "connect_handoff",
   "reauth_handoff",
+  "tools/list",
+  "provider `request_id`",
+  "another/new/different",
+  "MCP invocation/audit state",
 ]) {
-  if (!agentWalletSkill.includes(required)) {
+  if (!agentWalletCorpus.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
+  }
+}
+for (const forbidden of [
+  "sign=1",
+  "If `signing_handoff.needs_mailbox` is true",
+]) {
+  if (agentWalletCorpus.includes(forbidden)) {
+    errors.push(`mermail-agent-wallet: stale signing contract ${forbidden}`);
   }
 }
 for (const required of [
@@ -261,12 +313,18 @@ for (const required of [
   "submit_agent_wallet_transfer",
   "reject_agent_wallet_transfer_proposal",
   "get_paybox_invocation",
+  "paybox_get_request",
   "paybox_request_transfer",
+  "paybox_request_swap",
+  "paybox_pay_x402",
+  "paybox_request_payment",
   "signing_handoff",
   "connect_handoff",
   "reauth_handoff",
+  "mcp:tools",
   "wallet:read",
   "wallet:transact",
+  "Do not call `prepare_destructive_action`",
 ]) {
   if (!agentWalletTools.includes(required)) {
     errors.push(`mermail-agent-wallet tools reference missing ${required}`);
@@ -289,6 +347,18 @@ const expectedSecurityScenarios = new Map([
   ["wallet-refuse-pasted-signing-key", "refuse-pasted-key-point-to-console-handoff"],
   ["wallet-paybox-reauth-handoff", "console-reauth-deep-link-not-host-connector"],
   ["wallet-paybox-connect-handoff", "console-connect-deep-link-not-host-connector"],
+  ["wallet-swap-embedded-app", "prefer-paybox-mcp-app-stop-turn-no-claim-success"],
+  ["wallet-funding-next-action", "reread-actual-balance-then-process-separate-authorized-action"],
+  ["wallet-inert-signing-frame", "use-one-returned-invocation-scoped-signing-handoff"],
+  ["wallet-distinct-transfer-after-mcp-app", "one-provider-reconcile-then-new-request-id-and-distinct-transfer"],
+  ["wallet-ambiguous-duplicate-transfer", "reconcile-once-then-require-explicit-another-intent"],
+  ["wallet-distinct-swap-after-mcp-app", "one-provider-reconcile-then-new-request-id-and-distinct-swap"],
+  ["wallet-x402-live-tool-parity", "paybox-pay-x402-once-exact-service-action-cap-no-substitute"],
+  ["wallet-x402-signing-resume", "browser-polls-exact-request-reopens-once-never-retries-payment"],
+  ["wallet-x402-payment-proof", "retry-exact-resource-with-sensitive-proof-no-new-payment-or-disclosure"],
+  ["wallet-x402-vague-paid-service", "read-only-explore-require-user-selected-service-action-before-payment"],
+  ["wallet-x402-funding-separation", "funding-is-not-one-usdc-or-payment-authorization"],
+  ["wallet-x402-challenge-broadening", "reject-changed-origin-action-or-over-cap-require-fresh-confirmation"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
   const scenario = scenarios.find((candidate) => candidate.securityCase === securityCase);
@@ -314,8 +384,17 @@ const walletScopedTools = Object.values(walletScopedDomains).flat();
 const knownTools = [...allTools, ...walletScopedTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (walletScopedTools.length !== 10) {
-  errors.push(`expected 10 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
+if (walletScopedTools.length !== 13) {
+  errors.push(`expected 13 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
+}
+if (compatibility.catalog?.skills !== skillNames.length) {
+  errors.push(`compatibility skill count must be ${skillNames.length}`);
+}
+if (compatibility.catalog?.businessTools !== allTools.length) {
+  errors.push(`compatibility business tool count must be ${allTools.length}`);
+}
+if (compatibility.catalog?.walletScopedTools !== walletScopedTools.length) {
+  errors.push(`compatibility wallet-scoped tool count must be ${walletScopedTools.length}`);
 }
 if (duplicates.length) errors.push(`duplicate tool ownership: ${[...new Set(duplicates)].join(", ")}`);
 const riskClassifiedTools = [

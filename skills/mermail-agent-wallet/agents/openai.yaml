@@ -1,7 +1,7 @@
 interface:
   display_name: "Mermail Agent Wallet"
-  short_description: "Inspect PayBox balances and submit approved USDC, native ETH/SOL, or catalog-token transfers"
-  default_prompt: "Use $mermail-agent-wallet to inspect or transfer through Mermail Agent Wallet."
+  short_description: "Use PayBox balances, sends, swaps, and x402"
+  default_prompt: "Use $mermail-agent-wallet for balances, Funding, sends, swaps, or a user-selected x402 paid-service action with exact live-schema terms and PayBox MCP App UI."
 dependencies:
   tools:
     - type: "mcp"
