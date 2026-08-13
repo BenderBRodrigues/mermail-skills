@@ -15,9 +15,10 @@ Companion skills that prove safe and useful can later be [graduated](./MAINTAINE
 
 ## Before you start
 
-1. Read [AUTHORING.md](./AUTHORING.md) for skill format, frontmatter, and anti-patterns.
-2. Read [SECURITY.md](./SECURITY.md) if your change touches email intake, approvals, wallet, or destructive tools.
-3. Follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
+1. Follow [Contribute your first Mermail skill](./CONTRIBUTING_A_SKILL.md) for the end-to-end fork, scaffold, ownership, scenario, validation, client test, and pull request workflow.
+2. Read [AUTHORING.md](./AUTHORING.md) for skill format, frontmatter, and anti-patterns.
+3. Read [SECURITY.md](./SECURITY.md) if your change touches email intake, approvals, wallet, or destructive tools.
+4. Follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## Improve official skills
 
@@ -39,6 +40,8 @@ Only propose a new skill in this repo when:
 Use the [new official skill proposal](https://github.com/Nudgen-Marketing/mermail-skills/issues/new?template=new-official-skill-proposal.yml) issue template before a large PR.
 
 Copy the skeleton from [`templates/skill/`](./templates/skill/) and rename the directory to match the skill `name`.
+
+For a worked example and exact commands, use [Contribute your first Mermail skill](./CONTRIBUTING_A_SKILL.md).
 
 ### Required updates for skill changes
 
@@ -72,6 +75,8 @@ npm run validate:remote
 ```
 
 Never commit API keys or expand secrets into tracked files.
+
+Before review, follow the [client smoke-test checklist](./CONTRIBUTING_A_SKILL.md#8-smoke-test-the-agent-behavior). Use a test workspace and record routing, approval, and security observations in the PR test plan.
 
 ### Pull request checklist
 
