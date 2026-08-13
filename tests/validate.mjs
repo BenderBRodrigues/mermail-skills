@@ -280,6 +280,99 @@ if (mcpConnectionCheck.includes("tools.length !== 63")) {
   errors.push("mermail-mcp connection check must allow additive full-catalog tools");
 }
 
+const cliSkill = await readFile(path.join(skillsRoot, "mermail-cli", "SKILL.md"), "utf8");
+const cliTools = await readFile(
+  path.join(skillsRoot, "mermail-cli", "references", "tools.md"),
+  "utf8",
+);
+const cliWorkflows = await readFile(
+  path.join(skillsRoot, "mermail-cli", "references", "workflows.md"),
+  "utf8",
+);
+const cliSecurity = await readFile(
+  path.join(skillsRoot, "mermail-cli", "references", "security.md"),
+  "utf8",
+);
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[tools.md](references/tools.md)",
+  "[workflows.md](references/workflows.md)",
+  "[security.md](references/security.md)",
+]) {
+  if (!cliSkill.includes(required)) {
+    errors.push(`mermail-cli: missing top-level structure ${required}`);
+  }
+}
+const cliCorpus = [cliSkill, cliTools, cliWorkflows, cliSecurity].join("\n");
+for (const required of [
+  "exactly these 12 tools",
+  "`get_email_context`",
+  "`mermail emails context`",
+  "bounded, sanitized, scan-gated, oldest-first thread page",
+  "Do not call or invent `mermail workspaces delete`",
+  "Do not call or invent `mermail triagers set-default`",
+  "directly with `{ proposalId, version }`",
+  "do not call `prepare_destructive_action`",
+  "exact invocation-scoped `signing_handoff.console_url`",
+  "Never construct, rewrite, or bind a signing URL",
+  "compatibility-only",
+]) {
+  if (!cliCorpus.includes(required)) {
+    errors.push(`mermail-cli: missing current contract ${required}`);
+  }
+}
+for (const forbidden of [
+  "mermail wallet sign-url --mailbox-id",
+  "wallet status|credentials|portfolio|connect-url|reauth-url|fund-url|sign-url",
+  "requires `prepare_destructive_action`",
+]) {
+  if (cliCorpus.includes(forbidden)) {
+    errors.push(`mermail-cli: stale CLI contract ${forbidden}`);
+  }
+}
+for (const required of [
+  "Node.js 22",
+  "70 supported Sold API commands",
+  "`mermail wallet sign-url` is retired",
+  "`mermail emails context`",
+  "Exit `5`",
+]) {
+  if (!cliTools.includes(required)) {
+    errors.push(`mermail-cli tools reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Mailbox-first onboarding",
+  "Bounded email wait",
+  "Selected email context",
+  "Agent Wallet routing",
+  "Funding is separate",
+  "Swaps and x402",
+]) {
+  if (!cliWorkflows.includes(required)) {
+    errors.push(`mermail-cli workflows reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Trust boundaries",
+  "Approval boundary",
+  "Execute each write once",
+  "PayBox-specific rules",
+  "Do not construct a `sign=1` URL",
+]) {
+  if (!cliSecurity.includes(required)) {
+    errors.push(`mermail-cli security reference missing ${required}`);
+  }
+}
+if (!scenarios.some((scenario) => scenario.skill === "mermail-cli")) {
+  errors.push("mermail-cli: missing validation scenario");
+}
+
 for (const skillName of ["mermail-mail-agent", "mermail-automate-triage", "mermail-agent-wallet"]) {
   const skillDir = path.join(skillsRoot, skillName);
   const skill = await readFile(path.join(skillDir, "SKILL.md"), "utf8");
