@@ -242,6 +242,145 @@ for (const required of [
   }
 }
 
+const composeEmailDir = path.join(skillsRoot, "mermail-compose-email");
+const composeEmailSkill = await readFile(
+  path.join(composeEmailDir, "SKILL.md"),
+  "utf8",
+);
+const composeEmailTools = await readFile(
+  path.join(composeEmailDir, "references", "tools.md"),
+  "utf8",
+);
+const composeEmailWorkflows = await readFile(
+  path.join(composeEmailDir, "references", "workflows.md"),
+  "utf8",
+);
+const composeEmailSecurity = await readFile(
+  path.join(composeEmailDir, "references", "security.md"),
+  "utf8",
+);
+for (const required of [
+  "## Overview",
+  "## Preferred Deliverables",
+  "## Workflow",
+  "## Write Safety",
+  "## Output Conventions",
+  "## Example Requests",
+  "[tools.md](references/tools.md)",
+  "[workflows.md](references/workflows.md)",
+  "[security.md](references/security.md)",
+]) {
+  if (!composeEmailSkill.includes(required)) {
+    errors.push(`mermail-compose-email: missing top-level structure ${required}`);
+  }
+}
+const composeEmailCorpus = [
+  composeEmailSkill,
+  composeEmailTools,
+  composeEmailWorkflows,
+  composeEmailSecurity,
+].join("\n");
+for (const required of [
+  "`save_draft`",
+  "`regenerate_draft`",
+  "`send_email`",
+  "`reply_to_email`",
+  "`forward_email`",
+  "`schedule_email_send`",
+  "pass explicit `to`; pass `cc` and `bcc` only",
+  "MCP does not expose `replyAll`",
+  "`source_draft_id`",
+  "`draft_id`",
+  "`scheduled_send_at`",
+  "`validation_failed`",
+  "idempotency key",
+  "latest inbound",
+  "original Bcc",
+]) {
+  if (!composeEmailCorpus.includes(required)) {
+    errors.push(`mermail-compose-email: missing composition contract ${required}`);
+  }
+}
+for (const required of [
+  "Save editable content",
+  "body.html",
+  "body.text",
+  "body.body",
+  "top-level path parameter",
+  "Regeneration changes an unsent draft",
+]) {
+  if (!composeEmailTools.includes(required)) {
+    errors.push(`mermail-compose-email tools reference missing ${required}`);
+  }
+}
+for (const required of [
+  "New compose",
+  "Draft, revision, and regeneration",
+  "Reply All",
+  "Forward",
+  "does not automatically copy the original body or attachments",
+  "Use `schedule_email_send` alone",
+  "Never call `send_email` or `reply_to_email` before scheduling",
+]) {
+  if (!composeEmailWorkflows.includes(required)) {
+    errors.push(`mermail-compose-email workflows reference missing ${required}`);
+  }
+}
+for (const required of [
+  "Trust boundaries",
+  "Recipient integrity",
+  "Saving or regenerating a draft is an internal write",
+  "Execute an approved external effect once",
+  "Never send immediately to simulate scheduling",
+]) {
+  if (!composeEmailSecurity.includes(required)) {
+    errors.push(`mermail-compose-email security reference missing ${required}`);
+  }
+}
+for (const forbidden of [
+  "Always pass explicit `to` / `cc` / `bcc` on every write",
+  "call `reply_to_email` before `schedule_email_send`",
+]) {
+  if (composeEmailCorpus.includes(forbidden)) {
+    errors.push(`mermail-compose-email: stale composition contract ${forbidden}`);
+  }
+}
+const scheduledReplyScenario = scenarios.find(
+  (scenario) => scenario.expected === "schedule-only-no-immediate-reply",
+);
+if (!scheduledReplyScenario) {
+  errors.push("mermail-compose-email: missing schedule-only validation scenario");
+} else if (
+  JSON.stringify(scheduledReplyScenario.tools) !==
+  JSON.stringify(["schedule_email_send"])
+) {
+  errors.push(
+    "mermail-compose-email: scheduled reply must use only schedule_email_send",
+  );
+}
+for (const expected of [
+  "save-unsent-draft-only",
+  "replace-with-draft-id-and-preserve-thread",
+  "regenerate-for-review-not-delivery",
+  "explicit-to-cc-bcc-no-reply-all-flag",
+  "explicit-forward-recipient-and-attachment-intent",
+]) {
+  if (!scenarios.some((scenario) => scenario.skill === "mermail-compose-email" && scenario.expected === expected)) {
+    errors.push(`mermail-compose-email: missing validation scenario ${expected}`);
+  }
+}
+const forwardAttachmentScenario = scenarios.find(
+  (scenario) => scenario.expected === "explicit-forward-recipient-and-attachment-intent",
+);
+if (
+  !forwardAttachmentScenario ||
+  !forwardAttachmentScenario.tools.includes("download_attachment")
+) {
+  errors.push(
+    "mermail-compose-email: forwarding an attachment must read the exact attachment",
+  );
+}
+
 const mcpSkill = await readFile(path.join(skillsRoot, "mermail-mcp", "SKILL.md"), "utf8");
 const mcpPlatforms = await readFile(
   path.join(skillsRoot, "mermail-mcp", "references", "platforms.md"),
