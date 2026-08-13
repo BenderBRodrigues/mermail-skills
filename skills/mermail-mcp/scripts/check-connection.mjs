@@ -14,7 +14,8 @@ const agentInboxTools = [
   "get_mailbox",
   "list_emails",
   "search_emails",
-  "get_email"
+  "get_email",
+  "get_email_context"
 ];
 const fullCatalogCanaries = [
   "prepare_destructive_action",
@@ -53,8 +54,8 @@ const profile = new URL(endpoint).searchParams.get("profile");
 const required = profile === "agent-inbox" ? agentInboxTools : fullCatalogCanaries;
 const missing = required.filter((name) => !names.has(name));
 if (missing.length) fail(`MCP is missing required tools: ${missing.join(", ")}.`);
-if (profile === "agent-inbox" && (tools.length !== 11 || names.size !== 11)) {
-  fail(`Expected the exact 11-tool agent-inbox profile but discovered ${tools.length} entries.`);
+if (profile === "agent-inbox" && (tools.length !== 12 || names.size !== 12)) {
+  fail(`Expected the exact 12-tool agent-inbox profile but discovered ${tools.length} entries.`);
 }
 if (!profile && (tools.length < 63 || names.size < 63)) {
   fail(`Expected at least the 63-tool full-catalog baseline but discovered ${tools.length} entries.`);

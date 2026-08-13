@@ -17,6 +17,6 @@
 
 ## Destructive
 
-- `delete_workspace`, `remove_workspace_member`, `delete_email_domain`
+- `remove_workspace_member`, `delete_email_domain`
 
-Require explicit approval and a single-use token from `prepare_destructive_action`. Workspace deletion must include a clear impact warning before approval.
+Require explicit approval and a single-use token from `prepare_destructive_action`. The current MCP catalog does not expose `delete_workspace`; do not invent or call that removed tool.
