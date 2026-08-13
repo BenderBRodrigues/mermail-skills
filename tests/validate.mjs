@@ -279,9 +279,12 @@ for (const required of [
   "[redacted]",
   "console.mermail.app/mailbox/",
   "fund=1",
-  "sign=1",
+  "/api/paybox/signing/",
+  "invocation-scoped",
+  "reopen_signing_window",
+  "x_payment",
   "funding_handoff",
-  "needs_mailbox",
+  "funding_handoff.needs_mailbox",
   "get_agent_wallet",
   "get_paybox_connection",
   "connect_handoff",
@@ -293,6 +296,14 @@ for (const required of [
 ]) {
   if (!agentWalletCorpus.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
+  }
+}
+for (const forbidden of [
+  "sign=1",
+  "If `signing_handoff.needs_mailbox` is true",
+]) {
+  if (agentWalletCorpus.includes(forbidden)) {
+    errors.push(`mermail-agent-wallet: stale signing contract ${forbidden}`);
   }
 }
 for (const required of [
@@ -338,10 +349,13 @@ const expectedSecurityScenarios = new Map([
   ["wallet-paybox-connect-handoff", "console-connect-deep-link-not-host-connector"],
   ["wallet-swap-embedded-app", "prefer-paybox-mcp-app-stop-turn-no-claim-success"],
   ["wallet-funding-next-action", "reread-actual-balance-then-process-separate-authorized-action"],
+  ["wallet-inert-signing-frame", "use-one-returned-invocation-scoped-signing-handoff"],
   ["wallet-distinct-transfer-after-mcp-app", "one-provider-reconcile-then-new-request-id-and-distinct-transfer"],
   ["wallet-ambiguous-duplicate-transfer", "reconcile-once-then-require-explicit-another-intent"],
   ["wallet-distinct-swap-after-mcp-app", "one-provider-reconcile-then-new-request-id-and-distinct-swap"],
   ["wallet-x402-live-tool-parity", "paybox-pay-x402-once-exact-service-action-cap-no-substitute"],
+  ["wallet-x402-signing-resume", "browser-polls-exact-request-reopens-once-never-retries-payment"],
+  ["wallet-x402-payment-proof", "retry-exact-resource-with-sensitive-proof-no-new-payment-or-disclosure"],
   ["wallet-x402-vague-paid-service", "read-only-explore-require-user-selected-service-action-before-payment"],
   ["wallet-x402-funding-separation", "funding-is-not-one-usdc-or-payment-authorization"],
   ["wallet-x402-challenge-broadening", "reject-changed-origin-action-or-over-cap-require-fresh-confirmation"],
