@@ -22,7 +22,8 @@ For OAuth mode, use the client's MCP status and tool catalog. Confirm:
 
 - The full API-key profile currently has a base catalog of 72 tools, including 71 business definitions plus `prepare_destructive_action`. Future releases may add tools.
 - Compatibility verification: the bundled script accepts at least the 63-tool full-catalog floor plus required canaries so it can diagnose gradual deployments while still warning when the current 72-tool base is absent.
-- Full owner OAuth: includes the base catalog and may add Agent Wallet compatibility tools, PayBox connection/invocation tools, MCP App resources, and live `paybox_*` tools according to connection state.
+- Full-profile member OAuth: includes the base catalog and may add `get_paybox_connection`, safe invocation status, MCP App resources, and model-visible live `paybox_*` tools through the workspace owner's active connection.
+- Full-profile owner OAuth: additionally exposes owner-only connect/reauth behavior and legacy Agent Wallet compatibility tools. When a member sees `OWNER_ACTION_REQUIRED`, do not invent a handoff or reconnect the host connector; the workspace owner must connect or repair PayBox in Mermail.
 - `agent-inbox`: exactly 12 tools: `get_api_credit_usage`, `list_workspaces`, `get_workspace`, `list_email_domains`, `list_workspace_mailboxes`, `list_mailboxes`, `create_mailbox`, `get_mailbox`, `list_emails`, `search_emails`, `get_email`, and `get_email_context`. This is a provisioning-plus-safe-read profile, not a read-only profile: `create_mailbox` is the sole scoped provisioning write and must not be called to test connectivity.
 
 Wallet tools, `prepare_destructive_action`, send, delete, Composio, mailbox-agent, and workspace-admin tools must remain absent from `agent-inbox`. A hidden tool call against that profile must fail rather than escaping the profile.
@@ -60,3 +61,5 @@ If discovery succeeds but a call is rejected, inspect the live input schema. Pas
 Write tools may return `code: "validation_failed"` with a `details` array. Correct only the named fields without changing the target or intended effect. Send/reply/forward accept `body.html` and/or `body.text` plus `body.from`; drafts and schedule use string `body.body`. Continue through `mermail-compose-email`, not this connection skill.
 
 After a reconnect, never replay a write whose prior result is uncertain. Read authoritative state once and return to the owning domain skill.
+
+MCP is a stateless POST endpoint. An unauthenticated GET may return an OAuth discovery challenge and an authenticated GET may return `405`; neither replaces `initialize` followed by `tools/list`. Accept both `application/json` and `text/event-stream` responses.

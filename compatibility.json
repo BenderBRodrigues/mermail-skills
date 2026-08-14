@@ -1,10 +1,10 @@
 {
-  "verifiedAt": "2026-08-13",
-  "pluginVersion": "1.5.2",
+  "verifiedAt": "2026-08-14",
+  "pluginVersion": "1.5.3",
   "hostedMcp": {
     "url": "https://console.mermail.app/mcp",
     "transport": "streamable-http",
-    "authentication": "OAuth (ChatGPT/Cursor/Claude connectors; OpenAI Plugins Directory Apps) or x-api-key via MERMAIL_API_KEY (Codex GitHub plugin, OpenClaw)"
+    "authentication": "OAuth (ChatGPT/Cursor/Claude connectors; OpenAI Plugins Directory Apps) or x-api-key via MERMAIL_API_KEY (Codex GitHub plugin, OpenClaw); full-profile OAuth members may use live PayBox tools through the owner's active connection, while owner-only legacy wallet and connection management remain restricted"
   },
   "platforms": {
     "codex": "env_http_headers via .codex-plugin/mcp.json; Directory Apps use OAuth connector id in .app.json after portal publish",
@@ -15,6 +15,6 @@
     "skills": 11,
     "businessTools": 71,
     "confirmationTools": 1,
-    "walletScopedTools": 13
+    "walletScopedTools": 15
   }
 }

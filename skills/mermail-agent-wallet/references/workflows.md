@@ -19,12 +19,12 @@ When `tools/list` or a result includes `_meta.ui.resourceUri` / `ui/resourceUri`
 
 Checkout and buy links are browser-only and appear as `[redacted]` in model-visible output.
 
-1. Resolve one mailbox, then call `get_agent_wallet` once; prefer this over `paybox_get_buy_link`.
-2. If PayBox is connected, paste one non-null `funding_handoff.console_url`. Otherwise build `https://console.mermail.app/mailbox/{public_id}/agent-wallet?fund=1&amount={n}`, using the requested USD amount or default `1`.
+1. Resolve one mailbox and call `get_paybox_connection`. If the live `paybox_get_buy_link` tool is visible, read its schema and call it once for the exact requested USD amount; prefer its rendered checkout or returned `funding_handoff.console_url`. An owner may instead use `get_agent_wallet` once to obtain the same first-party handoff.
+2. If an owner has no usable returned handoff, build `https://console.mermail.app/mailbox/{public_id}/agent-wallet?fund=1&amount={n}`, using the requested USD amount or default `1`. A member who receives `OWNER_ACTION_REQUIRED` must stop and ask the owner to repair PayBox; do not construct a member handoff.
 3. Tell the user the deep link auto-opens Funding and that MoonPay may require Apple Pay/card, KYC, minimums, conversion, or fees.
-4. Wait for the user to finish, then call `get_agent_wallet` or `get_agent_wallet_portfolio` once to verify the actual balance.
+4. Wait for the user to finish, then call live `paybox_get_portfolio` once; an owner may use `get_agent_wallet` or `get_agent_wallet_portfolio` instead.
 
-Do not retry `paybox_get_buy_link` to obtain an unredacted URL. If `funding_handoff.needs_mailbox` is true or its URL is null, re-read `get_agent_wallet` with the explicit `mailboxId`. Funding never authorizes a transfer, swap, or x402 payment.
+Do not retry `paybox_get_buy_link` to obtain an unredacted URL. If a handoff needs a mailbox or its URL is null, resolve the explicit `mailboxId` and make no more than the one authorized funding call. Funding never authorizes a transfer, swap, or x402 payment.
 
 A later exact transfer, swap, or x402 request is separate spending authority and also signals that Funding may have finished. Re-read the actual portfolio once instead of continuing to describe the old Funding handoff as pending. Proceed only from the observed balance and the new request's exact terms; if funds are still insufficient, report that without assuming the checkout outcome.
 
@@ -32,7 +32,7 @@ A later exact transfer, swap, or x402 request is separate spending authority and
 
 Use `paybox_request_transfer` for every new transfer, including Circle USDC, native ETH/SOL, and any reviewed catalog token. Never create a local proposal for a normal send.
 
-1. Read `get_agent_wallet`; resolve credential, portfolio asset, chain, amount, and destination from user-authorized values.
+1. Read live `paybox_get_portfolio`; an owner may use `get_agent_wallet`. Resolve credential, portfolio asset, chain, amount, and destination from user-authorized values.
 2. Read the live transfer schema. Pass the portfolio token address or `"native"` only when the schema/portfolio uses that sentinel, and pass amounts exactly as the schema requires. Do not invent Mermail-local limits or decimal conversion.
 3. Preview mailbox/credential, asset, chain, exact amount, and destination.
 4. Call `paybox_request_transfer` once.

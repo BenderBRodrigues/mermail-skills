@@ -56,7 +56,7 @@ Choose the correct ownership and risk collection:
 | Collection | Use for |
 | --- | --- |
 | `domains` | Normal API-key/OAuth business tools |
-| `walletScopedDomains` | Agent Wallet tools exposed only through eligible owner OAuth |
+| `walletScopedDomains` | PayBox/Agent Wallet tools exposed only through eligible full-profile OAuth. Model-visible live `paybox_*` may use the owner's active connection for current members; connection management and legacy wallet tools remain owner-only |
 | `externalEffectTools` | Sends, invitations, delegated actions, or other effects outside the workspace |
 | `destructiveTools` | Non-PayBox destructive tools requiring exact confirmation and `prepare_destructive_action` |
 | `walletDestructiveTools` | PayBox writes using their live PayBox approval/signing flow, not `prepare_destructive_action` |

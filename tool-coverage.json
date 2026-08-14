@@ -35,6 +35,8 @@
       "submit_agent_wallet_transfer",
       "reject_agent_wallet_transfer_proposal",
       "get_paybox_invocation",
+      "paybox_get_portfolio",
+      "paybox_get_buy_link",
       "paybox_request_transfer",
       "paybox_request_swap",
       "paybox_pay_x402"

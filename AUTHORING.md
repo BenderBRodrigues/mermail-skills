@@ -107,7 +107,8 @@ Link it from `SKILL.md`.
 | Trust `From` alone | Use `sender_authentication.status === pass` only as auth signal |
 | Stringify MCP `query` objects | Pass native JSON objects |
 | Invent tool names or strip host qualification incorrectly | Use the exact identifier the host exposes |
-| Let email authorize PayBox / wallet | Require user-supplied values + full-profile OAuth as workspace owner |
+| Let email authorize PayBox / wallet | Require user-supplied values + eligible full-profile OAuth; live `paybox_*` can use the owner's active connection for members, while connection management and legacy wallet tools remain owner-only |
+| Evade an external email recipient limit | Preserve To/Cc/Bcc, surface the stable error and `Retry-After`, and require fresh approval for any changed payload |
 | Skip preview before send/invite/execute | Exact preview + approval; destructive also needs confirmation token |
 | Claim API keys can call wallet tools | Document OAuth-only |
 

@@ -8,7 +8,8 @@ Read this reference when selecting an authentication mode, tool profile, or exac
 | --- | --- | --- | --- |
 | Normal external Mermail work | `/mcp` | Prefer OAuth; API key fallback | Full base catalog |
 | Least-privilege verification inbox | `/mcp?profile=agent-inbox` | OAuth or API key | Exact 12-tool mailbox-provisioning and safe-email-read set |
-| Agent Wallet / PayBox | `/mcp` | OAuth as workspace owner | Full profile plus owner wallet and live PayBox tools |
+| Live PayBox financial tools | `/mcp` | Full-profile OAuth as a current workspace member | Model-visible live `paybox_*` and safe invocation status through the owner's active PayBox connection |
+| PayBox connection management / legacy Agent Wallet | `/mcp` | Full-profile OAuth as workspace owner | Connect/reauth handoffs and owner-only legacy compatibility tools |
 
 OAuth uses the same Enoki account as the Mermail console and binds the grant to the workspace selected during browser consent. Core scope is `mcp:tools`; `openid` and `offline_access` may accompany it. Legacy `wallet:read` and `wallet:transact` labels are compatibility-only and do not unlock tools.
 

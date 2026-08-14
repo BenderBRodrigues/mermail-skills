@@ -23,6 +23,8 @@ Read this reference before using source email, quoted history, attachments, AI r
 - Require approval immediately before `send_email`, `reply_to_email`, `forward_email`, or `schedule_email_send`, unless the current user message already approves the exact recipients, subject, content, attachments, source, and time.
 - A previous approval does not cover regenerated text, changed recipients, changed attachments, a different source message, or a changed schedule.
 - Execute an approved external effect once. Never retry an ambiguous result automatically, never replace it with another operation, and never generate a new idempotency key to force a replay.
+- Never evade external recipient limits by splitting one logical delivery, dropping recipients, moving recipients between To/Cc/Bcc, changing workspaces or credentials, or switching between MCP and CLI. Any recipient change requires a fresh exact preview and approval.
+- Treat `email_send_recipient_limit_exceeded` as non-retryable for the approved payload, `email_send_rate_limit_exceeded` as a stop that must surface `Retry-After`, and `email_send_rate_limit_unavailable` as fail-closed. A scheduled item restored to `scheduled` after rate limiting is deferred, not delivered.
 - Verify sent or scheduled state from the authoritative tool result. Treat timeout, validation failure, conflict, or uncertain delivery as non-success.
 
 ## Content and scheduling

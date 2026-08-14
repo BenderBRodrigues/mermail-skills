@@ -95,6 +95,27 @@ Regeneration changes an unsent draft for review. It does not authorize or perfor
 
 Pass `idempotencyKey` at the top level when using one. Reuse it only for the identical method, path, query, and body. A replay of most mutations returns a conflict instead of executing twice, so an idempotency key is not permission to loop or to retry an ambiguous external effect with a new key.
 
+## External recipient limits
+
+For Free workspaces, external API/MCP delivery counts every address in To+Cc+Bcc as one recipient unit:
+
+- at most **10 recipients in one request**;
+- **10 recipient units/minute**;
+- **50 recipient units/hour**;
+- **200 recipient units/day**.
+
+These limits apply to `send_email`, `reply_to_email`, `forward_email`, and the actual delivery of `schedule_email_send`. Developer and Enterprise bypass this special external-recipient limiter, but all plans remain subject to workspace RPM, API credits, and ordinary email quota.
+
+Scheduling validates the per-request recipient count when the schedule is created, but rolling recipient quota is consumed only when delivery runs. A scheduled message deferred by the rolling limit remains `scheduled`; it is not sent yet.
+
+| Status/code | Meaning | Required handling |
+| --- | --- | --- |
+| `400 email_send_recipient_limit_exceeded` | Free request has more than 10 total To+Cc+Bcc recipients | Do not retry or silently alter the approved recipient set; ask for a new exact set. |
+| `429 email_send_rate_limit_exceeded` | A rolling recipient window is exhausted | Surface `Retry-After`; do not auto-retry a send-like write. Scheduled delivery may be requeued by Mermail. |
+| `503 email_send_rate_limit_unavailable` | The limiter cannot safely verify capacity | Fail closed; do not send through another surface or claim delivery. |
+
+The same stable delivery event is not charged twice by the recipient limiter, but that server-side deduplication is not permission for an agent to replay an uncertain write.
+
 ### If you see `Invalid request`
 
 Read `code: "validation_failed"` and the `details` array from the tool result — they name the missing or wrong fields (for example `body: Either 'html' or 'text' must be provided`).

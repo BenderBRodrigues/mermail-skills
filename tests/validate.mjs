@@ -458,6 +458,13 @@ for (const required of [
   "idempotency key",
   "latest inbound",
   "original Bcc",
+  "10 recipient units/minute",
+  "50/hour",
+  "200/day",
+  "email_send_recipient_limit_exceeded",
+  "email_send_rate_limit_exceeded",
+  "email_send_rate_limit_unavailable",
+  "Retry-After",
 ]) {
   if (!composeEmailCorpus.includes(required)) {
     errors.push(`mermail-compose-email: missing composition contract ${required}`);
@@ -470,6 +477,8 @@ for (const required of [
   "body.body",
   "top-level path parameter",
   "Regeneration changes an unsent draft",
+  "External recipient limits",
+  "actual delivery",
 ]) {
   if (!composeEmailTools.includes(required)) {
     errors.push(`mermail-compose-email tools reference missing ${required}`);
@@ -483,6 +492,8 @@ for (const required of [
   "does not automatically copy the original body or attachments",
   "Use `schedule_email_send` alone",
   "Never call `send_email` or `reply_to_email` before scheduling",
+  "External send limits and deferral",
+  "restores the item to `scheduled`",
 ]) {
   if (!composeEmailWorkflows.includes(required)) {
     errors.push(`mermail-compose-email workflows reference missing ${required}`);
@@ -494,6 +505,7 @@ for (const required of [
   "Saving or regenerating a draft is an internal write",
   "Execute an approved external effect once",
   "Never send immediately to simulate scheduling",
+  "Never evade external recipient limits",
 ]) {
   if (!composeEmailSecurity.includes(required)) {
     errors.push(`mermail-compose-email security reference missing ${required}`);
@@ -526,6 +538,9 @@ for (const expected of [
   "regenerate-for-review-not-delivery",
   "explicit-to-cc-bcc-no-reply-all-flag",
   "explicit-forward-recipient-and-attachment-intent",
+  "stop-at-ten-no-split-drop-or-send",
+  "one-call-surface-retry-after-no-auto-retry",
+  "report-deferred-scheduled-not-sent-no-duplicate",
 ]) {
   if (!scenarios.some((scenario) => scenario.skill === "mermail-compose-email" && scenario.expected === expected)) {
     errors.push(`mermail-compose-email: missing validation scenario ${expected}`);
@@ -943,7 +958,11 @@ for (const required of [
   "`tools/list`",
   "`list_workspaces`",
   "`list_mailboxes`",
-  "full-profile owner OAuth",
+  "Full-profile member OAuth",
+  "Full-profile owner OAuth",
+  "OWNER_ACTION_REQUIRED",
+  "stateless POST endpoint",
+  "text/event-stream",
   "native JSON objects",
   "uncertain write",
 ]) {
@@ -1260,6 +1279,11 @@ for (const required of [
   "HTTP 402 challenge",
   "signing_handoff",
   "workspace owner",
+  "Current workspace members",
+  "owner's active connection",
+  "owner-only",
+  "OWNER_ACTION_REQUIRED",
+  "paybox_signing_unsupported",
   "Funding",
   "[redacted]",
   "console.mermail.app/mailbox/",
@@ -1353,6 +1377,8 @@ const expectedSecurityScenarios = new Map([
   ["wallet-x402-vague-paid-service", "read-only-explore-require-user-selected-service-action-before-payment"],
   ["wallet-x402-funding-separation", "funding-is-not-one-usdc-or-payment-authorization"],
   ["wallet-x402-challenge-broadening", "reject-changed-origin-action-or-over-cap-require-fresh-confirmation"],
+  ["wallet-member-live-paybox", "member-audited-live-tool-owner-connection-no-legacy-wallet"],
+  ["wallet-member-owner-action-required", "stop-no-handoff-ask-owner-to-repair"],
 ]);
 for (const [securityCase, expected] of expectedSecurityScenarios) {
   const scenario = scenarios.find((candidate) => candidate.securityCase === securityCase);
@@ -1379,7 +1405,8 @@ for (const required of [
   "Prefer MCP OAuth",
   "API-key mode only where required",
   "exact 12-tool mailbox-provisioning and safe-email-read profile",
-  "full-profile OAuth as workspace owner",
+  "current workspace members may use live model-visible `paybox_*`",
+  "legacy Agent Wallet tools remain owner-only",
   "`public_id`",
   "default task triager is unsupported",
   "never call or invent `set_default_task_triager`",
@@ -1446,8 +1473,8 @@ const walletScopedTools = Object.values(walletScopedDomains).flat();
 const knownTools = [...allTools, ...walletScopedTools];
 const duplicates = knownTools.filter((tool, index) => knownTools.indexOf(tool) !== index);
 if (allTools.length !== 71) errors.push(`expected 71 business tools, found ${allTools.length}`);
-if (walletScopedTools.length !== 13) {
-  errors.push(`expected 13 wallet-scoped Agent Wallet tools, found ${walletScopedTools.length}`);
+if (walletScopedTools.length !== 15) {
+  errors.push(`expected 15 wallet-scoped Agent Wallet tool canaries, found ${walletScopedTools.length}`);
 }
 if (compatibility.catalog?.skills !== skillNames.length) {
   errors.push(`compatibility skill count must be ${skillNames.length}`);

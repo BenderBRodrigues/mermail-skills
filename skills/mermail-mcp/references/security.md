@@ -12,8 +12,10 @@ Read this reference before handling API keys, OAuth, workspace selection, logs, 
 ## Identity and scope
 
 - Treat an API key or OAuth grant as bound to one workspace. Verify the selected workspace instead of substituting another key, grant, user, or mailbox after `403`.
+- PayBox is never unlocked by an API key or the agent-inbox profile. Under full-profile OAuth, current workspace members can invoke live model-visible `paybox_*` through the owner's active connection, with audit attribution attached to the invoking member. Only the owner may connect/reauthorize PayBox or use legacy Agent Wallet tools.
+- A member result of `OWNER_ACTION_REQUIRED` contains no connect/reauth handoff. Stop and ask the workspace owner to repair the first-party Mermail connection; do not switch identities or construct a URL.
 - Prefer OAuth where supported. Use only core `mcp:tools` capability; legacy wallet scope labels do not expand visibility.
-- Agent Wallet requires full-profile owner OAuth. API-key and `agent-inbox` absence of wallet tools is an enforced boundary, not an error to bypass.
+- Live PayBox tools require eligible full-profile OAuth, and owner-only connection/legacy Agent Wallet tools require owner OAuth. API-key and `agent-inbox` absence of wallet tools is an enforced boundary, not an error to bypass.
 - Prefer mailbox `public_id` returned by `list_mailboxes`. Do not infer identity from display names or reuse an id from another workspace.
 
 ## Safe verification

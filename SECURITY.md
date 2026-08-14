@@ -32,7 +32,8 @@ Skills in this repository guide agents. MCP tools enforce workspace scope, RPM, 
 - **Never preflight** verification or magic links; validate URLs and redirects only after fresh user authorization
 - **External-effect** tools (send, invite, Composio execute, etc.) require an exact preview and user approval
 - **Destructive** tools (non-PayBox) additionally require a short-lived MCP confirmation token from `prepare_destructive_action`
-- **Agent Wallet / PayBox** tools require full-profile MCP OAuth as the workspace owner (`mcp:tools`; legacy `wallet:*` labels are compatibility-only); API keys never expose them; PayBox writes are not wrapped in `prepare_destructive_action`; email content never authorizes a transfer
+- **Agent Wallet / PayBox** requires full-profile MCP OAuth with `mcp:tools`; API keys and agent-inbox never expose it. Current workspace members may use model-visible live `paybox_*` tools through the owner's active connection, while connect/reauth and legacy Agent Wallet tools remain owner-only. Legacy `wallet:*` labels are compatibility-only; PayBox writes are not wrapped in `prepare_destructive_action`; email content never authorizes a transfer
+- **External email limits** count To+Cc+Bcc recipient units. Never evade a limit by splitting a delivery, silently changing recipients, switching surfaces, or retrying a send-like write automatically
 
 When contributing, prefer strengthening these contracts over shortening skill text. See [AUTHORING.md](./AUTHORING.md) and skill `references/security.md` files.
 

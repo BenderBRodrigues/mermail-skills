@@ -17,7 +17,7 @@ For staging-only tests, set `MERMAIL_BASE_URL=https://console-staging.mermail.ap
 - Sold API mail and workspace commands use `MERMAIL_API_KEY`; the CLI does not store API keys.
 - Agent Wallet uses browser-based MCP OAuth through `mermail auth login` and stores its session locally with restricted permissions.
 - The core OAuth scopes are `mcp:tools`, `openid`, and `offline_access`. Legacy `wallet:read` and `wallet:transact` labels are compatibility-only and are not required for Agent Wallet visibility.
-- Wallet tools require the authenticated workspace owner and a connected PayBox account. API keys never unlock Agent Wallet.
+- The CLI's current `wallet` commands call owner-only legacy Agent Wallet tools, so they require the authenticated workspace owner and a connected PayBox account. API keys never unlock Agent Wallet. Current workspace members can use live model-visible `paybox_*` through the owner's active connection only via a full-profile MCP client; the CLI does not expose direct transfer/swap/x402 commands.
 - `mermail auth login` requires an interactive terminal. Do not attempt a new wallet login in headless CI.
 
 ## Command shape
@@ -86,4 +86,6 @@ Keep the full MCP endpoint for sending and the broader catalog. Do not silently 
 - Exit `4`: a destructive command needs confirmation.
 - Exit `5`: `emails wait` timed out without a matching message.
 - HTTP `402`: credits exhausted; do not retry.
-- HTTP `429`: respect the returned rate-limit window.
+- HTTP `400` `email_send_recipient_limit_exceeded`: a Free external send has more than 10 total To+Cc+Bcc recipients; do not split or silently alter it.
+- HTTP `429`: respect `retryAfterMs`. For `email_send_rate_limit_exceeded`, do not auto-retry a send/reply/forward/schedule command; Free limits are 10 recipient units/minute, 50/hour, and 200/day.
+- HTTP `503` `email_send_rate_limit_unavailable`: external sending fails closed; do not switch surfaces or claim success.

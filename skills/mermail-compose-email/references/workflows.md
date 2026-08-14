@@ -58,3 +58,16 @@ If the selected message was sent by the current mailbox, preserve the original e
 5. Verify the returned `status: scheduled`, `scheduled_send_at`, and draft/schedule identifiers. Saving a draft without the schedule response is not scheduled delivery.
 
 If the timezone is unknown or the requested local time is ambiguous because of a daylight-saving transition, ask the user rather than guessing.
+
+## External send limits and deferral
+
+Before any send-like preview, count every To, Cc, and Bcc address. On a known Free workspace, stop before the tool call when the total exceeds 10; do not split the delivery or remove recipients without fresh user approval.
+
+After one approved call:
+
+1. `email_send_recipient_limit_exceeded` is non-retryable for that payload. Report the exact total and limit, then wait for the user to authorize a changed recipient set.
+2. `email_send_rate_limit_exceeded` is retryable by time, but not automatically by the agent. Surface the returned `Retry-After` interval and preserve the same logical delivery state.
+3. `email_send_rate_limit_unavailable` means the safety check failed closed. Stop instead of switching credentials, workspaces, CLI/MCP surfaces, or delivery tools.
+4. For scheduled mail, a rolling-limit failure at delivery restores the item to `scheduled` with a deferred retry time. Report `deferred`, not `sent`; do not create another schedule. A later plan downgrade can also make an existing schedule exceed the 10-recipient request cap, in which case it remains unsent and needs user action.
+
+Mermail consumes rolling quota at actual scheduled delivery, not when the schedule is created. Never promise that present capacity guarantees future delivery capacity.

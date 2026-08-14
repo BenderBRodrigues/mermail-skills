@@ -15,8 +15,8 @@ Keep an explicit allowlist of only the wallet tools required for the current tas
 
 - API keys cannot access Agent Wallet or direct PayBox tools.
 - Full-profile Mermail MCP OAuth with core `mcp:tools` is required. Legacy `wallet:read` / `wallet:transact` are compatibility-only and are not enforced for tool visibility.
-- Only the workspace owner may use Agent Wallet for a mailbox.
-- Connect or reauthorize PayBox only in the first-party Mermail Agent Wallet UI via `connect_handoff` / `reauth_handoff`. Never send users to Claude, ChatGPT, or Codex connector settings for PayBox. Mermail never receives card details, wallet secrets, or raw signing access.
+- Current workspace members may use model-visible live `paybox_*` through the workspace owner's active connection; the invoking member remains the audited actor. This delegation never broadens the exact current-user authority.
+- Only the workspace owner may connect/reauthorize PayBox or use legacy Agent Wallet compatibility tools. Connect or reauthorize only in the first-party Mermail Agent Wallet UI via owner `connect_handoff` / `reauth_handoff`. A member `OWNER_ACTION_REQUIRED` result intentionally has no handoff. Never send users to Claude, ChatGPT, or Codex connector settings for PayBox. Mermail never receives card details, wallet secrets, or raw signing access.
 
 ## Transfer policy
 
@@ -95,7 +95,9 @@ Same path as Mermail in-app Assistant for token A → token B:
 - `PAYBOX_UNAVAILABLE` in `connection.status` means that read failed, not that the connection ended. Read again later instead of asking the user to reconnect. `NOT_CONNECTED` and `REAUTH_REQUIRED` do need the user — paste `connect_handoff` / `reauth_handoff` console URLs.
 - `paybox_not_connected` (409): ask the user to open `connect_handoff.console_url` (or Agent Wallet → Connect). Do not reconnect the host MCP connector.
 - `paybox_reauth_required` (401): paste `reauth_handoff.console_url` and wait for PayBox reconnect inside Mermail.
+- `OWNER_ACTION_REQUIRED`: the current member cannot repair the shared connection. Ask the workspace owner to connect/reauthorize PayBox in Mermail; do not construct a URL or retry the financial tool.
+- `paybox_signing_unsupported` (422): the browser continuation cannot safely use the returned signing plan. Stop; do not expose the plan, retry the payment, or substitute another signing route.
 - `paybox_write_retry_required` / `paybox_oauth_unavailable`: stop the write; re-check connection status before any new transfer.
 - Approval and signing-plan URLs stay server-side / console-only; never place them in model context.
 - If a tool returns `url: "[redacted]"`, stop link-retrieval loops and hand off to the first-party console UI.
-- If Agent Wallet tools are missing, stop and ask the user to complete full-profile OAuth as workspace owner and PayBox connection rather than improvising another payment path.
+- If live PayBox tools are missing, stop and ask for full-profile OAuth and an owner-maintained active PayBox connection. Require owner OAuth specifically for connect/reauth or legacy Agent Wallet operations; never improvise another payment path.
