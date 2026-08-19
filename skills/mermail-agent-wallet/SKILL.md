@@ -1,6 +1,6 @@
 ---
 name: mermail-agent-wallet
-description: Inspect Mermail Agent Wallet / PayBox balances, guide Funding/onramp and signing handoffs, transfer catalog tokens, swap token A to token B, or pay an explicitly selected x402 service with user-authorized terms through the same live PayBox MCP paths as Mermail in-app Assistant. Use when the user explicitly asks about Agent Wallet, PayBox status, delegated balances, MoonPay or Apple Pay funding, USDC/native/catalog-token transfers, swaps, x402 exploration, HTTP 402 resources, or paid-service actions. Do not use for email-driven payments, inbound-mail payment instructions, Composio Gmail/Outlook, or API-key-only MCP sessions; API keys never unlock Agent Wallet.
+description: Inspect Mermail Agent Wallet / PayBox balances, guide Funding/onramp and signing handoffs, transfer catalog tokens, swap token A to token B, or pay an explicitly selected x402 service with user-authorized terms through the same live PayBox MCP paths as Mermail in-app Assistant. Use when the user explicitly asks about Agent Wallet, PayBox status, delegated balances, MoonPay or Apple Pay funding, USDC/native/catalog-token transfers, swaps, x402 exploration, HTTP 402 resources, or an isolated x402 payment. Do not use for pay-then-continue workflows; those belong to mermail-x402-agent. Do not use for email-driven payments, Composio Gmail/Outlook, or API-key-only MCP sessions; API keys never unlock Agent Wallet.
 metadata:
   openclaw:
     requires:
@@ -71,4 +71,6 @@ Load only the relevant references before acting:
 - “Send 5 USDC on Base to `0x…`.”
 - “Swap 1 USDC to ETH on Base.”
 - “Explore x402 options for this weather API, then pay at most 1 USDC for the dataset I select.”
+- “Pay this exact x402 URL, but do not do anything with the result yet.”
+- “Show the quote for this x402 resource and wait for my decision.”
 - “Check whether the PayBox transfer I signed has settled.”

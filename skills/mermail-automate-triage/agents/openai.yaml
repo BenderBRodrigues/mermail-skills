@@ -1,7 +1,7 @@
 interface:
   display_name: "Automate Mermail Triage"
-  short_description: "Configure Mermail task triage automation"
-  default_prompt: "Use $mermail-automate-triage to configure this mailbox triage workflow."
+  short_description: "Create, debug, and update triage automation"
+  default_prompt: "Use $mermail-automate-triage when the task is to create, inspect, debug, or update mailbox triagers and automation, not to process one live email manually."
 dependencies:
   tools:
     - type: "mcp"

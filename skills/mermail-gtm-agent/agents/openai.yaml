@@ -1,7 +1,7 @@
 interface:
   display_name: "Mermail GTM Agent"
-  short_description: "Outbound outreach, reply classification, and warm-ack drafts"
-  default_prompt: "Use $mermail-gtm-agent to draft this outbound email and classify replies without auto-sending."
+  short_description: "Run outbound outreach and classify sales replies"
+  default_prompt: "Use $mermail-gtm-agent when the job is outbound GTM email, reply classification, unsubscribe handling, or warm-ack drafting without auto-sending."
 dependencies:
   tools:
     - type: "mcp"

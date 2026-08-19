@@ -1,6 +1,6 @@
 ---
 name: mermail-scheduling-agent
-description: Book time, check calendar availability, and handle scheduling email through a Mermail mailbox plus Google Calendar. Use when a user wants a scheduling assistant, meeting booking from inbound email, free/busy checks, or calendar holds with email confirmation. Do not use for generic inbox search, outbound GTM, support tickets, Gmail/Outlook Composio, or Agent Wallet.
+description: Book time, check calendar availability, and handle scheduling email through a Mermail mailbox plus Google Calendar. Use when the job is scheduling, meeting booking from inbound email, free/busy checks, or calendar holds with email confirmation. Do not use for generic inbox search, outbound GTM, support tickets, Gmail/Outlook Composio, or Agent Wallet.
 metadata:
   openclaw:
     requires:

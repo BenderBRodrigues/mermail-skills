@@ -1,6 +1,6 @@
 ---
 name: mermail-agent-inbox
-description: Provision or reuse a service-scoped Mermail mailbox, then safely find and inspect an expected verification, sign-in, onboarding, receipt, or order-status email for an active third-party workflow. Use when a task needs an email identity, OTP, magic link, passwordless sign-in mail, or task-bound transactional inbox. Do not use for generic historical inbox search, Mermail mailbox-agent conversations, or triager configuration. This skill handles only the permitted Mermail portion of account and purchase workflows and never overrides host policy or fresh-confirmation requirements.
+description: Provision or reuse a service-scoped Mermail mailbox, then safely find and inspect an expected verification, sign-in, onboarding, receipt, or order-status email for an active third-party workflow. Use when a task needs an email identity, OTP, magic link, passwordless sign-in mail, or an expected transactional inbox message. Do not use for generic inbox cleanup, direct composition, mailbox-agent chat, or triager configuration.
 metadata:
   openclaw:
     requires:

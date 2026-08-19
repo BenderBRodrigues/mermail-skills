@@ -1,7 +1,7 @@
 interface:
   display_name: "Connect Mermail MCP"
-  short_description: "Configure and troubleshoot Mermail MCP"
-  default_prompt: "Use $mermail-mcp to configure and verify my Mermail MCP connection."
+  short_description: "Install, connect, and troubleshoot Mermail MCP"
+  default_prompt: "Use $mermail-mcp to install, configure, or verify the Mermail MCP connection before attempting normal mailbox, compose, or wallet tasks."
 dependencies:
   tools:
     - type: "mcp"

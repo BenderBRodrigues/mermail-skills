@@ -1,6 +1,6 @@
 ---
 name: mermail-automate-triage
-description: Create, inspect, update, and delete Mermail task triagers and review recent triager runs. Use when a user explicitly wants mailbox automation, task extraction, triager debugging, or a triager-linked agent conversation. Do not use for choosing or changing the default triager, provisioning a third-party inbox, waiting for verification mail, extracting an OTP or magic link, or generic mail search.
+description: Create, inspect, update, and delete Mermail task triagers and review recent triager runs. Use when a user explicitly wants mailbox automation, task extraction, triager debugging, or a triager-linked agent conversation. Do not use for choosing the default triager, provisioning a third-party inbox, waiting for verification mail, or processing one live email manually.
 metadata:
   openclaw:
     requires:

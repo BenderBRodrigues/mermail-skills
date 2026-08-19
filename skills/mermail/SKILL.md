@@ -1,6 +1,6 @@
 ---
 name: mermail
-description: Route broad, ambiguous, or cross-domain Mermail requests to the narrowest current workflow across MCP connection, CLI automation, active agent-inbox identity, ordinary inbox management, email composition, workspace administration, task triage, mailbox-agent delegation, Composio integrations, scheduling/GTM/support/x402 agent personas, and Agent Wallet. Use when a user asks generally to use Mermail, combines multiple Mermail domains, does not name a specific capability, or needs the correct execution surface and dependency order.
+description: Route broad, ambiguous, or cross-domain Mermail requests to the narrowest current workflow across MCP connection, CLI automation, agent inbox identity, inbox management, email composition, workspace admin, triage, mailbox-agent delegation, Composio integrations, scheduling/GTM/support/x402 personas, and Agent Wallet. Use when the user does not already name a focused skill or combines multiple Mermail jobs in one request.
 metadata:
   openclaw:
     requires:

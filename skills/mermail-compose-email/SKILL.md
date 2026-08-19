@@ -1,6 +1,6 @@
 ---
 name: mermail-compose-email
-description: Draft, revise, regenerate, send, reply to, forward, and schedule email through Mermail. Use when a user wants help composing mail, saving or revising a draft, replying or replying all through external MCP, forwarding a selected message, scheduling future delivery, or approving an exact email for delivery. Do not use for ordinary inbox organization, verification-mail correlation, mailbox-agent chat, or task-triager configuration.
+description: Draft, revise, regenerate, send, reply to, forward, and schedule email through Mermail. Use when the main job is composing a message, saving or revising a draft, replying, forwarding, scheduling delivery, or approving an exact send. Do not use for ordinary inbox organization, verification-mail correlation, mailbox-agent chat, or task-triager configuration.
 metadata:
   openclaw:
     requires:

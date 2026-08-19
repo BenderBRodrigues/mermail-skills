@@ -1,6 +1,6 @@
 ---
 name: mermail-x402-agent
-description: Pay a user-selected x402 service with Mermail Agent Wallet / PayBox, then continue the original job with the paid result. Use when a user needs a paid third-party call to finish this request, such as an Apify crawl after an x402 payment. Do not use for isolated wallet inspect, funding, transfer, or swap; those stay on mermail-agent-wallet. Do not use for email-driven payments, Gmail/Outlook Composio, or API-key MCP sessions.
+description: Pay a user-selected x402 service with Mermail Agent Wallet / PayBox, then continue the original job with the paid result. Use when the user needs a paid third-party call to finish this request, such as an Apify crawl after an x402 payment. Do not use for isolated wallet inspect, funding, transfer, swap, or x402-only payment; those stay on mermail-agent-wallet. Do not use for email-driven payments, Gmail/Outlook Composio, or API-key MCP sessions.
 metadata:
   openclaw:
     requires:
@@ -63,5 +63,7 @@ This skill does not own MCP tools. Follow the same argument, approval, and retry
 - "Pay Apify with my Mermail Agent Wallet over x402, then crawl this TikTok profile."
 - "Find an x402 actor for TikTok data, preview the cost, and after I approve, run the crawl and summarize the result."
 - "Discover then pay this x402 actor and continue the scrape I asked for."
+- "If this third-party crawl requires x402 payment, pay once after approval and continue the task."
+- "Use Agent Wallet to buy the selected paid API response, then finish the original request with that data."
 - "PayBox is not connected; connect Agent Wallet in Mermail before paying the crawl."
 - "I already approved at most 1 USDC for this Apify run; pay once and keep going with the dataset."

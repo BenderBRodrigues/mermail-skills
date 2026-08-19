@@ -1,6 +1,6 @@
 ---
 name: mermail-manage-inbox
-description: Read, search, inspect, download, organize, move, mark, and delete Mermail emails and threads, and manage mailbox folders or custom-label definitions from Claude, Codex, or another external MCP client. Use for ordinary inbox search and cleanup, bounded thread context, attachment retrieval, read/star state, exact bulk operations, folder CRUD, custom-label rule CRUD, draft discard semantics, or trash management. Use mermail-agent-inbox for active third-party verification, signup, OTP, magic-link, onboarding, receipt-correlation, or order-status flows; use mermail-compose-email for composing, replying, forwarding, sending, or scheduling mail.
+description: Read, search, inspect, download, organize, move, mark, and delete Mermail emails and threads, and manage mailbox folders or custom-label definitions from Claude, Codex, or another external MCP client. Use for ordinary inbox search and cleanup, bounded thread context, attachment retrieval, read/star state, exact bulk operations, folder CRUD, label CRUD, draft discard semantics, or trash management. Use mermail-agent-inbox for expected verification mail and mermail-compose-email for composing or sending mail.
 metadata:
   openclaw:
     requires:
