@@ -12,7 +12,7 @@
     "cursor": "headers with ${env:MERMAIL_API_KEY}"
   },
   "catalog": {
-    "skills": 14,
+    "skills": 15,
     "businessTools": 71,
     "confirmationTools": 1,
     "walletScopedTools": 15

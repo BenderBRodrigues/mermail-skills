@@ -1,0 +1,11 @@
+interface:
+  display_name: "Mermail x402 Agent"
+  short_description: "Pay x402 with Agent Wallet, then finish the original job"
+  default_prompt: "Use $mermail-x402-agent to pay the selected x402 service with Mermail Agent Wallet and continue this task with the paid result."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mermail"
+      description: "Mermail workspace and mailbox MCP server"
+      transport: "streamable_http"
+      url: "https://console.mermail.app/mcp"
