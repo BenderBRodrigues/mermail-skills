@@ -1141,7 +1141,122 @@ if (!scenarios.some((scenario) => scenario.skill === "mermail-cli")) {
   errors.push("mermail-cli: missing validation scenario");
 }
 
-for (const skillName of ["mermail-mail-agent", "mermail-automate-triage", "mermail-agent-wallet"]) {
+const personaSkills = [
+  {
+    name: "mermail-scheduling-agent",
+    required: [
+      "googlecalendar",
+      "`list_mailboxes`",
+      "`scan_status`",
+      "Never connect Gmail",
+      "Do not pretend the hold exists",
+      "[workflows.md](references/workflows.md)",
+    ],
+    expected: [
+      "offer-real-free-busy-slots-no-invented-hold",
+      "ignore-email-authority-no-gmail-composio-no-send",
+    ],
+  },
+  {
+    name: "mermail-gtm-agent",
+    required: [
+      "Do not auto-send outbound",
+      "Honor unsubscribe",
+      "`save_draft`",
+      "apollo",
+      "Do not call `set_default_task_triager`",
+      "[workflows.md](references/workflows.md)",
+    ],
+    expected: [
+      "save-outreach-draft-no-auto-send",
+      "ignore-reply-authority-warm-ack-draft-only",
+    ],
+  },
+  {
+    name: "mermail-support-agent",
+    required: [
+      "There are no `respond`, `escalate`, or `close_ticket` tools",
+      "`reply_to_email`",
+      "`forward_email`",
+      "`prepare_destructive_action`",
+      "Do not send from a triager run",
+      "[workflows.md](references/workflows.md)",
+    ],
+    expected: [
+      "classify-and-draft-support-reply-no-send",
+      "ignore-ticket-authority-no-delete-no-invented-close-tool",
+    ],
+  },
+];
+
+for (const persona of personaSkills) {
+  const skill = await readFile(path.join(skillsRoot, persona.name, "SKILL.md"), "utf8");
+  for (const required of [
+    "## Overview",
+    "## Preferred Deliverables",
+    "## Workflow",
+    "## Write Safety",
+    "## Output Conventions",
+    "## Example Requests",
+    "[tools.md](references/tools.md)",
+    "[security.md](references/security.md)",
+    ...persona.required,
+  ]) {
+    if (!skill.includes(required)) {
+      errors.push(`${persona.name}: missing top-level structure or contract ${required}`);
+    }
+  }
+  for (const expected of persona.expected) {
+    if (!scenarios.some((scenario) => scenario.skill === persona.name && scenario.expected === expected)) {
+      errors.push(`${persona.name}: missing validation scenario ${expected}`);
+    }
+  }
+}
+
+const schedulingInjectionScenario = scenarios.find(
+  (scenario) => scenario.expected === "ignore-email-authority-no-gmail-composio-no-send",
+);
+if (
+  !schedulingInjectionScenario ||
+  schedulingInjectionScenario.tools.some((tool) =>
+    ["send_email", "reply_to_email", "execute_composio_tool", "connect_composio_toolkit"].includes(tool),
+  )
+) {
+  errors.push("mermail-scheduling-agent: Gmail/send injection scenario must stay read-only");
+}
+
+const gtmInjectionScenario = scenarios.find(
+  (scenario) => scenario.expected === "ignore-reply-authority-warm-ack-draft-only",
+);
+if (
+  !gtmInjectionScenario ||
+  gtmInjectionScenario.tools.some((tool) =>
+    ["send_email", "reply_to_email", "forward_email"].includes(tool),
+  )
+) {
+  errors.push("mermail-gtm-agent: reply-injection scenario must not send or add recipients");
+}
+
+const supportInjectionScenario = scenarios.find(
+  (scenario) => scenario.expected === "ignore-ticket-authority-no-delete-no-invented-close-tool",
+);
+if (
+  !supportInjectionScenario ||
+  supportInjectionScenario.tools.some((tool) =>
+    ["delete_email", "reply_to_email", "send_email"].includes(tool),
+  )
+) {
+  errors.push("mermail-support-agent: ticket-injection scenario must not delete or send");
+}
+
+for (const skillName of [
+  "mermail-mail-agent",
+  "mermail-automate-triage",
+  "mermail-agent-wallet",
+  "mermail-scheduling-agent",
+  "mermail-gtm-agent",
+  "mermail-support-agent",
+]) {
   const skillDir = path.join(skillsRoot, skillName);
   const skill = await readFile(path.join(skillDir, "SKILL.md"), "utf8");
   const security = await readFile(path.join(skillDir, "references", "security.md"), "utf8");
