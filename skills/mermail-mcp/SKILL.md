@@ -1,6 +1,6 @@
 ---
 name: mermail-mcp
-description: Configure, verify, and recover the hosted Mermail MCP connection in Codex, Claude, Cursor, OpenClaw, or another external MCP client. Use when installing Mermail, choosing OAuth versus API-key authentication, setting MERMAIL_API_KEY and x-api-key mapping, selecting the full or agent-inbox profile, checking initialize or tools/list, diagnosing 401/402/403/429 and stale tool discovery, validating native JSON arguments, or enabling Agent Wallet prerequisites. Route healthy-connection email, workspace, automation, integration, mailbox-agent, and wallet operations to their domain skills.
+description: Configure, verify, and recover the hosted Mermail MCP connection in Codex, Claude, Cursor, OpenClaw, or another external MCP client. Use when installing Mermail, choosing OAuth versus API-key auth, selecting the full or agent-inbox profile, checking initialize or tools/list, diagnosing 401/402/403/429, or enabling Agent Wallet prerequisites. Route healthy connected business work to the focused domain skills instead.
 metadata:
   openclaw:
     requires:

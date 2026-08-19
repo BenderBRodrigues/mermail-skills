@@ -1,7 +1,7 @@
 interface:
   display_name: "Mermail Support Agent"
-  short_description: "Triage, reply, escalate, and close support email"
-  default_prompt: "Use $mermail-support-agent to triage this support inbox and draft a reply for approval."
+  short_description: "Triage, reply to, and escalate support email"
+  default_prompt: "Use $mermail-support-agent when the job is support triage, drafting customer replies, escalating a ticket, or closing a resolved support thread."
 dependencies:
   tools:
     - type: "mcp"

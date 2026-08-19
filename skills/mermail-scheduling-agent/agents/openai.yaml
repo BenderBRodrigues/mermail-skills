@@ -1,7 +1,7 @@
 interface:
   display_name: "Mermail Scheduling Agent"
-  short_description: "Book time from email using Mermail and Google Calendar"
-  default_prompt: "Use $mermail-scheduling-agent to check calendar availability and confirm this meeting through Mermail."
+  short_description: "Book meetings from email with Google Calendar and Mermail"
+  default_prompt: "Use $mermail-scheduling-agent when the job is scheduling, checking calendar availability, offering slots, or confirming a meeting through Mermail."
 dependencies:
   tools:
     - type: "mcp"

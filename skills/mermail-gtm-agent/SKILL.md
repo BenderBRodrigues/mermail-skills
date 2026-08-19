@@ -1,6 +1,6 @@
 ---
 name: mermail-gtm-agent
-description: Run outbound GTM email, classify replies, and draft warm-acks through a Mermail mailbox. Use when a user wants personalized outreach, reply classification, unsubscribe handling, or a draft-only outbound triager. Optional Apollo research stays in Composio; all sends stay in Mermail. Do not use for calendar booking, support tickets, Gmail/Outlook Composio, or auto-sending without approval.
+description: Run outbound GTM email, classify replies, and draft warm-acks through a Mermail mailbox. Use when the job is personalized outreach, reply classification, unsubscribe handling, or a draft-only outbound workflow. Optional Apollo research stays in Composio; all sends stay in Mermail. Do not use for calendar booking, support tickets, Gmail/Outlook Composio, or auto-sending without approval.
 metadata:
   openclaw:
     requires:

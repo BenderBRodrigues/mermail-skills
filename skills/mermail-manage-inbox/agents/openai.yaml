@@ -1,7 +1,7 @@
 interface:
   display_name: "Manage Mermail Inbox"
-  short_description: "Read, search, and organize Mermail inboxes"
-  default_prompt: "Use $mermail-manage-inbox to find and organize messages in my Mermail inbox."
+  short_description: "Read, search, clean up, and organize inbox messages"
+  default_prompt: "Use $mermail-manage-inbox for ordinary inbox search, cleanup, labels, folders, attachments, and thread review, not OTP or mailbox provisioning."
 dependencies:
   tools:
     - type: "mcp"

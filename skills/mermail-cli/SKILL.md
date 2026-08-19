@@ -1,6 +1,6 @@
 ---
 name: mermail-cli
-description: Install and use the official Mermail CLI for deterministic shell automation across workspaces, mailboxes, email, folders, labels, agents, task triage, and Agent Wallet via MCP OAuth. Use when a user asks for terminal commands, scripts, stable JSON output, CI automation, CLI authentication, wallet CLI commands, or a safe destructive CLI workflow. Prefer direct Mermail MCP tools when they are already available and no shell composition is needed.
+description: Install and use the official Mermail CLI for deterministic shell automation across workspaces, mailboxes, email, folders, labels, agents, task triage, and Agent Wallet via MCP OAuth. Use when a user asks for terminal commands, scripts, CI automation, or stable JSON output. Prefer direct Mermail MCP skills when no shell composition is needed.
 metadata:
   openclaw:
     requires:

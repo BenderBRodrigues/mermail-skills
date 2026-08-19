@@ -1,6 +1,6 @@
 ---
 name: mermail-composio
-description: Connect and use third-party apps through Mermail Composio from Claude, Codex, or another external MCP client. Use when a user wants to inspect connection status, connect or reconnect GitHub, Slack, Apollo, Notion, Google Calendar, or another supported toolkit, discover a provider action and schema, execute an allowed read or write, identify the connected calendar account, or deliberately disconnect a toolkit. Never route Gmail or Outlook email work through Composio; keep email in Mermail.
+description: Connect and use third-party apps through Mermail Composio from Claude, Codex, or another external MCP client. Use when a user wants to inspect connection status, connect or reconnect GitHub, Slack, Apollo, Notion, Google Calendar, or another supported toolkit, discover a provider action and schema, or execute an allowed third-party read or write. Never route Gmail or Outlook email work through Composio; keep email in Mermail.
 metadata:
   openclaw:
     requires:

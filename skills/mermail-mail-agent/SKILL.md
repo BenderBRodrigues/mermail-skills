@@ -1,6 +1,6 @@
 ---
 name: mermail-mail-agent
-description: Manage and delegate work to Mermail mailbox-agent conversations from Claude, Codex, or another external MCP client. Use when a user explicitly wants to create, list, continue, rename, or delete a mailbox-agent conversation, inspect its history, ask the Mermail mailbox Assistant to reason about one mailbox, or continue prior agent work. Do not use for generic email search, third-party signup inboxes, OTP or magic-link retrieval, direct email composition without agent delegation, task-triager configuration, or direct Agent Wallet operations.
+description: Manage and delegate work to Mermail mailbox-agent conversations from Claude, Codex, or another external MCP client. Use when a user explicitly wants to create, list, continue, rename, or delete a mailbox-agent conversation, inspect its history, or ask the Mermail mailbox Assistant to work on a mailbox task. Do not use for generic email search, OTP retrieval, direct email composition without delegation, triager configuration, or Agent Wallet operations.
 metadata:
   openclaw:
     requires:

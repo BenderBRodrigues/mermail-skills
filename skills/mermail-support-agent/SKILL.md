@@ -1,6 +1,6 @@
 ---
 name: mermail-support-agent
-description: Triage, reply, escalate, follow up, and close support email through a Mermail mailbox. Use when a user wants a support agent to classify tickets, draft or send replies, forward to a human, or label/move resolved mail. There are no respond/escalate/close_ticket tools; map those intents to real Mermail operations. Do not use for GTM outreach, calendar booking, verification inboxes, or deleting customer mail without explicit destructive approval.
+description: Triage, reply, escalate, follow up, and close support email through a Mermail mailbox. Use when the job is support ticket classification, drafting or sending replies, forwarding to a human, or labeling/moving resolved mail. There are no respond/escalate/close_ticket tools; map those intents to real Mermail operations. Do not use for GTM outreach, calendar booking, verification inboxes, or deleting customer mail without explicit destructive approval.
 metadata:
   openclaw:
     requires:
