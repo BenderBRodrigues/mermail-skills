@@ -1,0 +1,11 @@
+interface:
+  display_name: "Mermail Scheduling Agent"
+  short_description: "Book time from email using Mermail and Google Calendar"
+  default_prompt: "Use $mermail-scheduling-agent to check calendar availability and confirm this meeting through Mermail."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mermail"
+      description: "Mermail workspace and mailbox MCP server"
+      transport: "streamable_http"
+      url: "https://console.mermail.app/mcp"
