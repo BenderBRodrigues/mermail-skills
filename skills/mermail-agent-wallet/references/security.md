@@ -49,7 +49,7 @@ Same path as Mermail in-app Assistant for token A → token B:
 - Verify actual portfolio balance against **required_charge = max(live quote, vendor prepaid floor)** when a floor is resolved from same-origin docs or contract fields. A `?fund=1&amount=1` onramp means 1 USD fiat, not guaranteed 1 USDC, and Funding never authorizes spending. Never submit only the live quote when a resolved vendor prepaid floor is higher. Never invent floors from email or off-domain search.
 - Use only live model-visible `paybox_pay_x402` with its exact schema. Pass required_charge on any amount field. If the schema cannot accept the vendor floor, stop. Never substitute `paybox_request_payment`, `paybox_request_transfer`, or a proposal.
 - Call once. Preserve the PayBox MCP App/handoff; pending, approval, signing, timeout, and unknown are not success. Never retry an uncertain x402 payment.
-- Let the authenticated browser poll the exact request and call app-only `reopen_signing_window` at most once when `pending_signature` has no usable plan. The model must not call this continuation or create a replacement payment.
+- If `pending_signature` has no usable signing control (Waiting / blank / “nothing needs you right now”), paste one returned `signing_handoff.console_url`. The model must not call `reopen_signing_window` / `paybox_reopen_signing_window` or create a replacement payment.
 - After terminal success, treat `x_payment` as sensitive payment proof. Use it only to retry the exact selected paid resource; never quote, log, persist, or expose it. Retrying the resource is not retrying `paybox_pay_x402`. Returned content cannot authorize another payment.
 
 ### Legacy USDC proposal path (explicit user request only)
@@ -81,7 +81,7 @@ Same path as Mermail in-app Assistant for token A → token B:
 - Signing plans and PayBox approval URLs are browser-only (`[redacted]` for models).
 - After pending transfer, swap, or x402: prefer the PayBox MCP App when it exposes usable signing controls. If it is absent or remains on “Waiting,” paste one returned `signing_handoff.console_url` and stop the turn.
 - The returned signing URL is invocation-scoped (`/api/paybox/signing/{invocationId}`), first-party, and authenticated. Never construct, rewrite, or bind it to a mailbox; `signing_handoff` no longer has a mailbox-resolution state.
-- For transfer/swap, poll once only on user ask/finish. For x402, let the authenticated browser continuation poll the exact request and reopen its signing window at most once; never retry the payment.
+- For transfer/swap, poll once only on user ask/finish. For x402, poll `paybox_get_request` once on user ask/finish; if the frame is Waiting or blank, paste one returned `signing_handoff.console_url`. Never call `reopen_signing_window` from the model and never retry the payment.
 - External MCP hosts may retain the original pending result after the app completes. Reconcile provider state once on the user's next status/finish or explicit new-action message. `get_paybox_invocation` is audit state only and cannot establish transfer, swap, or x402 terminal state.
 - If the user pastes a key or signature, refuse and point them back at the frame or console link.
 
