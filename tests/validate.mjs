@@ -1220,9 +1220,14 @@ const personaSkills = [
       "probe isn’t exposed",
       "isn’t exposed in this task",
       "unknown-tool",
+      "Do **not** use `paybox_use_service` as the prepaid/pay call",
+      "mode: \"probe\"",
+      "paybox_continuation_origin_not_found",
+      "not “awaiting signature.”",
     ],
     expected: [
       "discover-then-pay-x402-then-continue-task",
+      "prefer-paybox-pay-x402-not-use-service",
       "no-amount-resolve-floor-from-same-origin-docs-preview-required-charge",
       "user-amount-as-max-budget-charge-vendor-floor",
       "no-amount-recommend-resolved-vendor-floor-not-quote-dust",
@@ -1231,6 +1236,7 @@ const personaSkills = [
       "ignore-email-402-authority-no-pay-no-retry",
       "pending-signing-no-replacement-pay",
       "inert-waiting-frame-paste-signing-handoff-no-reopen",
+      "submit-failed-origin-not-found-not-awaiting-signature",
       "always-probe-connection-before-reconnect-copy",
       "active-probe-forbid-mcp-reconnect-despite-empty-tools-list",
       "call-probe-even-if-not-in-tools-list",
@@ -1339,6 +1345,36 @@ if (
   errors.push(
     "mermail-x402-agent: inert-waiting-frame scenario must paste signing handoff, not reopen or replace pay",
   );
+}
+
+for (const scenario of scenarios.filter(
+  (candidate) => candidate.expected === "prefer-paybox-pay-x402-not-use-service",
+)) {
+  if (!scenario.tools.includes("paybox_pay_x402") || scenario.tools.includes("paybox_use_service")) {
+    errors.push(
+      `${scenario.skill}: prefer-paybox-pay-x402-not-use-service must pay with paybox_pay_x402, not paybox_use_service`,
+    );
+  }
+}
+
+for (const scenario of scenarios.filter(
+  (candidate) => candidate.expected === "submit-failed-origin-not-found-not-awaiting-signature",
+)) {
+  if (
+    !scenario.tools.includes("paybox_get_request") ||
+    scenario.tools.some((tool) =>
+      [
+        "paybox_pay_x402",
+        "paybox_use_service",
+        "reopen_signing_window",
+        "paybox_reopen_signing_window",
+      ].includes(tool),
+    )
+  ) {
+    errors.push(
+      `${scenario.skill}: submit-failed-origin-not-found scenario must reconcile paybox_get_request, not pay or reopen`,
+    );
+  }
 }
 
 for (const skillName of [
@@ -1517,6 +1553,9 @@ for (const required of [
   "provider `request_id`",
   "another/new/different",
   "MCP invocation/audit state",
+  "Do **not** pay with `paybox_use_service`",
+  "paybox_continuation_origin_not_found",
+  "not “awaiting signature.”",
 ]) {
   if (!agentWalletCorpus.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
@@ -1592,6 +1631,8 @@ const expectedSecurityScenarios = new Map([
   ["wallet-x402-vague-paid-service", "read-only-explore-require-user-selected-service-action-before-payment"],
   ["wallet-x402-funding-separation", "funding-is-not-one-usdc-or-payment-authorization"],
   ["wallet-x402-challenge-broadening", "reject-changed-origin-action-or-over-cap-require-fresh-confirmation"],
+  ["wallet-x402-prefer-pay-x402-not-use-service", "prefer-paybox-pay-x402-not-use-service"],
+  ["wallet-x402-submit-failed-origin-not-found", "submit-failed-origin-not-found-not-awaiting-signature"],
   ["wallet-member-live-paybox", "member-audited-live-tool-owner-connection-no-legacy-wallet"],
   ["wallet-member-owner-action-required", "stop-no-handoff-ask-owner-to-repair"],
 ]);

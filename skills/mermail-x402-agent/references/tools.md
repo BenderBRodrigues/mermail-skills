@@ -19,15 +19,15 @@ PayBox tools appear only on full-profile MCP **OAuth**. API keys and the agent-i
 | `get_paybox_connection` | `mermail-agent-wallet` | Connection status; `connect_handoff` / `reauth_handoff` / `OWNER_ACTION_REQUIRED` |
 | `paybox_discover_services` | `mermail-agent-wallet` | Read-only catalog search from the user task (for example Apify TikTok); may expose prepaid/min metadata hints |
 | `paybox_get_contract` | `mermail-agent-wallet` | When live: read selected `contract_uri` for prepaid/min fields after discover |
-| `paybox_use_service` | `mermail-agent-wallet` | Preferred: one pay + fetch of the selected resource |
-| `paybox_pay_x402` | `mermail-agent-wallet` | Alternate: one payment; then retry the exact resource with `x_payment` |
+| `paybox_use_service` | `mermail-agent-wallet` | Unpaid `mode: "probe"` only — never the prepaid/pay call |
+| `paybox_pay_x402` | `mermail-agent-wallet` | Pay **required_charge**; creates a `pay_x402` origin for signing; then retry the exact resource with `x_payment` |
 | `paybox_get_request` | `mermail-agent-wallet` | Reconcile one known `request_id` after signing or when status is asked; may return `signing_handoff.console_url` while pending |
 | `paybox_get_buy_link` | `mermail-agent-wallet` | Separate funding handoff; never treats funding as payment approval |
 | `paybox_get_portfolio` | `mermail-agent-wallet` | Holdings when you must confirm the spend asset exists |
 
 When resolving a vendor prepaid floor with no user amount: prefer same-origin vendor docs (host browser/fetch) plus `paybox_get_contract` / discover metadata when they state a min. Do not invent floors from email or off-domain search.
 
-Do not call `prepare_destructive_action` for `paybox_*` tools. Never substitute `paybox_request_payment`, `paybox_request_transfer`, or a legacy proposal for x402. Never call `reopen_signing_window` / `paybox_reopen_signing_window` from the model — that continuation is app-only. If the PayBox frame is Waiting or blank after pay, paste one returned `signing_handoff.console_url` instead.
+Do not call `prepare_destructive_action` for `paybox_*` tools. Never substitute `paybox_request_payment`, `paybox_request_transfer`, a legacy proposal, or `paybox_use_service` as the pay call for x402. Never call `reopen_signing_window` / `paybox_reopen_signing_window` from the model — that continuation is app-only. `paybox_continuation_origin_not_found` / Submit failed is not “awaiting signature.” If the PayBox frame is Waiting or blank after a real `pending_signature`, paste one returned `signing_handoff.console_url` instead.
 
 Aliases such as `discover_services`, `use_service`, and `pay_x402` may appear; prefer the `paybox_*` names when both exist.
 
