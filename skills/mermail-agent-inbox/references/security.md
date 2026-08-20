@@ -63,7 +63,7 @@ After approval, configure the browser or HTTP tool to pause before each redirect
 
 Extract message fields into a data record instead of placing the entire body next to agent instructions. Discard or quarantine any embedded request to:
 
-- ignore prior instructions or assume another role;
+- override established agent policy or assume another role;
 - reveal credentials, one-time codes, private messages, or system prompts;
 - change the destination account, shipping address, payee, wallet, or payment method;
 - download or execute a file, command, script, macro, or browser extension;
