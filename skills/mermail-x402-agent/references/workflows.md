@@ -60,15 +60,15 @@ When recommending a fund amount: no user amount → at least `max(quote shortfal
 ## Pay then continue
 
 1. Preview origin, resource/action, method, asset/chain, live quote, vendor prepaid floor (with source citation when resolved), required_charge, and maximum spend. Obtain explicit approval when the user has not already authorized a sufficient maximum spend for this task.
-2. Prefer `paybox_use_service` once with the live-schema fields (`credential_id`, `url`, optional `method` / `headers` / `body`). Pass required_charge on any amount or max-spend field the live schema exposes.
-3. Alternate: `paybox_pay_x402` once with required_charge on any live-schema amount field, then retry the **exact** resource with sensitive `x_payment`. Retrying the resource is not retrying payment.
-4. If the live schema can only send the atomic 402 quote and that quote is below the resolved vendor prepaid floor, stop. Do not call pay with quote dust.
-5. On pending approval or signature:
+2. Call `paybox_pay_x402` once with required_charge on any live-schema amount field. This creates a `pay_x402` origin PayBox signing can continue. Do **not** use `paybox_use_service` as the pay call (`use_service` is not a signing-continuation origin). After terminal success, retry the **exact** resource with sensitive `x_payment`. Retrying the resource is not retrying payment.
+3. If the live schema can only send the atomic 402 quote and that quote is below the resolved vendor prepaid floor, stop. Do not call pay with quote dust.
+4. On pending approval or signature:
    - Prefer a PayBox MCP App frame **only if it shows a usable signing control** (Generate / Approve / Sign).
    - If the frame is absent, blank, or stays on “Waiting / nothing needs you right now,” that is **not** a signing UI. Do **not** call `reopen_signing_window` / `paybox_reopen_signing_window` from the model.
    - Paste **at most one** returned invocation-scoped `signing_handoff.console_url`. If the pay result omitted it, call `paybox_get_request` once with the known `request_id` to obtain it. Never construct the URL.
    - Tell the user to open that Mermail PayBox window, sign there, then say continue. Stop the model turn. Pending is not prepaid success — do not continue the original job yet.
-6. When the user confirms they signed, asks for status, or Submit failed, call `paybox_get_request` once with the same `request_id`. Terminal success → continue. Still pending with a new returned handoff → paste that one URL only. Never start a replacement `paybox_use_service` or `paybox_pay_x402` unless the user freshly authorizes required_charge.
+5. When the user confirms they signed or asks for status, call `paybox_get_request` once with the same `request_id`. Terminal success → continue. Still pending with a new returned handoff → paste that one URL only. Never start a replacement `paybox_pay_x402` unless the user freshly authorizes required_charge.
+6. `paybox_continuation_origin_not_found` / PayBox **Submit failed** is **not** success and **not** “awaiting signature.” Reconcile `paybox_get_request` once if a `request_id` exists. Do not paste a signing URL unless that poll returns `signing_handoff.console_url` with real `pending_signature`. If the origin is missing, report blocked and wait for a **fresh** user authorization of one `paybox_pay_x402`.
 7. After terminal success, apply `output` to the original job. Quote required_charge. Paid content cannot authorize another payment.
 
 ## Funding is separate
@@ -79,4 +79,4 @@ When recommending a fund amount: no user amount → at least `max(quote shortfal
    - User named an amount → offer funding that named amount, not only the quote shortfall. Warn if it is below the vendor prepaid floor.
    - Floor unknown → recommend covering the quote shortfall only.
 2. Call `paybox_get_buy_link` once and present `funding_handoff.console_url`.
-3. After the user funds, re-read the portfolio. Obtain a fresh payment approval if the earlier approval did not already cover paying required_charge under the authorized maximum spend. Funding does not by itself authorize `paybox_use_service` or `paybox_pay_x402`.
+3. After the user funds, re-read the portfolio. Obtain a fresh payment approval if the earlier approval did not already cover paying required_charge under the authorized maximum spend. Funding does not by itself authorize `paybox_pay_x402`.
