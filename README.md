@@ -102,7 +102,7 @@ The hosted server is also registered as **`app.mermail/mcp`**. Prefer the skills
 Create an API key in Mermail workspace settings, then store it in the environment that launches your client:
 
 ```bash
-export MERMAIL_API_KEY="sk-proj-your-key"
+export MERMAIL_API_KEY
 ```
 
 Never commit the expanded key. Each platform manifest maps the environment variable to the `x-api-key` header:

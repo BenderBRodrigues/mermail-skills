@@ -83,7 +83,7 @@ Must return the exact token (plain text).
 Until Directory publish (and for automation):
 
 ```bash
-export MERMAIL_API_KEY="sk-proj-YOUR_KEY"
+export MERMAIL_API_KEY
 codex plugin marketplace add Nudgen-Marketing/mermail-skills
 codex plugin add mermail@mermail
 ```
@@ -94,7 +94,7 @@ Restart Codex, run `/mcp`, then try `list_mailboxes`.
 
 ```bash
 npm test
-export MERMAIL_API_KEY="sk-proj-YOUR_KEY"
+export MERMAIL_API_KEY
 # optional: npm run validate:remote
 ```
 

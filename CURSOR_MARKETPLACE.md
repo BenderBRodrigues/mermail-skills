@@ -37,7 +37,7 @@ https://github.com/Nudgen-Marketing/mermail-skills
 
 ```bash
 # From a clone of this repo
-export MERMAIL_API_KEY="sk-proj-YOUR_KEY"
+export MERMAIL_API_KEY
 ln -sfn "$(pwd)" ~/.cursor/plugins/local/mermail
 npm test
 ```

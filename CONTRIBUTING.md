@@ -70,7 +70,7 @@ CI runs the same validator on every pull request. Do not weaken checks in `tests
 Optional remote contract check (needs a test API key):
 
 ```bash
-export MERMAIL_MCP_TEST_API_KEY="sk-proj-..."
+export MERMAIL_MCP_TEST_API_KEY
 npm run validate:remote
 ```
 
