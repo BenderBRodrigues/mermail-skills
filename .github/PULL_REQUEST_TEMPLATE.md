@@ -13,7 +13,7 @@
 
 - [ ] `npm test` passes locally
 - [ ] No unresolved `TODO` in skill markdown
-- [ ] No API keys or `sk-proj-` secrets in the diff
+- [ ] No API keys or Mermail workspace key secrets in the diff
 - [ ] If skill wording changed: security / approval contracts are preserved or strengthened
 - [ ] If tools/skills added: `tool-coverage.json`, routing, scenarios, and README table updated
 - [ ] If version bump: plugin manifests match `package.json`

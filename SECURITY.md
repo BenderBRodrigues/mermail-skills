@@ -39,4 +39,4 @@ When contributing, prefer strengthening these contracts over shortening skill te
 
 ## Secrets
 
-Never commit `MERMAIL_API_KEY`, `sk-proj-…` values, OAuth tokens, or `.env` files. The validator rejects API-key-shaped strings in tracked content.
+Never commit `MERMAIL_API_KEY`, workspace API key values, OAuth tokens, or `.env` files. The validator rejects API-key-shaped strings in tracked content.

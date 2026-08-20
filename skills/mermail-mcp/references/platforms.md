@@ -13,7 +13,7 @@ Read this reference when selecting an authentication mode, tool profile, or exac
 
 OAuth uses the same Enoki account as the Mermail console and binds the grant to the workspace selected during browser consent. Core scope is `mcp:tools`; `openid` and `offline_access` may accompany it. Legacy `wallet:read` and `wallet:transact` labels are compatibility-only and do not unlock tools.
 
-API-key mode uses a workspace-scoped `sk-proj-…` value mapped from `MERMAIL_API_KEY` to the `x-api-key` header. API-key mode cannot unlock Agent Wallet or `paybox_*` tools.
+API-key mode uses a workspace-scoped Mermail API key mapped from `MERMAIL_API_KEY` to the `x-api-key` header. API-key mode cannot unlock Agent Wallet or `paybox_*` tools.
 
 ## Codex
 

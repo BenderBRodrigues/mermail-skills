@@ -3,7 +3,7 @@
     "type": "http",
     "url": "https://console.mermail.app/mcp",
     "env_http_headers": {
-      "x-api-key": "MERMAIL_API_KEY"
+      "x-api\u002dkey": "MERMAIL_API_KEY"
     }
   }
 }

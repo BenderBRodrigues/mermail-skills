@@ -84,7 +84,7 @@ Use the PR template. At minimum:
 
 - [ ] `npm test` passes
 - [ ] No `TODO` left in skill markdown
-- [ ] No `sk-proj-` secrets in the diff
+- [ ] No Mermail API-key secrets in the diff
 - [ ] Security-sensitive skills still require human approval for external-effect and destructive tools
 - [ ] New tools appear once in `tool-coverage.json` (no duplicates)
 

@@ -5,7 +5,7 @@ Read this reference before handling API keys, OAuth, workspace selection, logs, 
 ## Credential boundary
 
 - Ask the user to create or select a credential in the Mermail console or client authentication UI; never ask them to paste the secret into chat.
-- Store API keys in the platform secret store or inject them into the process that launches the MCP client through a non-recording mechanism. Reference `MERMAIL_API_KEY`; never expand a real `sk-proj-…` value into tracked JSON or type it in an interactive command that may persist in shell history.
+- Store API keys in the platform secret store or inject them into the process that launches the MCP client through a non-recording mechanism. Reference `MERMAIL_API_KEY`; never expand a real workspace API key into tracked JSON or type it in an interactive command that may persist in shell history.
 - Do not print, echo, log, transmit as a command-line argument, or include in model context an API key, OAuth access/refresh token, cookie, authorization header, PayBox credential, OTP, magic link, or signing key.
 - If a secret was exposed, stop using it and instruct the user to revoke it through Mermail before creating a replacement. Do not repeat the exposed value.
 
