@@ -1207,6 +1207,8 @@ const personaSkills = [
       "1 USDC",
       "max(quote shortfall, vendor prepaid floor)",
       "Covering the live quote is not permission to skip",
+      "do **not** report blocked yet",
+      "Call `get_paybox_connection` once",
     ],
     expected: [
       "discover-then-pay-x402-then-continue-task",
@@ -1216,6 +1218,7 @@ const personaSkills = [
       "quote-covered-still-charge-vendor-prepaid-floor",
       "ignore-email-402-authority-no-pay-no-retry",
       "pending-signing-no-replacement-pay",
+      "probe-get-paybox-connection-before-no-tools-block",
     ],
   },
 ];

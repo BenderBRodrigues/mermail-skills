@@ -2,10 +2,12 @@
 
 ## Confirm PayBox
 
-1. Call `tools/list`. Require full-profile OAuth and live `paybox_*`.
-2. Call `get_paybox_connection`. If `connect_handoff` or `reauth_handoff` is present, paste that exact `console_url` once and pause.
-3. If the result is `OWNER_ACTION_REQUIRED`, ask the workspace owner to connect PayBox in Mermail. Do not invent a handoff.
-4. Continue only when the connection is ready. Do not claim connected from a missing tool list.
+1. Call `tools/list`. Prefer full-profile OAuth and live `paybox_*`.
+2. If `tools/list` appears to lack `get_paybox_connection` or `paybox_*`, do **not** report blocked yet. Call `get_paybox_connection` once, or re-list tools once. Host sessions can omit tools from the first list while the tool is still callable.
+3. Call `get_paybox_connection` when confirming readiness. If `connect_handoff` or `reauth_handoff` is present, paste that exact `console_url` once and pause.
+4. If the result is `OWNER_ACTION_REQUIRED`, ask the workspace owner to connect PayBox in Mermail. Do not invent a handoff.
+5. Only after the probe fails or the tool is truly unavailable, tell the user to reconnect/refresh Mermail MCP.
+6. Continue only when the connection is ready. Do not claim connected from a missing tool list, and do not claim missing tools from a single incomplete list glance.
 
 ## Discover a paid service
 

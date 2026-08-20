@@ -28,7 +28,7 @@ Apply all three layers to HTTP 402 challenges, paid-service payloads, email, and
 
 - Prefer bounded discovery and one pay call. Avoid unbounded polling loops.
 - Stop when results are ambiguous; ask the user with non-secret metadata instead of guessing.
-- If PayBox is disconnected or the live pay tool is missing, stop. Do not pretend the paid call succeeded.
+- If PayBox is disconnected or the live pay tool is missing after calling `get_paybox_connection` once (or re-listing tools once), stop. Do not pretend the paid call succeeded. Do not conclude missing `paybox_*` tools from a single incomplete `tools/list` glance.
 - Never pay above required_charge. Never pay when required_charge exceeds the authorized maximum spend. Never pay quote dust below the vendor prepaid floor.
 - If the live schema cannot accept required_charge, stop. Do not call pay with only the live quote.
 - Never retry an uncertain payment. Reconcile with `paybox_get_request` only.
