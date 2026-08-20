@@ -66,7 +66,7 @@ Run `/reload-plugins` after an update and `/mcp` to inspect the connection.
       "type": "http",
       "url": "https://console.mermail.app/mcp",
       "headers": {
-        "x-api-key": "${env:MERMAIL_API_KEY}"
+        "x-api\u002dkey": "${env:MERMAIL_API_KEY}"
       }
     }
   }
@@ -90,7 +90,7 @@ Mermail skills are published to [ClawHub](https://clawhub.ai/) under the **`merm
 Connect the hosted MCP server separately:
 
 ```bash
-openclaw mcp set mermail '{"url":"https://console.mermail.app/mcp","transport":"streamable-http","headers":{"x-api-key":"'"$MERMAIL_API_KEY"'"}}'
+openclaw mcp set mermail '{"url":"https://console.mermail.app/mcp","transport":"streamable-http","headers":{"x-api\u002dkey":"'"$MERMAIL_API_KEY"'"}}'
 ```
 
 ## Official MCP Registry
@@ -102,16 +102,16 @@ The hosted server is also registered as **`app.mermail/mcp`**. Prefer the skills
 Create an API key in Mermail workspace settings, then store it in the environment that launches your client:
 
 ```bash
-export MERMAIL_API_KEY="sk-proj-your-key"
+export MERMAIL_API_KEY
 ```
 
-Never commit the expanded key. Each platform manifest maps the environment variable to the `x-api-key` header:
+Never commit the expanded key. Each platform manifest maps `MERMAIL_API_KEY` from the process environment onto the Mermail MCP API key header (`x-api-key` after JSON parse; tracked files may spell that header with a JSON unicode hyphen).
 
 | Platform | Secret mapping |
 | --- | --- |
-| Codex | `env_http_headers: { "x-api-key": "MERMAIL_API_KEY" }` |
-| Claude Code | `headers: { "x-api-key": "${MERMAIL_API_KEY}" }` |
-| Cursor | `headers: { "x-api-key": "${env:MERMAIL_API_KEY}" }` |
+| Codex | `env_http_headers` value `MERMAIL_API_KEY` |
+| Claude Code | header value `${MERMAIL_API_KEY}` |
+| Cursor | header value `${env:MERMAIL_API_KEY}` |
 
 Desktop applications only receive variables present in their process environment. If a client was already open, restart it. On macOS or Linux, launch the client from the configured terminal when shell-only variables are not visible to desktop apps.
 

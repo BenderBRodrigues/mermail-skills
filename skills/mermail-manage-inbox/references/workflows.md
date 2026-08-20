@@ -44,7 +44,7 @@ If the user asks to reorder definitions, toggle label detection, or manually lab
 4. Freeze arguments, obtain exact authorization, prepare the matching destructive action, and execute once.
 5. For bulk results, report `deletedCount`, `trashedCount`, and `cancelledScheduledCount` separately.
 
-Do not tell the user a regular draft was moved to Trash. Do not tell them a scheduled draft was deleted when it was only cancelled and retained.
+Never report a regular draft as moved to Trash. Never report a scheduled draft as deleted when it was only cancelled and retained.
 
 ## Empty Trash
 

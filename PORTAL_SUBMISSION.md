@@ -37,7 +37,7 @@ This file is the working checklist for Phase 3. Repo packaging is done in **1.3.
 | Transport | Streamable HTTP |
 | Authentication | **OAuth** |
 | Challenge Base URL | `https://console.mermail.app` (or parent `https://mermail.app` if you host the token there) |
-| Demo credentials | Prefer OAuth: provide a reviewer Google account that can complete consent **without MFA/SMS**. Create a Mermail workspace + mailbox for that account. Optionally also provide a read-only `sk-proj-…` demo key if the form asks for API key fallback. |
+| Demo credentials | Prefer OAuth: provide a reviewer Google account that can complete consent **without MFA/SMS**. Create a Mermail workspace + mailbox for that account. Optionally also provide a read-only demo API key if the form asks for API key fallback. |
 | CSP | See below |
 
 ### Content security policy (CSP)

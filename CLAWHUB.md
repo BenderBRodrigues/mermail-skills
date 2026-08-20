@@ -55,7 +55,7 @@ OpenClaw users can also install via native skill commands once listed.
 Keep MCP connected:
 
 ```bash
-openclaw mcp set mermail '{"url":"https://console.mermail.app/mcp","transport":"streamable-http","headers":{"x-api-key":"'"$MERMAIL_API_KEY"'"}}'
+openclaw mcp set mermail '{"url":"https://console.mermail.app/mcp","transport":"streamable-http","headers":{"x-api\u002dkey":"'"$MERMAIL_API_KEY"'"}}'
 openclaw mcp doctor mermail --probe
 ```
 

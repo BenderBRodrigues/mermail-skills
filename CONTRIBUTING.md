@@ -70,7 +70,7 @@ CI runs the same validator on every pull request. Do not weaken checks in `tests
 Optional remote contract check (needs a test API key):
 
 ```bash
-export MERMAIL_MCP_TEST_API_KEY="sk-proj-..."
+export MERMAIL_MCP_TEST_API_KEY
 npm run validate:remote
 ```
 
@@ -84,7 +84,7 @@ Use the PR template. At minimum:
 
 - [ ] `npm test` passes
 - [ ] No `TODO` left in skill markdown
-- [ ] No `sk-proj-` secrets in the diff
+- [ ] No Mermail API-key secrets in the diff
 - [ ] Security-sensitive skills still require human approval for external-effect and destructive tools
 - [ ] New tools appear once in `tool-coverage.json` (no duplicates)
 

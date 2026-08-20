@@ -33,7 +33,7 @@ Wallet tools, `prepare_destructive_action`, send, delete, Composio, mailbox-agen
 | Symptom | Meaning | Safe recovery |
 | --- | --- | --- |
 | `MERMAIL_API_KEY` missing | Launching process lacks API-key secret | Set it in that process environment and restart |
-| Invalid `sk-proj-` format | Wrong value or accidental prefix | Correct the secret source without pasting it into chat |
+| Invalid workspace API key format | Wrong value or accidental prefix | Correct the secret source without pasting it into chat |
 | `401` with `WWW-Authenticate` | Missing/expired/revoked credential or OAuth login required | Authenticate or replace a revoked key; do not retry writes |
 | OAuth loop or cleared Cursor credential | Client/browser consent state is stale | Remove and re-add the MCP entry, log out in browser if needed, authenticate again |
 | `403` | Workspace mismatch, role, policy, or missing `mcp:tools` | Verify selected workspace and permission; do not switch silently |

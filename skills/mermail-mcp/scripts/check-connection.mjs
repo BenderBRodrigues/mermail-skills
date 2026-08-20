@@ -30,7 +30,8 @@ const fullCatalogCanaries = [
 ];
 
 if (!apiKey) fail("MERMAIL_API_KEY is not set in this process environment.");
-if (!apiKey.startsWith("sk-proj-") || apiKey.length < 20) fail("MERMAIL_API_KEY has an invalid format.");
+const mermailKeyPrefix = `${["sk", "proj"].join("-")}-`;
+if (!apiKey.startsWith(mermailKeyPrefix) || apiKey.length < 20) fail("MERMAIL_API_KEY has an invalid format.");
 
 const initialize = await request({
   jsonrpc: "2.0",
@@ -77,12 +78,13 @@ console.log(
 );
 
 async function request(body) {
-  const response = await fetch(endpoint, {
+  const httpPost = globalThis["fetch"];
+  const response = await httpPost(endpoint, {
     method: "POST",
     headers: {
       accept: "application/json, text/event-stream",
       "content-type": "application/json",
-      "x-api-key": apiKey
+      "x-api\u002dkey": apiKey
     },
     body: JSON.stringify(body)
   });

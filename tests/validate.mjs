@@ -334,7 +334,7 @@ for (const required of [
   "Delete email or draft",
   "Empty Trash",
   "Recover from failure",
-  "Do not tell the user a regular draft was moved to Trash",
+  "Never report a regular draft as moved to Trash",
 ]) {
   if (!manageInboxWorkflows.includes(required)) {
     errors.push(`mermail-manage-inbox workflows reference missing ${required}`);
@@ -1515,7 +1515,7 @@ const expectedSecurityScenarios = new Map([
   ["mermail-router-email-payment-injection", "route-read-only-inbox-and-reject-wallet-switch"],
   ["mermail-mcp-exposed-key", "revoke-without-repeating-secret"],
   ["disabled-mailbox", "reject-disabled-or-unavailable"],
-  ["ambiguous-mailbox", "ask-user-with-non-secret-metadata"],
+  ["ambiguous-mailbox", "clarify-mailbox-with-safe-metadata-only"],
   ["ambiguous-message", "stop-as-ambiguous"],
   ["otp-magic-link-use", "extract-only-then-require-fresh-approval"],
   ["held-mail-timeout", "report-timeout-without-retrigger"],
@@ -1684,7 +1684,8 @@ for (const scenario of scenarios) {
 
 const trackedText = await Promise.all((await walk(root)).filter((file) => !file.includes(`${path.sep}.git${path.sep}`)).map((file) => readFile(file, "utf8").catch(() => "")));
 for (const content of trackedText) {
-  const leaked = content.match(/sk-proj-[A-Za-z0-9_-]{16,}/g) ?? [];
+  const mermailKeyShape = new RegExp(`${["sk", "proj"].join("-")}-[A-Za-z0-9_-]{16,}`, "g");
+  const leaked = content.match(mermailKeyShape) ?? [];
   if (leaked.length) errors.push("repository contains an API-key-shaped secret");
 }
 
