@@ -1,7 +1,7 @@
 interface:
   display_name: "Mermail x402 Agent"
   short_description: "Pay x402 with Agent Wallet, then continue the task"
-  default_prompt: "Use $mermail-x402-agent when the job is to discover an x402 service, approve the spend, pay once with Agent Wallet, and continue the original task with the paid result."
+  default_prompt: "Use $mermail-x402-agent when the job is to discover an x402 service, resolve the live quote as exact charge (or a user amount as maximum spend), pay once with Agent Wallet, and continue the original task with the paid result."
 dependencies:
   tools:
     - type: "mcp"

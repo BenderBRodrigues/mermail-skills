@@ -14,9 +14,16 @@
 3. If nothing matches, stop. Do not invent Apify or any other host as always listed.
 4. Optional unpaid probe: `paybox_use_service` with `mode: "probe"` when that field exists on the live schema. Do not pay in probe mode.
 
+## Resolve amount
+
+1. Read the live quote as the **exact charge**. Never invent a quote. Never overpay the x402 endpoint to match a larger user number.
+2. If the user did **not** state an amount, treat the live quote as the required minimum. Preview that minimum before asking approval to pay.
+3. If the user stated an amount (for example “pay 1 USDC” or “at most 1 USDC”), treat it as **maximum spend**. When the live quote is within that envelope, pay the live quote and continue. Do not refuse because the endpoint cannot accept an overpay. Do not force the user to retype the exact minimum quote.
+4. If the live quote exceeds the authorized maximum spend, stop and report quote versus cap. Do not pay.
+
 ## Pay then continue
 
-1. Preview origin, resource/action, method, asset/chain, live quote, and maximum spend. Obtain explicit approval.
+1. Preview origin, resource/action, method, asset/chain, live quote as exact charge, and maximum spend. Obtain explicit approval when the user has not already authorized a sufficient maximum spend for this task.
 2. Prefer `paybox_use_service` once with the live-schema fields (`credential_id`, `url`, optional `method` / `headers` / `body`).
 3. Alternate: `paybox_pay_x402` once, then retry the **exact** resource with sensitive `x_payment`. Retrying the resource is not retrying payment.
 4. On pending approval or signature, use the PayBox MCP App or one returned `signing_handoff.console_url`. Stop the model turn.
@@ -25,5 +32,8 @@
 
 ## Funding is separate
 
-1. If the portfolio cannot cover the approved cap, call `paybox_get_buy_link` once and present `funding_handoff.console_url`.
-2. After the user funds, re-read the portfolio. Obtain a fresh payment approval. Funding does not authorize `paybox_use_service` or `paybox_pay_x402`.
+1. If the portfolio cannot cover the live quote:
+   - No user amount → recommend funding at least the shortfall needed for the quote.
+   - User named an amount → offer funding that named amount, not only the minimum shortfall.
+2. Call `paybox_get_buy_link` once and present `funding_handoff.console_url`.
+3. After the user funds, re-read the portfolio. Obtain a fresh payment approval if the earlier approval did not already cover paying the live quote under the authorized maximum spend. Funding does not by itself authorize `paybox_use_service` or `paybox_pay_x402`.
