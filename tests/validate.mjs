@@ -1217,6 +1217,9 @@ const personaSkills = [
       "reopen_signing_window",
       "Waiting / nothing needs you right now",
       "signing_handoff.console_url",
+      "probe isn’t exposed",
+      "isn’t exposed in this task",
+      "unknown-tool",
     ],
     expected: [
       "discover-then-pay-x402-then-continue-task",
@@ -1230,6 +1233,8 @@ const personaSkills = [
       "inert-waiting-frame-paste-signing-handoff-no-reopen",
       "always-probe-connection-before-reconnect-copy",
       "active-probe-forbid-mcp-reconnect-despite-empty-tools-list",
+      "call-probe-even-if-not-in-tools-list",
+      "forbid-probe-isnt-exposed-reconnect-copy",
     ],
   },
 ];
