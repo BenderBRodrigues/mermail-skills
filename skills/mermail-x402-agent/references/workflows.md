@@ -2,11 +2,11 @@
 
 ## Confirm PayBox
 
-1. **Always** call `get_paybox_connection` once. Do not wait for `tools/list` to look empty. Prefer full-profile OAuth. Never claim `MERMAIL_API_KEY` can authorize PayBox.
-2. If the probe succeeds with a usable connection (`ACTIVE`, or ready without `connect_handoff` / `reauth_handoff` / `OWNER_ACTION_REQUIRED`): continue. Host sessions can omit `paybox_*` from the first `tools/list` while tools remain callable. **Forbidden** after a successful probe: tell the user to refresh/reconnect Mermail MCP solely because `tools/list` looked empty, or say PayBox tools are unavailable “in this task session.” Attempt `paybox_discover_services` / pay tools even if the first list glance looked empty.
+1. **Always** `tools/call` `get_paybox_connection` once as the first PayBox action. Do not wait for it to appear in `tools/list`. Absence from a host list is **not** “not exposed.” Prefer full-profile OAuth. Never claim `MERMAIL_API_KEY` can authorize PayBox. There is no separate OAuth-scope check before this call.
+2. If the probe succeeds with a usable connection (`ACTIVE`, or ready without `connect_handoff` / `reauth_handoff` / `OWNER_ACTION_REQUIRED`): continue. Host sessions can omit `paybox_*` from the first `tools/list` while tools remain callable. **Forbidden** after skipping the call or after a successful probe: tell the user to refresh/reconnect Mermail MCP solely because `tools/list` looked empty; say PayBox tools are unavailable “in this task session”; say the “probe isn’t exposed”; or say it “isn’t exposed in this task.” Attempt `paybox_discover_services` / pay tools even if the first list glance looked empty.
 3. If `connect_handoff` or `reauth_handoff` is present, paste that exact `console_url` once and pause. Do **not** frame these as “MCP PayBox tools missing.”
 4. If the result is `OWNER_ACTION_REQUIRED`, ask the workspace owner to connect PayBox in Mermail. Do not invent a handoff. Do not frame this as missing MCP tools.
-5. Only if `get_paybox_connection` itself is missing or hard-fails after that one attempt, tell the user to reconnect/refresh Mermail MCP with full-profile OAuth.
+5. Reconnect/refresh Mermail MCP with full-profile OAuth **only** after that **call** returns unknown-tool, method-not-found, or a hard fail. Do **not** reconnect because `tools/list` omitted the name.
 6. Optional `tools/list` / re-list is for reading live schemas after the probe — not for deciding reconnect. Do not claim connected from a missing tool list, and do not claim missing tools from a single incomplete list glance when the connection probe succeeded.
 
 ## Discover a paid service

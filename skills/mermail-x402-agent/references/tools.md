@@ -4,7 +4,7 @@ This workflow **uses** tools owned by other official skills. Do not add them to 
 
 Pass structured arguments as **native JSON objects**. Never stringify `query` or `body`. Use the exact host identifier (`paybox_pay_x402` or `Mermail:paybox_pay_x402`). Prefer mailbox `public_id` as `mailboxId`.
 
-PayBox tools appear only on full-profile MCP **OAuth**. API keys and the agent-inbox profile never expose them. **Always** call `get_paybox_connection` once before claiming PayBox tools are unavailable or asking to reconnect MCP. After a usable/`ACTIVE` probe, continue even if the first `tools/list` glance omitted `paybox_*`. Read live schemas from `tools/list` after the probe. Additional reviewed `paybox_*` tools (including `paybox_discover_services` and `paybox_use_service`) may appear without a separate coverage row; use them when live, still under `mermail-agent-wallet` contracts.
+PayBox tools appear only on full-profile MCP **OAuth**. API keys and the agent-inbox profile never expose them. **Always** `tools/call` `get_paybox_connection` once before claiming PayBox tools are unavailable or asking to reconnect MCP. Absence from a host `tools/list` is **not** “not exposed.” After a usable/`ACTIVE` probe, continue even if the first `tools/list` glance omitted `paybox_*`. Reconnect MCP only after that call returns unknown-tool, method-not-found, or a hard fail. Read live schemas from `tools/list` after the probe. Additional reviewed `paybox_*` tools (including `paybox_discover_services` and `paybox_use_service`) may appear without a separate coverage row; use them when live, still under `mermail-agent-wallet` contracts.
 
 ## Mailbox
 
