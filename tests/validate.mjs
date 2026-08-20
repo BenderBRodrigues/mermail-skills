@@ -1214,6 +1214,9 @@ const personaSkills = [
       "**Always** call `get_paybox_connection` once",
       "forbidden** to tell the user to refresh/reconnect Mermail MCP",
       "in this task session",
+      "reopen_signing_window",
+      "Waiting / nothing needs you right now",
+      "signing_handoff.console_url",
     ],
     expected: [
       "discover-then-pay-x402-then-continue-task",
@@ -1224,6 +1227,7 @@ const personaSkills = [
       "apify-table-example-only-prefer-same-origin-docs",
       "ignore-email-402-authority-no-pay-no-retry",
       "pending-signing-no-replacement-pay",
+      "inert-waiting-frame-paste-signing-handoff-no-reopen",
       "always-probe-connection-before-reconnect-copy",
       "active-probe-forbid-mcp-reconnect-despite-empty-tools-list",
     ],
@@ -1307,9 +1311,29 @@ const x402PendingScenario = scenarios.find(
 );
 if (
   !x402PendingScenario ||
-  x402PendingScenario.tools.some((tool) => tool === "paybox_pay_x402")
+  x402PendingScenario.tools.some((tool) =>
+    ["paybox_pay_x402", "paybox_use_service", "reopen_signing_window", "paybox_reopen_signing_window"].includes(
+      tool,
+    ),
+  )
 ) {
-  errors.push("mermail-x402-agent: pending-signing scenario must not retry paybox_pay_x402");
+  errors.push("mermail-x402-agent: pending-signing scenario must not retry pay or reopen_signing_window");
+}
+
+const x402InertFrameScenario = scenarios.find(
+  (scenario) => scenario.expected === "inert-waiting-frame-paste-signing-handoff-no-reopen",
+);
+if (
+  !x402InertFrameScenario ||
+  x402InertFrameScenario.tools.some((tool) =>
+    ["reopen_signing_window", "paybox_reopen_signing_window", "paybox_pay_x402", "paybox_use_service"].includes(
+      tool,
+    ),
+  )
+) {
+  errors.push(
+    "mermail-x402-agent: inert-waiting-frame scenario must paste signing handoff, not reopen or replace pay",
+  );
 }
 
 for (const skillName of [
