@@ -29,7 +29,7 @@ When resolving a vendor prepaid floor with no user amount: prefer same-origin ve
 
 Do not call `prepare_destructive_action` for `paybox_*` tools. Never substitute `paybox_request_payment`, `paybox_request_transfer`, a legacy proposal, or `paybox_use_service` as the pay call for x402. Never call `reopen_signing_window` / `paybox_reopen_signing_window` from the model — that continuation is app-only. `paybox_continuation_origin_not_found` / Submit failed is not “awaiting signature.” If the PayBox frame is Waiting or blank after a real `pending_signature`, paste one returned `signing_handoff.console_url` instead.
 
-`x_payment` is sensitive payment proof for retrying the **same** 402 URL once. A vendor session credential (token / API key / Bearer / credits) is for the **follow-on** API from same-origin docs — keep it in-session only; do not replay the settled mint/pay URL. Neither belongs in chat.
+`x_payment` is sensitive payment proof for retrying the **same frozen request** once. Its field name does not define the wire header; use the selected origin's live 402 contract/protocol version and never guess `X-PAYMENT` versus `PAYMENT-SIGNATURE`. A vendor session credential (token / API key / Bearer / credits) is for the **follow-on** API from same-origin docs — keep it in-session only; do not replay the settled mint/pay URL. Mermail scrubs credential fields from model-visible PayBox output, so a mint flow needs a live server-side continuation/proxy verified before payment; otherwise stop `blocked_before_payment`. Neither proof nor credential belongs in chat.
 
 Aliases such as `discover_services`, `use_service`, and `pay_x402` may appear; prefer the `paybox_*` names when both exist.
 
