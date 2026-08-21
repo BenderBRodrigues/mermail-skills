@@ -1227,8 +1227,10 @@ const personaSkills = [
       "classify paid output",
       "vendor session credential",
       "paid_and_blocked",
+      "blocked_before_payment",
       "Do not invent Apify or any other host",
       "not a vendor allowlist",
+      "Never guess a header name",
     ],
     expected: [
       "discover-then-pay-x402-then-continue-task",
@@ -1246,6 +1248,8 @@ const personaSkills = [
       "any-x402-vendor-classify-from-live-output-not-apify-playbook",
       "vendor-session-credential-no-replay-settled-pay-url",
       "redacted-credential-no-replacement-pay",
+      "credential-channel-preflight-blocks-before-payment",
+      "proof-replay-uses-live-contract-and-frozen-request",
       "always-probe-connection-before-reconnect-copy",
       "active-probe-forbid-mcp-reconnect-despite-empty-tools-list",
       "call-probe-even-if-not-in-tools-list",
@@ -1353,6 +1357,34 @@ if (
 ) {
   errors.push(
     "mermail-x402-agent: inert-waiting-frame scenario must paste signing handoff, not reopen or replace pay",
+  );
+}
+
+const x402CredentialPreflightScenario = scenarios.find(
+  (scenario) => scenario.expected === "credential-channel-preflight-blocks-before-payment",
+);
+if (
+  !x402CredentialPreflightScenario ||
+  x402CredentialPreflightScenario.tools.some((tool) =>
+    ["paybox_pay_x402", "paybox_use_service"].includes(tool),
+  )
+) {
+  errors.push(
+    "mermail-x402-agent: inaccessible credential preflight must stop before any payment",
+  );
+}
+
+const x402ProofReplayScenario = scenarios.find(
+  (scenario) => scenario.expected === "proof-replay-uses-live-contract-and-frozen-request",
+);
+if (
+  !x402ProofReplayScenario ||
+  x402ProofReplayScenario.tools.some((tool) =>
+    ["paybox_pay_x402", "paybox_use_service"].includes(tool),
+  )
+) {
+  errors.push(
+    "mermail-x402-agent: proof replay must use the settled proof without another payment",
   );
 }
 

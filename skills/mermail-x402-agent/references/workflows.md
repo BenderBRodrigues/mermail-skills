@@ -17,6 +17,20 @@
 4. Optional unpaid probe: `paybox_use_service` with `mode: "probe"` when that field exists on the live schema. Do not pay in probe mode.
 5. Lock origin, resource/action, chain, and asset before resolving amount.
 
+## Preflight the fulfillment contract
+
+Do this before amount approval or payment.
+
+1. Freeze the exact paid request from the selected origin's live 402 challenge/contract and same-origin docs: method, URL, query/body, relevant request headers, protocol/version, and the user's selected follow-on job.
+2. Classify the expected result:
+   - **Direct resource:** the paid response is the requested data/action result.
+   - **Proof replay:** payment returns a proof that must be attached to the exact frozen request once.
+   - **Credential / prepaid credit:** payment mints a token, API key, session, or credits used on a separately documented follow-on API.
+3. Verify the continuation channel is available **before paying**:
+   - Proof replay requires a host client that can resend the frozen request with the proof mechanism named by the live challenge/contract. A field named `x_payment` does not establish whether the header is `X-PAYMENT`, `PAYMENT-SIGNATURE`, or something else.
+   - Credential flows require a live PayBox/vendor proxy or approved server-side continuation that can consume the secret without exposing it to chat or model context. Mermail model output scrubs fields such as `token`, API key, Bearer, and authorization. Shell/browser calls cannot use a credential that was already scrubbed before reaching the model.
+4. If a credential will be inaccessible and no secure continuation exists, stop as `blocked_before_payment`. Do not pay to test whether the response will be redacted. If the class or channel remains ambiguous after same-origin lookup and an unpaid probe, stop and ask for non-secret contract details.
+
 ## Resolve amount
 
 1. Read the **live quote** from the HTTP 402 / catalog. Never invent a quote.
@@ -69,8 +83,8 @@ When recommending a fund amount: no user amount → at least `max(quote shortfal
    - Tell the user to open that Mermail PayBox window, sign there, then say continue. Stop the model turn. Pending is not prepaid success — do not continue the original job yet.
 5. When the user confirms they signed or asks for status, call `paybox_get_request` once with the same `request_id`. Terminal success → continue. Still pending with a new returned handoff → paste that one URL only. Never start a replacement `paybox_pay_x402` unless the user freshly authorizes required_charge.
 6. `paybox_continuation_origin_not_found` / PayBox **Submit failed** is **not** success and **not** “awaiting signature.” Reconcile `paybox_get_request` once if a `request_id` exists. Do not paste a signing URL unless that poll returns `signing_handoff.console_url` with real `pending_signature`. If the origin is missing, report blocked and wait for a **fresh** user authorization of one `paybox_pay_x402`.
-7. After terminal success, **classify paid output** once from live `output` plus same-origin vendor docs (not a vendor allowlist):
-   - **Direct paid resource:** `output` *is* the original job — deliver it. If the result is `x_payment` (or equivalent proof) for the **same** 402 URL the user selected, retry that URL **once** with the proof. Retrying the resource is not retrying payment.
+7. After terminal success, verify live `output` against the preflight fulfillment contract (not a vendor allowlist). Reclassify only when the output clearly establishes another safe class:
+   - **Direct paid resource:** `output` *is* the original job — deliver it. If the result is `x_payment` (or equivalent proof), retry the exact frozen method, URL, query/body, and headers **once** using the proof mechanism from this origin's live challenge/contract. Never guess the header from the field name. Retrying the resource is not retrying payment.
    - **Vendor session credential:** token / API key / Bearer / credits for a **follow-on** API/resource, or the paid URL is a mint/credits/prepaid-tokens/session endpoint that differs from the user-selected follow-on. Follow-on URL, auth style, and body shape come from **this vendor’s** same-origin docs plus live output. Keep the credential in-session tool arguments only (never print, log, persist, or paste it in chat). Immediately call that follow-on. That call is not a second payment and does not need a second PayBox approval. **Forbidden:** replay the settled mint/pay URL with `x_payment` or a second `paybox_pay_x402`; copy Apify prepaid-mint steps (or any other vendor’s continue shape) onto a different origin; skip classify because the vendor is not Apify. Apify mint-then-Actor is a labeled, non-authoritative example of this class, not an allowlist.
    - **Redacted after settlement:** host hid the mint body. Do not invent a token. Do not start a replacement payment. Report `paid_and_blocked` (or `uncertain` if settlement itself is unclear). Quote charged required_charge. The original job is unfinished; unused vendor credit may remain per that vendor’s same-origin policy. Optional: vendor balance URL from those docs only if it does not require the missing secret.
    - Vendor rejects replay with already-settled / authorization-used: stop replay; if a credential is still in session, use the follow-on path; otherwise `paid_and_blocked`.
