@@ -3,7 +3,6 @@ name: Publish skills to ClawHub
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   pull_request:
     paths:
       - "skills/**"
@@ -13,6 +12,12 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  # marketplace-release creates a tag from the same main commit; publishing only
+  # from main avoids duplicate ClawHub submissions for identical source.
+  group: clawhub-skill-publish
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -26,6 +31,19 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
+          cache: npm
+
+      - name: Validate skills and release metadata
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          npm ci
+          npm test
+          if [[ -n "$RELEASE_TAG" ]]; then
+            node scripts/release-state.mjs --tag "$RELEASE_TAG"
+          else
+            node scripts/release-state.mjs
+          fi
 
       - name: Install ClawHub CLI
         run: npm i -g clawhub@0.23.3

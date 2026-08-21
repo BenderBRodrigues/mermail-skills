@@ -68,7 +68,7 @@ node skills/mermail-mcp/scripts/check-connection.mjs
 
 1. Confirm https://cursor.com/marketplace search for **Mermail** returns the plugin.
 2. Update landing `/agents` Cursor note from “team marketplace / local” → “install from Cursor Marketplace”.
-3. For later releases: bump `version` in `package.json` + all plugin manifests, push, and request re-index/review (updates are also manually reviewed).
+3. For later releases: bump `version` in `package.json` + all plugin manifests and merge to `main`. The release workflow validates version parity, creates the matching `vX.Y.Z` tag and GitHub release once, and opens the required Cursor re-index/review issue. Public Cursor updates are manually reviewed; team marketplaces connected through the GitHub App refresh automatically.
 
 ## Parallel discovery (optional)
 

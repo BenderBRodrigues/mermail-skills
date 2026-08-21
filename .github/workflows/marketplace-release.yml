@@ -1,0 +1,146 @@
+name: Release skills to marketplaces
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "skills/**"
+      - "assets/**"
+      - ".codex-plugin/**"
+      - ".claude-plugin/**"
+      - ".cursor-plugin/**"
+      - ".plugin/**"
+      - ".mcp.json"
+      - ".github/workflows/marketplace-release.yml"
+  pull_request:
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "skills/**"
+      - "assets/**"
+      - ".codex-plugin/**"
+      - ".claude-plugin/**"
+      - ".cursor-plugin/**"
+      - ".plugin/**"
+      - ".mcp.json"
+      - ".github/workflows/marketplace-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  # The main-branch run creates the release tag itself. Serialize manual retries
+  # with it so GitHub tag/release creation cannot race across refs.
+  group: skills-marketplace-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Require a version bump for publishable PR changes
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          CHANGED="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          if ! grep -Eq '^(skills/|assets/|\.codex-plugin/|\.claude-plugin/|\.cursor-plugin/|\.plugin/|\.mcp\.json$)' <<< "$CHANGED"; then
+            exit 0
+          fi
+          BASE_VERSION="$(git show "$BASE_SHA:package.json" | node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>console.log(JSON.parse(s).version))")"
+          CURRENT_VERSION="$(node -p "require('./package.json').version")"
+          if [[ "$BASE_VERSION" == "$CURRENT_VERSION" ]]; then
+            echo "Publishable skill/plugin changes require a package.json version bump." >&2
+            exit 1
+          fi
+
+      - name: Validate release tag and every plugin manifest
+        id: release
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            node scripts/release-state.mjs | tee "$RUNNER_TEMP/release-state.json"
+          else
+            RELEASE_TAG="${RELEASE_TAG:-v${VERSION}}"
+            node scripts/release-state.mjs --tag "$RELEASE_TAG" | tee "$RUNNER_TEMP/release-state.json"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=${RELEASE_TAG:-}" >> "$GITHUB_OUTPUT"
+
+      - name: Create or verify the exact release tag
+        if: github.event_name != 'pull_request' && github.ref_type != 'tag'
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG"
+            test "$(git rev-list -n 1 "$TAG")" = "$GITHUB_SHA" || {
+              echo "$TAG already points to a different commit" >&2
+              exit 1
+            }
+          else
+            git tag -a "$TAG" -m "$TAG"
+            git push origin "$TAG"
+          fi
+
+      - name: Create GitHub release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --generate-notes --verify-tag
+          fi
+
+      # Cursor's public marketplace has no public publish API. Updates remain
+      # manually reviewed, so make that gate visible and impossible to forget.
+      - name: Open Cursor public marketplace re-index gate
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          TITLE="Cursor Marketplace re-index: Mermail v${VERSION}"
+          NUMBER="$(gh issue list --state open --limit 100 --json number,title \
+            --jq ".[] | select(.title == \"${TITLE}\") | .number" | head -n 1)"
+          if [[ -n "$NUMBER" ]]; then
+            echo "Cursor re-index gate already exists: #${NUMBER}"
+            exit 0
+          fi
+          BODY="$RUNNER_TEMP/cursor-marketplace-reindex.md"
+          {
+            echo "A tagged Mermail skills release is ready, but Cursor Public Marketplace updates require a publisher re-index request and manual review."
+            echo
+            echo "- [ ] Request re-index/review for tag \`v${VERSION}\`"
+            echo "- [ ] Confirm the public listing reports version \`${VERSION}\`"
+            echo "- [ ] Confirm the hosted Mermail MCP connection and one read-only tool"
+            echo
+            echo "ClawHub publishes from the same tag/main source automatically. Team Cursor marketplaces connected through the GitHub App refresh automatically."
+          } > "$BODY"
+          gh issue create --title "$TITLE" --body-file "$BODY"
