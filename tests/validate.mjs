@@ -1848,6 +1848,35 @@ for (const content of trackedText) {
   if (leaked.length) errors.push("repository contains an API-key-shaped secret");
 }
 
+const marketplaceReleaseWorkflow = await readFile(
+  path.join(root, ".github", "workflows", "marketplace-release.yml"),
+  "utf8",
+);
+const clawHubWorkflow = await readFile(
+  path.join(root, ".github", "workflows", "clawhub-skill-publish.yml"),
+  "utf8",
+);
+const upstreamCliWorkflow = await readFile(
+  path.join(root, ".github", "workflows", "upstream-cli-release.yml"),
+  "utf8",
+);
+if (marketplaceReleaseWorkflow.includes('tags: ["v*"]')) {
+  errors.push("marketplace release must not retrigger from its generated tag");
+}
+if (clawHubWorkflow.includes('tags: ["v*"]')) {
+  errors.push("ClawHub publish must not duplicate the main release from its generated tag");
+}
+for (const required of [
+  "types: [mermail-cli-compatible, mermail-cli-released]",
+  'SOURCE_REPOSITORY" == "Nudgen-Marketing/mermail-cli"',
+  "npm run validate:remote",
+  "Stop when skills synchronization is required",
+]) {
+  if (!upstreamCliWorkflow.includes(required)) {
+    errors.push(`upstream CLI workflow missing ${required}`);
+  }
+}
+
 if (process.argv.includes("--remote")) await validateRemote();
 
 await validatePluginManifests();

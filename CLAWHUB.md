@@ -61,7 +61,9 @@ openclaw mcp doctor mermail --probe
 
 ## CI (optional)
 
-After creating a ClawHub token and storing it as `CLAWHUB_TOKEN` in GitHub Actions secrets, [`.github/workflows/clawhub-skill-publish.yml`](./.github/workflows/clawhub-skill-publish.yml) publishes on `main` / tags. Pull requests against `skills/**` run the same job in `--dry-run`.
+After creating a ClawHub token and storing it as `CLAWHUB_TOKEN` in GitHub Actions secrets, [`.github/workflows/clawhub-skill-publish.yml`](./.github/workflows/clawhub-skill-publish.yml) publishes once from `main`. Pull requests against `skills/**` run the same job in `--dry-run`; the release tag created from that main commit does not trigger a duplicate upload.
+
+Publishable skill/plugin changes must bump `package.json` and every plugin manifest together. [`.github/workflows/marketplace-release.yml`](./.github/workflows/marketplace-release.yml) enforces that policy, creates the matching `vX.Y.Z` tag/release from `main`, and opens the manual Cursor Public Marketplace re-index gate. Cursor team marketplaces connected through the GitHub App refresh automatically.
 
 The job installs pinned `clawhub@0.23.3` and runs [`scripts/clawhub-ci-publish.py`](./scripts/clawhub-ci-publish.py). That wrapper treats CLI statuses `published`, `unchanged`, `would-publish`, `pending-publication`, and `submitted` as success. `pending-publication` means ClawHub accepted the upload and is still running security scans; the skill becomes public after those finish. Do not use OpenClaw’s reusable `skill-publish.yml@main` — it treats `pending-publication` as a parse error and fails the job after a successful upload.
 

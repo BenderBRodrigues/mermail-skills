@@ -60,6 +60,8 @@ When shipping a version bump:
 3. Run `npm test` (and `validate:remote` when cutting a tagged release if secrets are available)
 4. ClawHub publish follows existing [CLAWHUB.md](./CLAWHUB.md) / workflow on `main`
 
+`upstream-cli-release.yml` receives `mermail-cli-compatible` or `mermail-cli-released` repository dispatch events from `Nudgen-Marketing/mermail-cli`. It runs local release validation plus the live MCP contract check. A mismatch opens a version-specific issue and stops the chain; a compatible release records a successful orchestration summary without inventing a skills version bump.
+
 ## Repo settings (manual)
 
 Org admins should keep:
