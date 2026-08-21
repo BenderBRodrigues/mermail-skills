@@ -1224,6 +1224,11 @@ const personaSkills = [
       "mode: \"probe\"",
       "paybox_continuation_origin_not_found",
       "not “awaiting signature.”",
+      "classify paid output",
+      "vendor session credential",
+      "paid_and_blocked",
+      "Do not invent Apify or any other host",
+      "not a vendor allowlist",
     ],
     expected: [
       "discover-then-pay-x402-then-continue-task",
@@ -1237,6 +1242,10 @@ const personaSkills = [
       "pending-signing-no-replacement-pay",
       "inert-waiting-frame-paste-signing-handoff-no-reopen",
       "submit-failed-origin-not-found-not-awaiting-signature",
+      "classify-paid-output-before-continue",
+      "any-x402-vendor-classify-from-live-output-not-apify-playbook",
+      "vendor-session-credential-no-replay-settled-pay-url",
+      "redacted-credential-no-replacement-pay",
       "always-probe-connection-before-reconnect-copy",
       "active-probe-forbid-mcp-reconnect-despite-empty-tools-list",
       "call-probe-even-if-not-in-tools-list",
@@ -1374,6 +1383,36 @@ for (const scenario of scenarios.filter(
     errors.push(
       `${scenario.skill}: submit-failed-origin-not-found scenario must reconcile paybox_get_request, not pay or reopen`,
     );
+  }
+}
+
+for (const scenario of scenarios.filter(
+  (candidate) => candidate.expected === "vendor-session-credential-no-replay-settled-pay-url",
+)) {
+  if (
+    scenario.tools.some((tool) =>
+      ["paybox_pay_x402", "paybox_use_service", "reopen_signing_window", "paybox_reopen_signing_window"].includes(
+        tool,
+      ),
+    )
+  ) {
+    errors.push(
+      `${scenario.skill}: vendor-session-credential scenario must not replay pay or reopen after settlement`,
+    );
+  }
+}
+
+for (const scenario of scenarios.filter(
+  (candidate) => candidate.expected === "redacted-credential-no-replacement-pay",
+)) {
+  if (
+    scenario.tools.some((tool) =>
+      ["paybox_pay_x402", "paybox_use_service", "reopen_signing_window", "paybox_reopen_signing_window"].includes(
+        tool,
+      ),
+    )
+  ) {
+    errors.push(`${scenario.skill}: redacted-credential scenario must not start a replacement pay`);
   }
 }
 
@@ -1556,6 +1595,8 @@ for (const required of [
   "Do **not** pay with `paybox_use_service`",
   "paybox_continuation_origin_not_found",
   "not “awaiting signature.”",
+  "classify paid output",
+  "vendor session credential",
 ]) {
   if (!agentWalletCorpus.includes(required)) {
     errors.push(`mermail-agent-wallet: missing contract ${required}`);
@@ -1633,6 +1674,7 @@ const expectedSecurityScenarios = new Map([
   ["wallet-x402-challenge-broadening", "reject-changed-origin-action-or-over-cap-require-fresh-confirmation"],
   ["wallet-x402-prefer-pay-x402-not-use-service", "prefer-paybox-pay-x402-not-use-service"],
   ["wallet-x402-submit-failed-origin-not-found", "submit-failed-origin-not-found-not-awaiting-signature"],
+  ["wallet-x402-vendor-session-no-replay", "vendor-session-credential-no-replay-settled-pay-url"],
   ["wallet-member-live-paybox", "member-audited-live-tool-owner-connection-no-legacy-wallet"],
   ["wallet-member-owner-action-required", "stop-no-handoff-ask-owner-to-repair"],
 ]);
