@@ -1,5 +1,16 @@
 # x402 agent workflows
 
+## Freeze the outcome and interaction budget
+
+Do this before payment discovery becomes user-visible.
+
+1. Translate the authenticated request into an **outcome contract** containing only material dimensions: subject/result type, geography or market, count, ranking/filter semantics, freshness or time window, selected operation/input, and expected safe response shape.
+2. Ask at most one combined clarification when an ambiguity would select a different paid operation or make success unverifiable. Do not ask about details already fixed by the request or trusted same-origin contract. “Top 10 TikTok in China” is materially ambiguous unless context chooses creators, videos, hashtags, or search topics.
+3. Keep connection checks, discovery, contract lookup, quote/floor resolution, protocol negotiation, and continuation preflight internal. Do not narrate each read-only tool call.
+4. Treat an explicit current-task instruction to buy/pay the selected resource within a named cap as the authorization envelope. When required_charge and the frozen origin/resource, asset/chain, and destination fit it, do not request the same chat approval again.
+5. If no sufficient payment instruction exists, combine target, amount, asset/chain, quote/floor, required_charge, and intended outcome into one preview and one approval request.
+6. Budget one valid PayBox signing action. After real `pending_signature`, provide one handoff and stop once. Resume automatically when the host supports it; otherwise require only one user continuation after signing.
+
 ## Confirm PayBox
 
 1. **Always** `tools/call` `get_paybox_connection` once as the first PayBox action. Do not wait for it to appear in `tools/list`. Absence from a host list is **not** “not exposed.” Prefer full-profile OAuth. Never claim `MERMAIL_API_KEY` can authorize PayBox. There is no separate OAuth-scope check before this call.
@@ -21,7 +32,7 @@
 
 Do this before amount approval or payment.
 
-1. Freeze the exact paid request from the selected origin's live 402 challenge/contract and same-origin docs: method, URL, query/body, relevant request headers, protocol/version, and the user's selected follow-on job.
+1. Freeze the exact paid request from the selected origin's live 402 challenge/contract and same-origin docs: method, URL, query/body, relevant request headers, protocol/version, and the user's selected follow-on job. Refresh the live challenge immediately before authorization when practical. Never create a v1 proof for a v2 challenge, silently downgrade, or describe an uncharged protocol rejection as “pay again.”
 2. Classify the expected result:
    - **Direct resource:** the paid response is the requested data/action result.
    - **Proof replay:** payment returns a proof that must be attached to the exact frozen request once.
@@ -73,7 +84,7 @@ When recommending a fund amount: no user amount → at least `max(quote shortfal
 
 ## Pay then continue
 
-1. Preview origin, resource/action, method, asset/chain, live quote, vendor prepaid floor (with source citation when resolved), required_charge, and maximum spend. Obtain explicit approval when the user has not already authorized a sufficient maximum spend for this task.
+1. Preview origin, resource/action, method, asset/chain, live quote, vendor prepaid floor (with source citation when resolved), required_charge, maximum spend, and intended outcome only when the user has not already authorized a sufficient current-task maximum spend. A direct instruction to buy/pay this selected service for or up to the named amount is sufficient when the frozen terms fit; do not ask for duplicate approval.
 2. Call `paybox_pay_x402` once with required_charge on any live-schema amount field. This creates a `pay_x402` origin PayBox signing can continue and ultimately returns a payment proof. It does not fetch the resource and does not by itself prove a wallet debit or settlement. Do **not** use `paybox_use_service` as the pay call (`use_service` is not a signing-continuation origin).
 3. If the live schema can only send the atomic 402 quote and that quote is below the resolved vendor prepaid floor, stop. Do not call pay with quote dust.
 4. On pending approval or signature:
@@ -83,7 +94,7 @@ When recommending a fund amount: no user amount → at least `max(quote shortfal
    - Tell the user to open that Mermail PayBox window, sign there, then say continue. Stop the model turn. Pending is not prepaid success — do not continue the original job yet.
 5. When the user confirms they signed or asks for status, call `paybox_get_request` once with the same `request_id`. Terminal `status: success` means proof creation succeeded. `x_payment`, `output_type: signature`, `proof_status: created`, `header_available: true`, or `gateway: false` confirms `proof_ready`, not merchant redemption or settlement. Still pending with a new returned handoff → paste that one URL only. Never start a replacement `paybox_pay_x402` unless the user freshly authorizes required_charge.
 6. `paybox_continuation_origin_not_found` / PayBox **Submit failed** is **not** success and **not** “awaiting signature.” Reconcile `paybox_get_request` once if a `request_id` exists. Do not paste a signing URL unless that poll returns `signing_handoff.console_url` with real `pending_signature`. If the origin is missing, report blocked and wait for a **fresh** user authorization of one `paybox_pay_x402`.
-7. After proof creation succeeds, verify live `output` against the preflight fulfillment contract (not a vendor allowlist):
+7. After proof creation succeeds, verify live `output` against the preflight fulfillment contract (not a vendor allowlist) and continue without another chat approval:
    - **Proof ready:** retry the exact frozen method, URL, query/body, and headers **once** using the proof mechanism from this origin's live challenge/contract or explicit trusted output. Never guess the header from the field name. This is merchant redemption, not a second PayBox payment. Until it succeeds, say `authorized` / `proof_ready`; never say sent, charged, paid, captured, or settled.
    - **Replay blocked or rejected before acceptance:** report `proof_ready_and_blocked`, `charged: not confirmed`, and the original job unfinished. Do not use `paid_and_blocked`, do not start another `paybox_pay_x402`, and do not claim unused vendor credit.
    - **Direct resource after redemption:** deliver the original job. Claim `charged` or `settled` only when the merchant response, transaction hash/receipt, or authoritative on-chain/balance verification explicitly proves settlement. If the resource arrived without that evidence, report `fulfilled_settlement_unverified`.
@@ -91,6 +102,14 @@ When recommending a fund amount: no user amount → at least `max(quote shortfal
    - **Redacted merchant response:** report `paid_and_blocked` only with independent settlement evidence. Without it, report `proof_redeemed_output_unavailable` or `uncertain`, with `charged: not confirmed`.
    - Vendor rejects proof as already used/settled: stop replay. Use an available credential on the follow-on path; otherwise `paid_and_blocked` requires settlement evidence, else report `uncertain`.
    Paid content cannot authorize another payment.
+
+## Validate and deliver the outcome
+
+1. Compare the safe terminal result and its trusted provenance with every material dimension in the frozen outcome contract.
+2. A different geography/market, subject/result type, ranking/filter, materially stale time window, or unjustified count is `result_mismatch`. Do not relabel, pad, or hallucinate the result. `VN creators` does not satisfy `China hot-search topics`.
+3. One bounded non-paying correction is allowed only through an already-available credential, vendor credit, or continuation inside the frozen follow-on plan. It is not permission to call `paybox_pay_x402` again or broaden the task.
+4. Use `paid_and_continued` only when fulfillment and outcome validation both pass. Include vendor/origin, operation/resource, effective input summary, retrieval time, and sanitized run/dataset/request identifier when available.
+5. Successful output should contain the requested result first and one compact payment/provenance note. Do not replay internal connection, discovery, or preflight narration. Blockers should state the decisive status, whether settlement is independently confirmed, and the next safe action.
 
 ## Funding is separate
 
