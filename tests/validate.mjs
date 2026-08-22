@@ -1224,13 +1224,18 @@ const personaSkills = [
       "mode: \"probe\"",
       "paybox_continuation_origin_not_found",
       "not “awaiting signature.”",
-      "classify paid output",
+      "After proof creation succeeds",
       "vendor session credential",
       "paid_and_blocked",
       "blocked_before_payment",
       "Do not invent Apify or any other host",
       "not a vendor allowlist",
       "Never guess a header name",
+      "proof_ready",
+      "proof_ready_and_blocked",
+      "proof_status: created",
+      "gateway: false",
+      "Show a charged amount only when settlement evidence exists",
     ],
     expected: [
       "discover-then-pay-x402-then-continue-task",
@@ -1250,6 +1255,8 @@ const personaSkills = [
       "redacted-credential-no-replacement-pay",
       "credential-channel-preflight-blocks-before-payment",
       "proof-replay-uses-live-contract-and-frozen-request",
+      "proof-created-not-settled-replay-before-charge-claim",
+      "proof-replay-blocked-not-paid-and-blocked",
       "always-probe-connection-before-reconnect-copy",
       "active-probe-forbid-mcp-reconnect-despite-empty-tools-list",
       "call-probe-even-if-not-in-tools-list",
@@ -1384,8 +1391,27 @@ if (
   )
 ) {
   errors.push(
-    "mermail-x402-agent: proof replay must use the settled proof without another payment",
+    "mermail-x402-agent: proof replay must use the created proof without another payment",
   );
+}
+
+for (const expected of [
+  "proof-created-not-settled-replay-before-charge-claim",
+  "proof-replay-blocked-not-paid-and-blocked",
+]) {
+  const scenario = scenarios.find((candidate) => candidate.expected === expected);
+  if (
+    !scenario ||
+    scenario.tools.some((tool) =>
+      ["paybox_pay_x402", "paybox_use_service", "reopen_signing_window", "paybox_reopen_signing_window"].includes(
+        tool,
+      ),
+    )
+  ) {
+    errors.push(
+      `mermail-x402-agent: ${expected} must not create another payment or signing continuation`,
+    );
+  }
 }
 
 for (const scenario of scenarios.filter(
