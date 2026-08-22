@@ -1236,6 +1236,12 @@ const personaSkills = [
       "proof_status: created",
       "gateway: false",
       "Show a charged amount only when settlement evidence exists",
+      "outcome contract",
+      "## Interaction Budget",
+      "Ask at most one combined clarification",
+      "result_mismatch",
+      "Wrong geography",
+      "Keep normal success concise",
     ],
     expected: [
       "discover-then-pay-x402-then-continue-task",
@@ -1261,6 +1267,10 @@ const personaSkills = [
       "active-probe-forbid-mcp-reconnect-despite-empty-tools-list",
       "call-probe-even-if-not-in-tools-list",
       "forbid-probe-isnt-exposed-reconnect-copy",
+      "explicit-cap-no-duplicate-chat-approval",
+      "one-combined-outcome-clarification-before-payment",
+      "result-mismatch-no-success-no-repayment",
+      "protocol-mismatch-not-second-payment",
     ],
   },
 ];
@@ -1398,6 +1408,8 @@ if (
 for (const expected of [
   "proof-created-not-settled-replay-before-charge-claim",
   "proof-replay-blocked-not-paid-and-blocked",
+  "result-mismatch-no-success-no-repayment",
+  "protocol-mismatch-not-second-payment",
 ]) {
   const scenario = scenarios.find((candidate) => candidate.expected === expected);
   if (
