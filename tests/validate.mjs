@@ -1987,6 +1987,9 @@ async function authenticatedMcpRequest(apiKey, body) {
 
 async function validatePluginManifests() {
   const version = JSON.parse(await readFile(path.join(root, "package.json"), "utf8")).version;
+  if (compatibility.pluginVersion !== version) {
+    errors.push("compatibility.json: pluginVersion must match package.json");
+  }
   const manifests = [
     ".codex-plugin/plugin.json",
     ".claude-plugin/plugin.json",
@@ -2121,6 +2124,13 @@ async function validatePluginManifests() {
   }
   try {
     await stat(path.join(root, "assets", "logo.svg"));
+    const cursorLogo = await readFile(path.join(root, "assets", "logo.svg"), "utf8");
+    if (!cursorLogo.includes('fill="#158F93"')) {
+      errors.push("assets/logo.svg: Cursor logo background must use primary #158F93");
+    }
+    if (!cursorLogo.includes('fill="#FFFFFF"')) {
+      errors.push("assets/logo.svg: Cursor logo mark must be white");
+    }
   } catch {
     errors.push("assets/logo.svg is required for Cursor Marketplace");
   }
