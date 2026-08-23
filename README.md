@@ -51,29 +51,25 @@ Run `/reload-plugins` after an update and `/mcp` to inspect the connection.
 **Option A — Cursor Marketplace (preferred once listed)**
 
 1. Open [cursor.com/marketplace](https://cursor.com/marketplace) and search **Mermail**, or install after this repo is approved.
-2. Export `MERMAIL_API_KEY` in the environment that launches Cursor, then reload.
+2. Select **Install**, then **Authenticate** to connect your Mermail workspace with OAuth.
 3. Publisher checklist: [CURSOR_MARKETPLACE.md](./CURSOR_MARKETPLACE.md).
 
 **Option B — Cursor MCP settings (manual)**
 
-1. Export `MERMAIL_API_KEY` in the environment that launches Cursor (desktop apps do not see shell-only vars from other terminals).
-2. Add a remote HTTP server in Cursor MCP settings:
+1. Add the hosted server URL in Cursor MCP settings:
 
 ```json
 {
   "mcpServers": {
     "mermail": {
       "type": "http",
-      "url": "https://console.mermail.app/mcp",
-      "headers": {
-        "x-api\u002dkey": "${env:MERMAIL_API_KEY}"
-      }
+      "url": "https://console.mermail.app/mcp"
     }
   }
 }
 ```
 
-3. Reload Cursor and inspect Mermail under MCP tools.
+2. Select **Authenticate**, approve access in Mermail, then inspect Mermail under MCP tools.
 
 **Option C — Local / team plugin**
 
@@ -99,7 +95,7 @@ The hosted server is also registered as **`app.mermail/mcp`**. Prefer the skills
 
 ## Configure authentication
 
-Create an API key in Mermail workspace settings, then store it in the environment that launches your client:
+Interactive clients should use OAuth. API keys are reserved for CLI, headless jobs, and clients without OAuth; create one in Mermail workspace settings and inject it into the launching process:
 
 ```bash
 export MERMAIL_API_KEY
@@ -111,7 +107,7 @@ Never commit the expanded key. Each platform manifest maps `MERMAIL_API_KEY` fro
 | --- | --- |
 | Codex | `env_http_headers` value `MERMAIL_API_KEY` |
 | Claude Code | header value `${MERMAIL_API_KEY}` |
-| Cursor | header value `${env:MERMAIL_API_KEY}` |
+| Cursor | OAuth through `https://console.mermail.app/mcp` |
 
 Desktop applications only receive variables present in their process environment. If a client was already open, restart it. On macOS or Linux, launch the client from the configured terminal when shell-only variables are not visible to desktop apps.
 

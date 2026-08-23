@@ -2147,7 +2147,7 @@ async function validatePluginManifests() {
   if (cursor.mcpServers?.mermail?.url !== coverage.mcpEndpoint) {
     errors.push(`Cursor MCP config URL must be ${coverage.mcpEndpoint}`);
   }
-  if (cursor.mcpServers?.mermail?.headers?.["x-api-key"] !== "${env:MERMAIL_API_KEY}") {
-    errors.push("Cursor MCP config must expand MERMAIL_API_KEY in x-api-key");
+  if ("headers" in (cursor.mcpServers?.mermail ?? {})) {
+    errors.push("Cursor Marketplace MCP config must use OAuth discovery without static headers");
   }
 }

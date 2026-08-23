@@ -2,10 +2,7 @@
   "mcpServers": {
     "mermail": {
       "type": "http",
-      "url": "https://console.mermail.app/mcp",
-      "headers": {
-        "x-api\u002dkey": "${env:MERMAIL_API_KEY}"
-      }
+      "url": "https://console.mermail.app/mcp"
     }
   }
 }

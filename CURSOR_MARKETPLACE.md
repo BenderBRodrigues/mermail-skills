@@ -27,7 +27,7 @@ https://github.com/Nudgen-Marketing/mermail-skills
 - [x] `logo`: [`assets/logo.svg`](./assets/logo.svg)
 - [x] `skills`: `./skills/` (15 workflows)
 - [x] `mcpServers`: [`.cursor-plugin/mcp.json`](./.cursor-plugin/mcp.json) → hosted Streamable HTTP
-- [x] Auth via `${env:MERMAIL_API_KEY}` (no secrets in repo)
+- [x] OAuth discovery through the hosted MCP endpoint (no secrets or manual environment variables)
 - [x] README documents install + auth
 - [ ] Local smoke test (below)
 - [ ] Submit form + accept publisher terms
@@ -37,18 +37,11 @@ https://github.com/Nudgen-Marketing/mermail-skills
 
 ```bash
 # From a clone of this repo
-export MERMAIL_API_KEY
 ln -sfn "$(pwd)" ~/.cursor/plugins/local/mermail
 npm test
 ```
 
-Then in Cursor: **Developer: Reload Window** → open MCP tools → confirm `mermail` appears and a read-only tool (e.g. `list_mailboxes`) works.
-
-Optional connection check:
-
-```bash
-node skills/mermail-mcp/scripts/check-connection.mjs
-```
+Then in Cursor: **Developer: Reload Window** → open MCP tools → select **Authenticate** → approve Mermail OAuth → confirm `mermail` appears and a read-only tool (for example `list_mailboxes`) works.
 
 ## Form copy (paste into publish UI)
 
@@ -58,7 +51,7 @@ node skills/mermail-mcp/scripts/check-connection.mjs
 | Plugin name | `mermail` |
 | Display name | Mermail |
 | Short pitch | Give Cursor agents a real Mermail inbox over Streamable HTTP MCP — read, draft, send, triage. |
-| Longer description | Mermail packages Agent Skills plus a remote MCP server (`https://console.mermail.app/mcp`, Official Registry id `app.mermail/mcp`). Users create a workspace API key, set `MERMAIL_API_KEY`, and install this plugin. Includes 15 skills covering agent inbox provisioning and verification mail, inbox management, compose/send, workspace admin, task triage, mailbox-agent chat, Composio third-party connect/execute, scheduling/GTM/support/x402 agent workflows, and OAuth-scoped Agent Wallet / PayBox transfers. Destructive tools require MCP confirmation tokens. |
+| Longer description | Mermail packages 15 Agent Skills plus a hosted Streamable HTTP MCP server (`https://console.mermail.app/mcp`, Official Registry id `app.mermail/mcp`). Install the plugin, authenticate with Mermail OAuth, and use agent inboxes, verification mail, inbox management, compose/send, workspace admin, task triage, mailbox-agent chat, Composio integrations, scheduling, GTM, support, and x402/Agent Wallet workflows. Destructive tools require MCP confirmation tokens. |
 | Categories / tags | productivity, email, mcp, ai-agent, automation |
 | Homepage | https://docs.mermail.app/ai/skills |
 | Support email | contact@mermail.app |
